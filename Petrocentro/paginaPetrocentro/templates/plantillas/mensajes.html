@@ -1,0 +1,21 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                Swal.fire({
+                    icon:'success',
+                    title: 'Exito',
+                    text: '{{ message }}',
+                });
+                {%else%}
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '{{ message }}',
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    });
+</script>

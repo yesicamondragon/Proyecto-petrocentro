@@ -1,0 +1,198 @@
+
+
+{% extends "plantillas/plantilla.html" %}
+
+{%load static %}
+
+{% block titulo %} Petrocentro Oil and Gas, Well Testing, Petroleo {% endblock %}
+
+{% block nav%}
+
+
+    <!-- Barra de navegacion-->
+    <nav class="nav-2" >
+        <div class="logo">
+            <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+        </div>
+        <div class="botones"  >
+            {% if request.resolver_match.url_name == 'index'    %}
+            <a class="little-boton " href="{% url 'index' %}">INICIO</a>
+            {% else %}
+            <a class="boton " href="{% url 'index' %}">INICIO</a>
+            {% endif %}
+            <a class="boton"  href="{% url 'servicios' %}">SERVICIOS</a>
+            <a class="boton"  href="{% url 'nosotros' %}">NOSOTROS</a>
+            <a class="boton"  href="{% url 'contacto'%}">CONTACTO</a>
+            <a class="boton"  href="{% url 'pqrs' %}">PQRS</a>
+        </div>
+        {% if user.is_authenticated %}
+            
+            <div class="buton-cerrar">
+                {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
+                {% else %}
+                
+                    <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
+                {% endif %}
+                <ul class="lista-perfil" id="lista-perfil">
+                <li class="imagen">
+                    {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
+                    {% else %}
+                    
+                    <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
+                    {% endif %}
+                </li>
+                <li class="informacion-perfil">
+                    <h4> {{ user.username }} </h4>
+                    
+                </li>
+                <li class="correo-perfil">
+                    <p> {{ user.email }} </p>
+                </li>
+                <div class="perfil-cerrar">
+                
+        
+                    <a href="{% url 'perfil' %}">
+                        <i class="fa-solid fa-user-pen icons"></i>
+                        &nbsp;Perfil
+                
+            
+                    
+                </li>
+                <li>
+                    <a href=" {% url 'logout_view' %} ">
+                        <i class="fa-duotone fa-sign-out"></i> &nbsp; Cerrar Sesion
+                    </a>
+                </li>
+                </div>
+                <li>
+                
+            </ul>
+            </div>
+                {% else %}
+                <div class="buton">
+                    <button  onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+                </div>
+        {% endif %}
+    </nav>
+
+{% endblock %}
+
+{% block contenido %} 
+    <!-- Imágen de Fondo-->
+    <section class="container-img">
+        <div  >
+            <img class="img-fluid" src="{% static '/images/fondo.webp'%}" alt="">
+        </div>
+        <div class="img-luid flyer">
+            
+        </div>
+
+    </section>
+    <div class="dolar-hoy">
+        <p type="text" name=""   id="dolar"> Dólar hoy: ${{ dolar }} </p>
+        
+    </div>
+
+
+    <!-- Letras de Fondo -->
+    <section class="letras">  
+        <div class="LP">
+            <h1>Especialistas en Servicios Oil & Gas</h1>
+            <p>Somos una empresa innovadora en la prestación de Servicios integrales para el diseño, montaje, operación, y mantenimiento de facilidades de producción en superficie para Gas y/o Petróleo y Well Testing</p>
+            <button type="button" onclick="window.location.href='{% url 'contacto'%}'">CONTÁCTANOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
+            <button class="boton-servicios" type="button" onclick="window.location.href='{% url 'servicios'%}'">SERVICIOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
+            <p type="text" name=""  class="text-light" id="petroleo"></p>
+
+        </div>
+    </section>
+
+      <!-- Clientes-->
+    <section class="c">
+        <div class="l" data-aos="fade-down">
+            <h1>  Socios Comerciales  </h1>
+            <p>En Petrocentro S.A.S, no solo nos esforzamos por cumplir con las expectativas de nuestros clientes, sino que nos comprometemos a superarlas en cada proyecto. Nuestra reputación se basa en la calidad de nuestro trabajo, la integridad de nuestro equipo y nuestro compromiso inquebrantable con la excelencia en todo lo que hacemos.</p>
+        </div>
+
+        <!-- Logos de los clientes-->
+        <div class="imagenes" data-aos="fade-up">
+            <img class="ecopetrol" src="{% static 'images/ecopetrol.webp'%}" alt="">
+            <img class="lupatech" src="{% static '/images/lupatech.webp'%}" alt="">
+            <img class="gran" src="{% static '/images/GranTierra.webp'%}" alt="">
+            <img class="mansa" src="{% static '/images/Mansarovar.webp'%}" alt="">
+            <img class="sygma" src="{% static '/images/Sygna.webp'%}" alt="">
+            <img class="setip" src="{% static '/images/setip.webp'%}" alt="">
+            <img class="cpp" src="{% static '/images/CPP.webp'%}" alt="">
+            <img class="cppp" src="{% static '/images/CPPP.webp'%}" alt="">
+        </div>
+    </section>
+    
+    <!--Oferta de servicios-->
+    <section class="servicios">
+        <div class="let" data-aos="fade-down">
+            <h1>Oferta de Servicios</h1>
+            <p>Especializados en una amplia gama de servicios, desde well testing hasta pruebas y controles rigurosos, nuestro equipo altamente capacitado y experimentado garantiza resultados superiores en cada etapa del proceso. Nos destacamos por nuestra capacidad para adaptarnos a las necesidades específicas de cada cliente, ofreciendo soluciones personalizadas que optimizan la productividad y la seguridad en el campo petrolero.</p>
+        </div>   
+           
+        <!-- Cards de promocion de servicios-->
+        <div class="card-group" data-aos="fade-up">
+                <div class="card" >
+                    <h5 class="card-title">Pruebas Iniciales y Extensas</h5>
+
+                  <div class="card-body">
+                    <img src="{% static '/images/nosotros_2.webp'%}" class="card-img-top" alt="...">
+
+                    <p class="card-text"> Diseño, suministro y fabricación de equipos. 
+                        Tratamiento de crudo en superficie</p>
+                    <a class="a" href="{% url 'servicios' %}"> Ver más &nbsp; <i class="fa-solid fa-arrow-right"></i> </a>
+                     
+                  </div>
+                </div>
+                <div class="card">
+                    <h5 class="card-title">Well testing</h5>
+                    <div class="card-body">
+                            <img src="{% static '/images/WT.webp'%}" class="card-img-top" alt="...">
+                        <p class="card-text">Montaje y operación de facilidades en superficie</p>       
+                        <a class="a" href="{% url 'servicios' %}"> Ver más &nbsp;<i class="fa-solid fa-arrow-right"></i></a>
+
+                    </div>
+                </div>
+                <div class="card">
+                    <h5 class="card-title">Otros Servicios</h5>
+                    <div class="card-body">
+                        <img src="{% static '/images/costayaco_PTARI.webp'%}" class="card-img-top" alt="...">
+                        <p class="card-text">Proporcionamos una variedad de soluciones adicionales que complementan nuestra oferta principal</p>
+                        <a class="a" href="{% url 'servicios' %}"> Ver más &nbsp; <i class="fa-solid fa-arrow-right"></i> </a>
+                    </div>
+                </div>
+              </div>
+        </div>
+    </section>
+
+    <!-- Medio ambiente -->
+    <div class="ambiente">
+        <div class="imagen img-fluid " data-aos="fade-down">
+        
+            <img class="img-fluid" src="{% static '/images/arboles.webp'%}" alt="">
+        </div>
+        <div class="texto" data-aos="fade-up">
+            <h1>Comprometidos con el Medio Ambiente</h1>
+            <p>
+              Con un enfoque visionario hacia el desarrollo sostenible, Petrocentro S.A.S, se destaca por su compromiso inquebrantable con la preservación del medio ambiente. Conscientes de los desafíos ambientales que enfrenta nuestro planeta, Petrocentro S.A.S ha adoptado una postura proactiva hacia la mitigación de impactos negativos en los ecosistemas circundantes y en la atmósfera global. 
+              Abrazamos un compromiso inquebrantable con la protección y preservación del medio ambiente. Desde la selección de materiales hasta la ejecución de nuestros servicios, integramos prácticas sostenibles en cada etapa de nuestra operación. Nos esforzamos por minimizar nuestro impacto ambiental mediante la adopción de tecnologías limpias, la gestión eficiente de recursos y la promoción de la conservación de la biodiversidad. Reconocemos nuestra responsabilidad en la promoción de un futuro más verde y estamos dedicados a liderar con el ejemplo en la industria, trabajando constantemente para alcanzar estándares más altos de sostenibilidad y ecoeficiencia.</p>
+        </div>
+    </div>
+
+    <!-- Nosotros -->
+    <section class="nosotros" data-aos="fade-up">
+        <div class="collage img-fluid">   
+          <a href="{% url 'nosotros'%}"> <img src="{% static '/images/Collage.webp' %}" alt=""></a>
+          <div class="f">
+
+            <h1 >NOSOTROS</h1>
+          
+          </div>
+        </div>     
+    </section>
+{% endblock %}

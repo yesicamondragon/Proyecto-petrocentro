@@ -1,0 +1,343 @@
+
+{% extends "plantillas/plantilla.html" %}
+
+{%load static %}
+
+{% block titulo %} Politicas Petrocentro S.A.S {% endblock %}
+
+
+{% block nav %}
+
+    <!-- Barra de navegación superior -->
+    <nav class="nav-2" >
+        <div class="logo">
+            <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+        </div>
+
+        <!-- Acciones de menú-->
+        <div class="botones" >
+            <a class="boton "   href="{% url 'index' %}">INICIO</a>
+            <a class="boton" href="{% url 'servicios' %}">SERVICIOS</a>
+            {% if request.resolver_match.url_name == 'politicas_nosotros'  %}
+            <a class="little-boton"  href="{% url 'nosotros' %}">NOSOTROS</a>
+            {% endif %}
+            <a class="boton" href="{% url 'contacto'%}">CONTACTO</a>
+            <a class="boton"  href="{% url 'pqrs' %}">PQRS</a>
+        </div>
+
+        <!-- Verificar si el usuario esta logeado -->
+        {% if user.is_authenticated %}
+            
+        <div class="buton-cerrar">
+            {% if usuario.foto_perfil %}
+                <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
+            {% else %}
+            
+                <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
+            {% endif %}
+            <ul class="lista-perfil" id="lista-perfil">
+            <li class="imagen">
+                {% if usuario.foto_perfil %}
+                <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
+                {% else %}
+                
+                <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
+                {% endif %}
+            </li>
+            <li class="informacion-perfil">
+                <h4> {{ user.username }} </h4>
+                
+            </li>
+            <li class="correo-perfil">
+                <p> {{ user.email }} </p>
+            </li>
+            <div class="perfil-cerrar">
+            
+    
+                <a href="{% url 'perfil' %}">
+                    <i class="fa-solid fa-user-pen icons"></i>
+                    &nbsp;Perfil
+            
+        
+                
+            </li>
+            <li>
+                <a href=" {% url 'logout_view' %} ">
+                    <i class="fa-duotone fa-sign-out"></i> &nbsp; Cerrar Sesion
+                </a>
+            </li>
+            </div>
+            <li>
+            
+        </ul>
+        </div>
+            {% else %}
+            <div class="buton">
+                <button  onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+            </div>
+        {% endif %}
+    </nav>
+
+{%endblock%}
+
+{% block contenido %} 
+
+<div >
+
+        <h1 class="servicios-titulo">NUESTRAS POLITICAS CORPORATIVAS</h1>
+</div>
+<hr>
+
+    <!-- Política de calidad, seguridad, salud y medio ambiente -->
+    <div class="politicas_corporativas" data-aos="fade-down" >  
+        <div class="politicas_texto_corp">
+                <h1>Política de calidad, seguridad, salud y medio ambiente </h1>
+                <br>
+                <p class="politicas_version">(Versión 3; 25 de Agosto 2020 )</p>
+                <p class="politicas_texto"> 
+                        <span class="bold">PETROCENTRO S.A.S.</span> es una compañía de Servicios integrales para el montaje, operación, y mantenimiento de facilidades de producción en superficie para Gas y/o Petróleo y Well Testing. Todas nuestras actividades se desarrollan con los más altos estándares de calidad, protegiendo el ambiente y es nuestro compromiso velar por la salud y seguridad de nuestros empleados, contratistas y partes interesadas. 
+                        <br>
+                        <br>
+                        <span class="bold">PETROCENTRO S.A.S.</span>, tiene como razón fundamental velar por la prevención de accidentes y las enfermedades laborales originadas por causa o consecuencia de las funciones del trabajo, daños a la propiedad, impactos ambientales, sociales y económicos; así mismo busca contribuir a la calidad de vida del trabajador involucrando en actividades y/o programas que contribuyan al bienestar físico y mental de sus trabajadores y a la protección del medio ambiente, para ello se apoya en los siguientes principios:  
+                        <br>
+                        <br>
+                        Desarrollar procesos y servicios que satisfagan las expectativas de nuestros clientes y otros grupos de interés. 
+                        <br>
+                        <br>
+                        Mejorar el desempeño ambiental a través de la identificación de los impactos ambientales, la prevención de la contaminación y el deterioro del entorno, así como el control de los aspectos ambientales significativos. 
+                        <br>
+                        <br>
+                        Cumplimiento de todas las normas legales vigentes del país sobre prevención de riesgos laborales y medio ambiente.
+                        <br>
+                        <br>
+                        Promover la consulta y participación de los trabajadores dentro del Sistema Integrado de Gestión de la organización. 
+                        <br>
+                        <br>
+                        Protección y mantenimiento para un mejor nivel de bienestar físico y mental de todos los trabajadores a través de actividades de promoción y prevención, buscando minimizar los accidentes de trabajo y enfermedades laborales. 
+                        <br>
+                        <br>
+                        Los compromisos por parte de la Gerencia de <span class="bold">PETROCENTRO S.A.S.</span>, que gobiernan la ejecución de esta política: 
+                </p>
+                <ul class="lista_politicas_corporativas">
+                        <li>Cumplimiento con la Legislación Nacional Vigente en Seguridad y Salud en el Trabajo, Seguridad Industrial y Medio Ambiente, así como otros requisitos suscritos por la empresa con sus clientes.</li>
+                        <li>Todos los planes de negocio y contratación de servicios se desarrollarán de acuerdo con esta Política y se asignarán los recursos humanos, técnicos y económicos necesarios para la implementación y el mejoramiento continuo del sistema.
+                        </li>
+                        <li>Impulsar la consulta y participación de los trabajadores por medio de sus representantes en el Vigía/COPASST, CCL.
+                        </li>
+                        <li>Entrenar y capacitar a todo el personal de acuerdo con la matriz de capacitación por cargos, en los temas relacionados con calidad, seguridad industrial, salud en el trabajo, medio ambiente y en procedimientos técnicos – operacionales.</li>
+                        <li>Identificar los peligros, evaluar y controlar los riesgos que tengan el potencial de causar incidentes y enfermedades laborales a nuestro personal, contratistas o partes interesadas, así como daños a la propiedad. También se realizará la identificación de aspectos ambientales, así como la evaluación y control de los impactos ambientales para todas nuestras operaciones que puedan ocasionar contaminación al ambiente.</li>
+                        <li>La calidad del servicio basada en la detección, evaluación y control oportuno de los factores de riesgo existentes en los puestos de trabajo, por ello se resalta la importancia de cumplir y hacer cumplir el reglamento de Higiene y seguridad industrial. </li>
+                        <li>Las actividades de promoción y prevención se harán para nuestros empleados teniendo en cuenta que cada puesto de trabajo está expuesto a diferentes riesgos y por ello nuestro compromiso de minimizar el impacto, asignando recursos: humanos, físicos y técnicos, con una proyección anual los cuales deben dar cuenta al final de su gestión de acuerdo con los contratos desarrollados.</li>
+                        <li>Esta política será publicada y difundida a todo el personal, para obtener así su cooperación y participación, siguiendo el ejemplo manifestado y demostrado desde el compromiso gerencial.</li>
+                </ul>
+       </div>
+        <div class="politicas_foto ">
+                <img class="banner" src="{% static 'images/hseq_banner_0.png' %}" alt="">
+        </div>
+    </div>
+        <hr>
+
+    <!--Política no consumo de alcohol, drogas y tabaquismo -->
+    <div class="politicas_corporativas" data-aos="fade-up">
+        <div class="politicas_texto_corp" data-aos="fade-up">
+
+                <h1>Política no consumo de alcohol, drogas y tabaquismo</h1>
+                <p class="politicas_version"> (Versión 1; 31 de Octubre 2020 )</p>
+                <p class="politicas_texto"><span class="bold">PETROCENTRO S.A.S.</span>, para garantizar el cumplimiento con la Legislación Nacional resolución 1075 de 1994, resolución 1956 de 2008 y demás normas reglamentarias y consciente de los peligros y riesgos que causan los fármacos, el alcohol, el tabaquismo y otras sustancias psicotrópicas para la salud de las personas, el ambiente de trabajo y que atentan contra la salud y la seguridad, constituyéndose en amenaza para la integridad física y mental de los trabajadores en general y con el fin de lograr un ambiente seguro y adecuado la Alta Dirección desde su política.</p>
+                <ul class="lista_politicas_corporativas" >
+                        <li>Se prohíbe el consumo de cigarrillo, alcohol y sustancias psicoactivas dentro del trabajo.</li>
+                        <li>Se prohíbe llegar al trabajo estando bajo los efectos de sustancias psicotrópicas.</li>
+                        <li>Se prohíbe el consumo dentro de su trabajo, posesión y/o venta de fármacos o cualquier sustancia que altere el sistema nervioso central, exceptuando los casos en que por orden médica vigente y válida las personas deban consumir alguno de los fármacos relacionados con fármaco dependencia.</li>
+                        <li>Se prohíbe fumar en las zonas de operaciones, almacén, bodegas o talleres ya que existen atmósferas peligrosas que con presencia de llama pueden generar un incendio. Los fumadores deben dirigirse a la zona asignada para tal fin. </li>
+                </ul>
+                <br>
+                <p class="politicas_texto">
+                        Por tal motivo la compañía se compromete a:
+                </p>
+                <ul class="lista_politicas_corporativas">
+                        <li>Publicar y socializar con los trabajadores la política de no consumo de alcohol, drogas y tabaco en los lugares de trabajo.</li>
+                        <li>Capacitar al personal sobre temáticas acerca de las enfermedades, riesgos y afecciones ocasionadas por el consumo de alcohol, drogas y tabaco.</li>
+                        <li>Concientizar a los trabajadores sobre el daño y riesgos que puede generar para su integridad personal, su familia, las personas a su alrededor y en su lugar de trabajo a través de diferentes medios de comunicación.
+                        </li>
+                        <li>Realizar exámenes periódicos, inesperados y aleatorios para detectar posibles incumplimientos.</li>
+                </ul>
+                <p class="politicas_texto">
+                        La violación de esta política representa un acto causal de terminación del contrato de trabajo o de prestación de servicios.
+                </p>
+        </div>
+        <div class="politicas_foto" data-aos="fade-up">
+          
+                <img src="{% static 'images/tabaquismo.webp' %}" alt="">
+        </div>
+        
+    </div>
+    <hr>            
+    <!-- Política de Seguridad Vial-->
+    <div class="politicas_corporativas" data-aos="fade-up">
+        <div class="politicas_texto_corp" data-aos="fade-up">
+
+                <h1>Política de Seguridad Vial</h1>
+                <p class="politicas_version">(Version 2; 30 de Agosto 2022)</p>
+                <p class="politicas_texto"><span class="bold">PETROCENTRO S.A.S. como empresa líder en los servicios de well Testing y facilidades tempranas</span>, establece la política de seguridad vial con alcance en todos los desplazamientos laborales como in-itinere, con el fin de prevenir y controlar la ocurrencia de siniestros viales.
+                   <br>
+                   <br>
+                   Por lo cual garantiza el suministro de los recursos técnicos, financieros y de talento humano que se requieran para preservar la integridad de colaboradores y partes interesadas; lo anterior mediante la, la formulación de lineamientos estratégicos que forjen conductas seguras en la vía en el marco legal vial aplicable a la organización.
+                   <br>
+                   <br>                
+                   Formando parte del mejoramiento continuo del PESV, las siguientes disposiciones deben ser implementadas en todas las sedes y proyectos donde se opera:
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Prevención de la distracción:  </span>
+                        <br><br>
+                        Para los conductores está prohibido el uso de equipos de comunicación móviles, incluyendo dispositivos con sistemas de manos libres. Los equipos de comunicación podrán permanecer encendidos durante el viaje, sin embargo, el conductor deberá detener el vehículo por completo en un sitio seguro antes de contestar o efectuar cualquier llamada o mensaje.
+                        <br><br>
+                        Para conductores y pasajeros está prohibido fumar cigarrillo o tabaco dentro del vehículo, esto implica un cúmulo de circunstancias que pueden acabar en un accidente.
+                        <br><br>
+                        Los navegadores o GPS se permiten utilizarlos siempre que su uso se realice antes de comenzar el viaje y siempre con el vehículo detenido.
+
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Gestión de la Fatiga: </span>
+                        <br><br>
+                        Se debe aplicar un plan de gestión de la fatiga que proporcione a nuestros colaboradores y contratistas una orientación práctica sobre las estrategias a implementar para tener una operación de transporte segura, principalmente en los temas asociados a la conducción de vehículos.
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Alcohol y Drogas:</span>
+                        <br><br>
+                        El conducir un vehículo bajo la influencia de drogas o alcohol está prohibido, y ante cualquier infracción se aplicarán sanciones disciplinarias de acuerdo con lo descrito en el reglamento interno de trabajo.
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Actores viales vulnerables:</span>
+                        <br><br>
+                        El peatón, el usuario de bicicleta y de motocicleta son considerados los tres actores viales vulnerables, por esta razón, en <span class="bold">PETROCENTRO S.A.S.</span>, se establecen varias estrategias pedagógicas como herramienta en la prevención de la accidentalidad vial.
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Gestión de la velocidad:</span>
+                        <br><br>
+                        <span class="bold">PETROCENTRO S.A.S.</span> es consciente que una de las principales causas de accidentes de tránsito, es el exceso de velocidad. Por lo anterior y sin excepción, todo conductor, sin importar su manera de contratación, debe respetar los máximos de velocidad establecidos en el código nacional de tránsito o normas que lo modifiquen, adhieran o sustituyan.
+                        <br><br>
+                        Dichos límites de velocidad deben ser reducidos de acuerdo con las condiciones de la vía, condiciones climáticas adversas y el tipo de vehículo o carga que se transporte.
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Idoneidad:</span>
+                        <br><br>
+                        Las personas encargadas de conducir los vehículos que estén al servicio de <span class="bold">PETROCENTRO S.A.S.</span> , deben ser competentes, que cumplan con la normatividad vigente y que además cumplan con las normas establecidas por la empresa. 
+                      
+                </p>
+                <br>
+                <p class="politicas_texto">
+                        <span class="bold">Vehículos seguros:</span>
+                        <br><br>
+                        Las actividades de operación y mantenimiento deben ser debidamente planeadas con el fin de optimizar la operación y minimizar los riesgos. 
+                        <br><br>
+                        El transporte de personal debe realizarse con vehículos que estén en óptimas condiciones, de tal forma que garanticen la integridad física de nuestros colaboradores
+                        <br><br>
+                        La anterior política es revisada al menos de manera trianual y se publica y comunica a todas las partes interesadas y colaboradores en los procesos de inducción, reinducción y capacitaciones.
+
+                </p>
+             
+        </div>
+
+
+        <div class="politicas_foto" data-aos="fade-up">
+                <img src="{% static 'images/seguridadVial.webp' %}" alt="">
+        </div>
+    </div>
+        <hr>
+        <!-- Política de Igualdad laboral no discriminación-->
+    <div class="politicas_corporativas" data-aos="fade-up" >
+        <div class="politicas_texto_corp" data-aos="fade-up">
+                <h1>Política de Igualdad laboral no discriminación</h1>
+                <p class="politicas_version">
+                        (Version 0; 17 de Junio 2022)  
+                </p>
+                <p class="politicas_texto"><span class="bold">PETROCENTRO S.A.S.</span> está comprometido a ofrecer a todo su personal, contratistas, subcontratistas y a las personas que lo soliciten:</p>
+                <br>
+                <ul class="lista_politicas_corporativas">
+                        <li>Acciones de prevención y eliminación de todo acto de discriminación.</li>
+                        <li>Respeto por la diversidad y la individualidad.</li>
+                        <li> La igualdad de oportunidades.</li>
+                        <li>La propagación de una cultura plural y tolerante.</li>
+                        <li>El rechazo absoluto a todo acto de violencia.</li>
+                        <li>La anulación de toda práctica que atente contra la dignidad de las personas.</li>
+                        <li> El impulso a la equidad de género y la equidad laboral.</li>
+                        <li> El respeto del derecho a la libre expresión de las ideas, sin menoscabo de los derechos de los otros.</li>
+                        <li>La convivencia respetuosa e incluyente.</li>
+                </ul>
+                <br>
+                <p class="politicas_texto">
+                        En <span class="bold">PETROCENTRO S.A.S.</span>  se promueve la cultura de no discriminación hacia cualquier persona en el aspecto de selección de personal, promoción de puestos y condiciones de empleo, por motivos de: 
+                </p>
+                <br>
+                <ul class="lista_politicas_corporativas">
+                        <li>Apariencia física</li>
+                        <li>Cultura</li>
+                        <li>Discapacidad</li>
+                        <li>Idioma</li>
+                        <li>Sexo</li>
+                        <li>Género</li>
+                        <li>Edad</li>
+                        <li>Condición social, económica, de salud o jurídica.</li>
+                        <li>Embarazo</li>
+                        <li>Creencia política</li>
+                        <li>Estado civil o conyugal</li>
+                        <li>Religión</li>
+                        <li>Opiniones</li>
+                        <li>Origen étnico o nacional</li>
+                        <li>Preferencias sexuales</li>
+                        <li>Situación migratoria</li>
+                </ul>
+        </div>
+        <div class="politicas_foto" data-aos="fade-up">
+                <img src="{% static 'images/igualdad.webp' %}" alt="">
+        </div>
+    </div>
+        <hr>
+
+    <!--Política de Desconexión Laboral-->
+    <div class="politicas_corporativas" data-aos="fade-up" >
+        <div class="politicas_texto_corp"  data-aos="fade-up" >
+                <h1>Política de Desconexión Laboral</h1>
+                <div class="politicas_version">
+                        (Version 0; 17 de Junio 2022)  
+                </div>
+                <div class="politicas_texto">
+                        Con el objetivo el adecuado y eficaz cumplimiento de la normatividad actual, tendiente a garantizar el derecho a la desconexión laboral; <span class="bold">PETROCENTRO S.A.S.</span> , implementará las siguientes medidas:
+                </div>
+                <br>
+                <ul class="lista_politicas_corporativas">
+                        <li> La jornada laboral de <span class="bold">PETROCENTRO S.A.S.</span>, es la máxima legal permitida en virtud de la Ley 2101 de 2021 mientras esta permanezca vigente. La jornada Máxima cambiará gradualmente de la siguiente manera: a partir del 16 de julio de 2023 la jornada máxima será de 47 horas semanales, a partir del 16 de julio de 2024 será de 46 horas semanales, a partir del 16 de julio de 2025 será de 44 horas semanales y a partir del 16 de julio de 2026 quedará establecida en 42 horas semanales.
+
+                        </li>
+                        <li>Se les informa a los trabajadores que están en todo su derecho a no enviar y revisar mensajes, llamadas, correos o ejecutar cualquier actividad que se relacione con sus laborales por fuera del horario laboral establecido; salvo que se presente una situación de emergencia improrrogable, que afecte de manera irremediable a la empresa y/o sus trabajadores.</li>
+                        <li>El mecanismo de comunicación en la mayoría de las ocasiones se realiza por la aplicación What´s App y/o correo corporativo, si bien es posible que durante el descanso se envíen mensajes a través de dichos medios, el trabajador está en su derecho a no abrirlo, revisarlo o responderlo durante su descanso. Así mismo se insta a los mandos medios, compañeros de trabajo y supervisores, evitar en la medida de lo posible enviar mensajes por fuera de la jornada laboral.</li>
+                        <li>Se prohibirá a los mandos medios y superiores realizar llamadas a los trabajadores durante su descanso; salvo que se trate de una situación de fuerza mayor o caso fortuito, como, por ejemplo: una emergencia que pueda causar un perjuicio grave a la empresa donde se justifique la inexistencia de otra alternativa viable, tal cual lo establece el Artículo 6 de la Ley 2191 de 2022.</li>
+                        <li>Teniendo en cuenta lo anterior, el trabajador deberá responder la llamada en la medida de la posibilidad y la circunstancia, ya que la llamada (mensaje o correo) deberá corresponder a una situación de fuerza mayor o emergencia. En caso de que la situación no corresponda a ninguna de las características anteriormente descritas, el trabajador podrá interponer la queja mediante el procedimiento respectivo relacionado con esta política.</li>
+                        <li>Estas mismas circunstancias aplican a los trabajadores que presten sus servicios por trabajo en casa, teletrabajo, siempre y cuando no estén exceptuados de la ley y la política.</li>
+                </ul>
+        </div>
+        <div class="politicas_foto" data-aos="fade-up"  >
+                <img src="{% static 'images/desconexion.webp' %}" alt="">
+        </div>
+
+    </div>
+    <br>
+    <br>
+
+    <div class="politicas_corporativas" data-aos="fade-up" >
+        <div class="politicas_texto_corp">
+                <p class="politicas_texto" >
+                        <span class="bold">HERNAN LEZACA SALAMANCA</span>
+                        <br>
+                        REPRESENTANTE LEGAL
+                </p>
+        </div>
+    </div>
+    <br>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends "plantillas/plantilla.html" %}
+
+{%load static %}
+
+{% block titulo %} Servicios Petrocentro S.A.S {% endblock %}
+
+{% block nav %}
+
+
+    <nav class="nav-2" >
+        <div class="logo">
+            <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+        </div>
+        
+        <!-- Acciones de menu-->
+        <div class="botones">
+            <a class="boton" data-original-color="black"  href="{% url 'index' %}">INICIO</a>
+            {% if request.resolver_match.url_name == 'servicios'    %}
+            <a class="little-boton" data-original-color="black"  href="{% url 'servicios' %}">SERVICIOS</a>
+            {% endif %}
+            <a class="boton" data-original-color="black"  href="{% url 'nosotros' %}">NOSOTROS</a>
+            <a class="boton" data-original-color="black"  href="{% url 'contacto'%}">CONTACTO</a>
+            <a class="boton" data-original-color="black"  href="{% url 'pqrs' %}">PQRS</a>
+        </div>
+        
+        <!-- Verificar si el usuario está logeado-->
+        {% if user.is_authenticated %}
+            
+            <div class="buton-cerrar">
+                {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
+                {% else %}
+                
+                    <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
+                {% endif %}
+                <ul class="lista-perfil" id="lista-perfil">
+                <li class="imagen">
+                    {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
+                    {% else %}
+                    
+                    <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
+                    {% endif %}
+                </li>
+                <li class="informacion-perfil">
+                    <h4> {{ user.username }} </h4>
+                    
+                </li>
+                <li class="correo-perfil">
+                    <p> {{ user.email }} </p>
+                </li>
+                <div class="perfil-cerrar">
+                
+        
+                    <a href="{% url 'perfil' %}">
+                        <i class="fa-solid fa-user-pen icons"></i>
+                        &nbsp;Perfil
+                
+            
+                    
+                </li>
+                <li>
+                    <a href=" {% url 'logout_view' %} ">
+                        <i class="fa-duotone fa-sign-out"></i> &nbsp; Cerrar Sesion
+                    </a>
+                </li>
+                </div>
+                <li>
+                
+            </ul>
+            </div>
+                {% else %}
+                <div class="buton">
+                    <button  onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+                </div>
+        {% endif %}
+    </nav>
+  
+    <!-- Barra de navegacion-->
+
+{% endblock  %}
+
+{% block contenido %} 
+   <!-- Titulo -->
+    <div>
+        <h1 class="servicios-titulo"> SERVICIOS DE LA COMPAÑÍA</h1>
+        <hr>
+    </div>
+
+    <!-- cartas de servicios-->
+    <section class="cards">
+    <!-- Tarjeta 1-->
+    <article class="card card--1 " onclick="showModal('well testing ', 'Ofrecemos un servicio de well testing para evaluar el rendimiento y las características de sus pozos de petróleo y gas. A través de pruebas avanzadas de flujo y presión, proporcionamos datos precisos que le ayudan a optimizar la producción, detectar problemas y estimar reservas de hidrocarburos. Nuestra tecnología de punta garantiza análisis fiables, permitiéndole tomar decisiones informadas y maximizar la eficiencia operativa.\n')" >
+        <div class="card__img">
+        </div>
+            <div class="card__img--hover" style="background-image: url('{% static '/images/WT.webp' %} ')">
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">well testing</span> 
+            <h3 class="card__title">Ver más</h3>       
+
+        </div>
+    </article>
+
+    <!-- Tarjeta 2-->
+    <article class="card card--2" onclick="showModal('pruebas hidrostáticas','Nuestro servicio de pruebas hidrostáticas garantiza la integridad y seguridad de sus tuberías, tanques y equipos bajo presión. Realizamos pruebas rigurosas utilizando agua a alta presión para detectar fugas, evaluar la resistencia y asegurar el cumplimiento de normativas. Con nuestra tecnología avanzada, ofrecemos resultados precisos que le permiten prevenir fallos críticos y asegurar la confiabilidad de sus instalaciones.\n')">
+        <div class="card__img"></div>
+            <div class="card__img--hover" style="background-image: url('{% static '/images/ph.webp' %} ')">
+
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">PRUEBAS HIDROSTÁTICAS</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    <!-- Tarjeta 3-->
+<article class="card card--3" onclick="showModal('pruebas iniciales y extensas', 'Pruebas Iniciales: Validamos la calidad y seguridad de sus sistemas y equipos desde el inicio. Nuestras pruebas iniciales aseguran que todo funcione correctamente durante la instalación o puesta en marcha, previniendo problemas futuros y optimizando el rendimiento desde el primer día. \n \n Pruebas Extensas: Ofrecemos una evaluación detallada y profunda de sus equipos en operación. Estas pruebas identifican posibles fallos, optimizan el rendimiento y extienden la vida útil de sus activos, asegurando la máxima confiabilidad y eficiencia. \n')">
+        <div class="card__img"></div>
+            <div class="card__img--hover" style="background-image: url('{% static '/images/pie.webp' %} ')" >
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">PRUEBAS INICIALES Y EXTENSAS</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    <!-- Tarjeta 4-->
+    <article class="card card--4" onclick="showModal('MONTAJE Y MANTENIMIENTO DE LINEAS DE TUBERÍA', 'Proveemos servicios especializados en el montaje y mantenimiento de líneas de tubería diseñadas para la industria petrolera. Nuestro equipo garantiza la instalación precisa de sistemas de conducción críticos para el transporte de petróleo y gas, asegurando que cumplan con los más altos estándares de seguridad y eficiencia. Además, realizamos mantenimiento preventivo y correctivo para prolongar la vida útil de sus infraestructuras, minimizar riesgos y optimizar la continuidad operativa. \n')">
+        <div class="card__img"></div>
+            <div class="card__img--hover"  style="background-image: url('{% static '/images/tuberia.webp' %} ')">
+            
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">MONTAJE Y MANTENIMIENTO DE LINEAS DE TUBERÍA</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    <!-- Tarjeta 5-->
+    <article class="card card--5" onclick="showModal('Diagnóstico y evaluación del estado mecánico y de corrosión para líneas de hidrocarburos', 'Ofrecemos un servicio especializado de diagnóstico y evaluación del estado mecánico y de corrosión en líneas de hidrocarburos. Utilizamos técnicas avanzadas para identificar daños estructurales, detectar corrosión y evaluar la integridad de las tuberías. Este análisis es crucial para prevenir fallos, reducir riesgos ambientales y asegurar la continuidad operativa de sus instalaciones. \n')">
+        <div class="card__img">
+
+
+        </div>
+            <div class="card__img--hover"  style="background-image: url('{% static '/images/DEH.webp' %} ')">
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">Diagnóstico y evaluación del estado mecánico y de corrosión para líneas de hidrocarburos</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    
+    <!-- Tarjeta 7-->
+    <article class="card card--7" onclick="showModal('Tratamiento de crudo en superficie.','Ofrecemos servicios especializados en el tratamiento de crudo en superficie, optimizando la calidad del petróleo antes de su transporte o procesamiento. Utilizamos tecnologías avanzadas para la separación de agua, sedimentos y otros contaminantes, asegurando que el crudo cumpla con los estándares requeridos. Nuestro enfoque eficiente y seguro garantiza la maximización del valor del crudo y la reducción de problemas operativos. \n')">
+        <div class="card__img"></div>
+            <div class="card__img--hover" style="background-image: url('{% static '/images/tc.webp' %} ')">
+           
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">Tratamiento de crudo en superficie.</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    <!-- Tarjeta 8-->
+    <article class="card card--8" onclick="showModal('Medición de fluidos, separadores, tratadores térmicos', 'Proveemos servicios de medición y calibración especializados para sistemas de fluidos, separadores y tratadores térmicos en la industria petrolera. Garantizamos que sus equipos operen con precisión y eficiencia, asegurando mediciones exactas y un rendimiento óptimo. Nuestra experiencia en la calibración de estos sistemas es clave para mantener la calidad del proceso, maximizar la producción y cumplir con las normativas de la industria.\n')">
+')">
+        <div class="card__img">
+           
+
+        </div>
+            <div class="card__img--hover" style="background-image: url('{% static '/images/mediciondstt.webp' %} ')">
+   
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">Medición de fluidos, separadores, tratadores térmicos</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    <!-- Tarjeta 9-->
+    <article class="card card--9" onclick="showModal('Montaje y operación de facilidades en superficie.','Proveemos servicios integrales de montaje y operación de facilidades en superficie para la industria petrolera. Desde la instalación de infraestructura hasta la puesta en marcha y operación continua, garantizamos que sus instalaciones funcionen de manera eficiente y segura. Nuestro equipo se asegura de que todos los sistemas estén optimizados para maximizar la producción y cumplir con los estándares de la industria.\n')">
+        <div class="card__img"></div>
+            <div class="card__img--hover" style="background-image: url('{% static "/images/MO.webp" %} ')">
+            
+
+            </div>
+        </a>
+        <div class="card__info">
+            <span class="card__category">Montaje y operación de facilidades en superficie.</span>
+            <h3 class="card__title">Ver más</h3>       
+        </div>
+    </article>
+
+    </section>
+    
+    <!-- Modal de Tarjetas-->
+
+
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-titulo" class="modal-titulo"></h2>
+            <p id="modal-contenido" class="modal-contenido"></p>
+        </div>
+    </div>
+
+{% endblock %}
+<script>
+    window.onclick = function(event) {
+        var modal = document.getElementById("modal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+      
+      //Lee si el usuario pulso ESC en el teclado para cerrar el modal
+      window.onkeyup = function(event) {
+        var modal = document.getElementById("modal");
+        if (event.key === "Escape") {
+          modal.style.display = "none";
+        }
+      }
+      
+</script>

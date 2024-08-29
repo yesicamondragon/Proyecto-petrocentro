@@ -1,0 +1,177 @@
+{% extends "plantillas/plantilla.html" %}
+
+{%load static %}
+
+{% block titulo %} PQRS Petrocentro S.A.S        {% endblock %}
+
+{% block nav %}
+
+    <!-- Barra de navegacion-->
+    <nav class="nav-2" >
+        <div class="logo">
+            {% url "index" %}<a href="s"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+        </div>
+
+        <!-- Acciones de menu -->
+        <div class="botones">
+            <a class="boton" data-original-color="black"  href="{% url 'index' %}">INICIO</a>
+            <a class="boton" data-original-color="black"  href="{% url 'servicios' %}">SERVICIOS</a>
+            <a class="boton" data-original-color="black"  href="{% url 'nosotros' %}">NOSOTROS</a>
+            <a class="boton" data-original-color="black"  href="{% url 'contacto'%}">CONTACTO</a>
+            {% if request.resolver_match.url_name == 'pqrs'    %}
+            <a class="little-boton" data-original-color="black"  href="{% url 'pqrs' %}">PQRS</a>
+            {% endif %}
+        </div>
+        <!-- validar si el usuario esta logeado   -->
+        {% if user.is_authenticated %}
+            
+            <div class="buton-cerrar">
+                {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
+                {% else %}
+                
+                    <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
+                {% endif %}
+                <ul class="lista-perfil" id="lista-perfil">
+                <li class="imagen">
+                    {% if usuario.foto_perfil %}
+                    <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
+                    {% else %}
+                    
+                    <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
+                    {% endif %}
+                </li>
+                <li class="informacion-perfil">
+                    <h4> {{ user.username }} </h4>
+                    
+                </li>
+                <li class="correo-perfil">
+                    <p> {{ user.email }} </p>
+                </li>
+                <div class="perfil-cerrar">
+                
+        
+                    <a href="{% url 'perfil' %}">
+                        <i class="fa-solid fa-user-pen icons"></i>
+                        &nbsp;Perfil
+                
+            
+                    
+                </li>
+                <li>
+                    <a href=" {% url 'logout_view' %} ">
+                        <i class="fa-duotone fa-sign-out"></i> &nbsp; Cerrar Sesion
+                    </a>
+                </li>
+                </div>
+                <li>
+                
+            </ul>
+            </div>
+                {% else %}
+                <div class="buton">
+                    <button  onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+                </div>
+        {% endif %}
+    </nav>
+
+{% endblock  %}
+
+
+{% block contenido %} 
+    <!-- fondo -->
+   
+        <section class="fondo-pqrs"  >  
+        </section> 
+
+        <!-- Letras e imagen -->       
+        <div class="letras-pqrs">
+                <div class="bola-izquierda"></div>
+                <div class="l-pqrs">
+                    <h1 class="politica-atencion">POLITICA DE ATENCION</h1>
+                    
+                    <h1>PETICIONES, QUEJAS, RECLAMOS Y SUGERENCIAS</h1>
+                </div>
+                <div class="imagen-pqrs">
+                
+
+                    <img src="{% static '/images/pqrs_1.webp'%}" alt="">
+                </div>
+                <div class="bola-derecha"></div>
+        </div>
+        
+        <!-- Texto introduccion -->
+        <div class="texto-principal">
+            <div class="txt-pr">
+                <p>Los requerimientos pueden ser recibidos a través de un documento en físico firmado por parte de los grupos de interés, en los sitios establecidos en campo para tal fin, únicamente en horarios de oficina (las únicas personas autorizadas de recibir este documento son el Administrador, Advisor, Coordinador o Supervisor HSEQ), documento en digital firmado a través del correo corporativo, llamando vía telefónica a nuestra línea corporativa, en horario de oficina, o través de nuestra página web diligenciando el siguiente formulario:</p>
+            </div>
+            <div class="boton-formulario">
+                <button onclick="window.location.href='https://forms.gle/u7EWkYi93BwfLpdG6'  " >FORMULARIO &nbsp; <i class="fa-regular fa-file-lines "></i></button>
+
+            </div>
+        </div>
+        
+        <!-- Título -->
+        <br>
+        <br>
+        <br>
+        <h1 class="gestion-txt">
+            Para la Gestión del Requerimiento nuestro Procedimiento será el Siguiente:
+            <hr>
+        </h1>
+
+        <!-- Pasos -->
+        <div class="pasos-pqrs">
+            <div class="paso_1">
+                <div class="bola-izquierda2"></div>
+
+                <br>
+                <p>
+                    1. Una vez recibido el requerimiento por parte del área de Recursos Humanos, se procede a verificar su origen (Si el documento no contiene datos de contacto, se tratará como un reclamo anónimo y no será procesado).
+                </p>
+                <br>
+                <hr>
+            </div>
+            <div class="paso_2">
+                <div class="bola-izquierda3"></div>
+
+                <p>
+                    2. Luego de llamar y consultar a los interesados respecto al requerimiento recibido, si el documento va dirigido al cliente o a algún contratista, se remite a estos, únicamente a través del correo corporativo, con el fin que le den el trámite que corresponde.
+
+                </p>
+                <ul>
+                    <li>Se registra en la matriz de PQR (si va dirigido a algún contratista).</li>
+                    <li>El requerimiento se cierra con el soporte otorgado por parte de la empresa contratista a la cual iba dirigido.</li>
+                    <li>Petrocentro SAS emitirá respuesta oficial de la PQRS en el menor tiempo posible sin excederse de quince (15) días hábiles.</li>
+                </ul>
+                <br>
+                <hr>
+            </div>
+            <div class="paso_3">
+                <div class="bola-izquierda4"></div>
+
+                
+                <p>
+                    3. Si el documento va dirigido a la empresa:
+                </p>
+                <ul>
+                    <li>Se registra en la matriz de PQR, para el respectivo seguimiento interno del Requerimiento.</li>
+                    <li>El área de Recursos Humanos de la empresa es la responsable de direccionar al área encargada (HSEQ, Administrativa, Operaciones, Compras, Financiera, Comercial) el requerimiento, quienes definirán las actividades o acciones a implementar y de igual forma, realizarán el acompañamiento y verificación su gestión y cierre.</li>
+                    <li>
+                        Dependiendo del tipo de requerimiento recibido y el tipo de respuesta brindado, el cual puede variar de ser de manera inmediata o hasta 15 días hábiles para el respectivo cierre, buscando siempre brindar una respuesta oportuna y pronta en la medida de lo posible, con el fin de mitigar los impactos negativos que se puedan generar con las partes interesadas.
+                    </li>
+                </ul>
+                <br>
+                <hr>
+            </div>
+            <div class="paso_4">
+                <div class="bola-izquierda5"></div>
+
+                <p>
+                    4. El cierre formal de los requerimientos, se podrán realizar por cualquiera de los medios descritos; vía correo electrónico corporativo, por medio de comunicado en físico, o mediante una reunión formal (si hay necesidad); esta actividad se realizará siempre y cuando, el personal involucrado cumpla con las indicaciones del gobierno nacional en cuando a la situación de emergencia sanitaria (uso de tapabocas, distanciamiento social). De la actividad ejecutada se adjunta Acta de Reunión, Listado de Asistencia, Fotografía (de permitirse) y los interesados siempre quedan con copia de la respuesta otorgada.
+                </p>
+                <br>
+            </div>
+        </div>
+
+{% endblock %}

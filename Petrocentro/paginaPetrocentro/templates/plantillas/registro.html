@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #5d9a0f;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+            color: #333333;
+        }
+        .content p {
+            margin: 0 0 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #f4f4f4;
+            color: #888888;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡{{ user  }}, PETROCENTRO S.A.S te da la Bienvenida!</h1>
+        </div>
+        <div class="content">
+            <p>Estamos encantados de verte en nuestra plataforma.</p>
+            <p>Si deseas cambiar tus datos personales, puedes hacerlo en tu cuenta de usuario.</p>
+            <p>Si deseas ver los servicios ofertados en nuestro sitio web, visita nuestra sección de <a href="{% url 'servicios'%}">Servicios</a>.</p>
+            <p>Detalles de registro:</p>
+            <ul>
+
+                <li>Tu registro fue: {{ fecha }} </li>
+     
+            </ul>
+            <p>Gracias por registrarte en nuestra página web. </p>
+
+        </div>
+        <div class="footer">
+            <p>Gracias por tu atención.</p>
+            <p>Saludos,</p>
+            <p>PETROCENTRO S.A.S </p>
+            <p>   <img src="https://img1.wsimg.com/isteam/ip/b5281c19-a452-4fcf-8fe3-52526d22264d/Identificador-Petrocentro-T03-0001.png/:/rs=h:60,cg:true,m/qt=q:100/ll" alt="petroce" width="250" height="60"></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

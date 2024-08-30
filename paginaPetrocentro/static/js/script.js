@@ -110,3 +110,6 @@ window.onclick = function(e){
     perfil.classList.toggle("active-perfil");
   }
 }
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("active-sidebar");
+}

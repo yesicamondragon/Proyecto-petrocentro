@@ -1175,9 +1175,10 @@ body{
 }
 
 .boton-politicas{
-    padding-top: 30px;
+  
     text-align: center;
     height: 50px;
+    padding-top: 30px;
     margin: auto;
     width: 100%;
     font-size: 17px;
@@ -1189,7 +1190,8 @@ body{
     background: #5D9A0F;
     border-radius: 15px;
     text-align: center;
-    width: 500px;
+    max-width: 500px;
+    width: 80%;
     height: 50px;
     color: #FFF;
     border: none;
@@ -2915,7 +2917,7 @@ svg{
         padding: -10px;
     }
     .boton-politicas .btn{
-        width: 350px;
+        width: 80%;
     }
     .politicas-cuerpo .politicas-lista{
         display: none;
@@ -3249,7 +3251,7 @@ svg{
     }
 
     .boton-politicas .btn{
-        width: 250px;
+        width: 80%;
     }
     .mapa-ubicacion{
         width: 100%;

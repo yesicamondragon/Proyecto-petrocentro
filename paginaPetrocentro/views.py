@@ -107,7 +107,7 @@ def politicas_nosotros(request):
 
     if  not  usuario_logeado:
        
-        return render(request,'paginas/nosotros.html' )
+        return render(request,'paginas/politicas.html' )
     
 # Si el usuairio está logeado, envia sus datos y lo redirige
     else:

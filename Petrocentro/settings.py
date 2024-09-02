@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'petrocentro',
         'USER': 'PTC-DB-01',
-        'PASSWORD': 'Ti.wt.24.',
+        'PASSWORD': 'Ti.wt.24@',
         'HOST': 'localhost',
         'PORT':'3306',
     }

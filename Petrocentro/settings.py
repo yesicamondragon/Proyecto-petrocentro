@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
-
+from Petrocentro.settings_production import *
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,9 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [  ]
 
 
 # Application definition
@@ -85,17 +82,6 @@ WSGI_APPLICATION = 'Petrocentro.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Petrocentropagina',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT':'3306',
-    }
-}
-
 
 
 # Password validation
@@ -140,16 +126,15 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'dilanfvalencia@gmail.com'
 EMAIL_HOST_PASSWORD = 'pprh yjun noio kewl'
 
+
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+LOGIN_URL = '/login_view/'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT =   os.path.join(BASE_DIR,"media")
-
-LOGIN_URL = '/login_view/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

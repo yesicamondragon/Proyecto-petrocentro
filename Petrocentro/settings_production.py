@@ -1,6 +1,6 @@
 
 import os
-from Petrocentro.settings import BASE_DIR
+from petrocentro.settings import BASE_DIR
 DEBUG = False
 
 ALLOWED_HOSTS = ['72.167.141.51','petrocentro.co', 'www.petrocentro.co' ]

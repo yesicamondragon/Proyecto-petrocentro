@@ -11,7 +11,7 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib import messages
 import os
-from Petrocentro import settings
+from petrocentro import settings
 from .forms import RegisterForm
 from django.contrib.auth.models import User
 from django.core.mail import send_mail

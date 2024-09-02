@@ -1,6 +1,6 @@
 
 import os
-from petrocentro.settings import BASE_DIR
+from Petrocentro.settings import BASE_DIR
 DEBUG = False
 
 ALLOWED_HOSTS = ['72.167.141.51','petrocentro.co', 'www.petrocentro.co' ]
@@ -16,7 +16,6 @@ DATABASES = {
         'PORT':'3306',
     }
 }
-
 
 
 STATIC_ROOT =   os.path.join(BASE_DIR,"staticfiles")

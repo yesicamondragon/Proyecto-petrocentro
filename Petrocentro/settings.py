@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
-from .settings_production import *
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,6 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = ['72.167.141.51','petrocentro.co', 'www.petrocentro.co' ]
 
 
 # Application definition
@@ -81,7 +84,16 @@ WSGI_APPLICATION = 'Petrocentro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-
+DATABASES = {
+   'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'petrocentro',
+        'USER': 'PTC-DB-01',
+        'PASSWORD': 'Ti.wt.24.',
+        'HOST': 'localhost',
+        'PORT':'3306',
+    }
+}
 
 
 # Password validation
@@ -129,6 +141,10 @@ EMAIL_HOST_PASSWORD = 'pprh yjun noio kewl'
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+STATIC_ROOT =   os.path.join(BASE_DIR,"staticfiles")
+
+MEDIA_ROOT =   os.path.join(BASE_DIR,"media")
 
 LOGIN_URL = '/login_view/'
 

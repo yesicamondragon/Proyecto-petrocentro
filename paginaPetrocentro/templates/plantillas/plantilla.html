@@ -18,7 +18,7 @@
     <!-- Bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!--Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css" integrity="sha512-U9Y1sGB3sLIpZm3ePcrKbXVhXlnQNcuwGQJ2WjPjnp6XHqVTdgIlbaDzJXJIAuCTp3y22t+nhI4B88F/5ldjFA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
      <!--Font Awesome -->
@@ -41,10 +41,100 @@
     <p>Cargando...</p>
   </div>
 <header class="header fixed-top">
+  <nav class="nav-2" >
+    <div class="logo">
+        <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+    </div>
+    <!-- Acciones de menú-->
+    <div class="botones">
+        {% if request.resolver_match.url_name == 'index' %}
+        <a class="little-boton" data-original-color="black" href="{% url 'index' %}">INICIO</a>
+        {% else %}
+        <a class="boton" data-original-color="black" href="{% url 'index' %}">INICIO</a>
+        {% endif %}
 
-  {% block nav %}
+        {% if  request.resolver_match.url_name == 'servicios'  %}
+          <a class="little-boton" data-original-color="black"  href="{% url 'servicios' %}">SERVICIOS</a>
+        {% else %}
+          <a class="boton" data-original-color="black"  href="{% url 'servicios' %}">SERVICIOS</a>
+        {% endif %}
 
-  {% endblock %}
+        {% if request.resolver_match.url_name == 'nosotros' or request.resolver_match.url_name == 'politicas' %}
+          <a class="little-boton" data-original-color="black"   href="{% url 'nosotros' %}">NOSOTROS</a>
+        {% else %}  
+          <a class="boton" data-original-color="black"   href="{% url 'nosotros' %}">NOSOTROS</a>
+        {% endif %}
+
+        {% if request.resolver_match.url_name == 'contacto'    %}
+          <a class="little-boton" data-original-color="black"  href="{% url 'contacto'%}">CONTACTO</a>
+        {% else %}
+          <a class="boton" data-original-color="black"  href="{% url 'contacto'%}">CONTACTO</a>
+        {% endif %}
+      {% if  request.resolver_match.url_name == 'pqrs' %}
+      <a class="little-boton" data-original-color="black"  href="{% url 'pqrs' %}">PQRS</a>
+      {% else %}
+      <a class="boton" data-original-color="black"  href="{% url 'pqrs' %}">PQRS</a>
+
+      {% endif %}
+    </div>
+    {% if user.is_authenticated %}
+        
+        <div class="buton-cerrar">
+            {% if usuario.foto_perfil %}
+                <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
+            {% else %}
+            
+                <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
+            {% endif %}
+            <ul class="lista-perfil" id="lista-perfil">
+              <li class="imagen">
+                {% if usuario.foto_perfil %}
+                <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
+                {% else %}
+                
+                <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
+                {% endif %}
+            </li>
+            <li class="informacion-perfil">
+                <h4> {{ user.username }} </h4>
+                
+            </li>
+            <li class="correo-perfil">
+                <p> {{ user.email }} </p>
+            </li>
+            <div class="perfil-cerrar">
+            {% if  empleado %}
+                <a href="{% url 'principal' %}">
+                    <i class="fa-solid fa-house-user icons"></i>
+                    &nbsp;Dashboard
+                </a>
+            {% else %}
+                  
+
+                  <a href="{% url 'perfil' %}">
+                    <i class="fa-solid fa-user-pen icons"></i>
+                     &nbsp;Perfil
+               
+              {% endif %}
+                
+            </li>
+            <li>
+                <a href=" {% url 'logout_view' %} ">
+                    <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesion
+                </a>
+            </li>
+            </div>
+            <li>
+            
+        </ul>
+        </div>
+    {% else %}
+        <div class="buton">
+            <button onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+        </div>
+    {% endif %}
+   
+  </nav>
 </header>
 <br>
 
@@ -68,10 +158,10 @@
             {% if user.is_authenticated %}
             <a href="{% url 'perfil' %}" > perfil </a>
             
-              <a href="{% url 'logout_view' %}" class="person"><i class="fa-regular fa-left-from-bracket"></i>&nbsp; cerrar sesion</a>
+              <a href="{% url 'logout_view' %}" class="person"><i class="fw-bold bi bi-box-arrow-left "></i>&nbsp; cerrar sesion</a>
           
               {% else %}
-                <a href="{% url 'login_view' %}" class="person"><i class="fa-regular fa-right-from-bracket"></i> &nbsp; iniciar sesion</a>
+                <a href="{% url 'login_view' %}" class="person"><i class="fa-solid fa-right-to-bracket"></i> &nbsp; iniciar sesion</a>
             {% endif %}
            
           </div>
@@ -101,7 +191,7 @@
                     <a href="#" > &nbsp; <i class="fa-brands fa-facebook"> &nbsp; </i></a>
                     <a href="https://www.instagram.com/petrocentrosas/" > &nbsp; <i class="fa-brands fa-instagram"> &nbsp; </i></a>
                     <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" > &nbsp; <i class="fa-brands fa-youtube"> &nbsp; </i></a>
-                    <a href="https://www.linkedin.com/company/petrocentro-sas/" > &nbsp; <i class="fa-brands fa-linkedin"></i> &nbsp; </a>
+                    <a href="https://www.linkedin.com/company/petrocentro-sas/" > &nbsp; <i class="fa-brands fa-linkedin"></i>  </a>
                   </div>
               </figure>
             </div>

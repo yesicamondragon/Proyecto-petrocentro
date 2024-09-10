@@ -295,7 +295,7 @@ html {
     grid-template-columns: repeat(2, 40% 60%);
 
     i {
-      font-family: var(--fuente);
+
       color: var(--color-1);
       font-size: 17px;
     }

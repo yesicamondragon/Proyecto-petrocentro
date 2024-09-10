@@ -6,78 +6,7 @@
 
 {% block titulo %} Petrocentro Oil and Gas, Well Testing, Petroleo {% endblock %}
 
-{% block nav%}
 
-
-    <!-- Barra de navegacion-->
-    <nav class="nav-2" >
-        <div class="logo">
-            <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
-        </div>
-        <div class="botones"  >
-            {% if request.resolver_match.url_name == 'index'    %}
-            <a class="little-boton " href="{% url 'index' %}">INICIO</a>
-            {% else %}
-            <a class="boton " href="{% url 'index' %}">INICIO</a>
-            {% endif %}
-            <a class="boton"  href="{% url 'servicios' %}">SERVICIOS</a>
-            <a class="boton"  href="{% url 'nosotros' %}">NOSOTROS</a>
-            <a class="boton"  href="{% url 'contacto'%}">CONTACTO</a>
-            <a class="boton"  href="{% url 'pqrs' %}">PQRS</a>
-        </div>
-        {% if user.is_authenticated %}
-            
-            <div class="buton-cerrar">
-                {% if usuario.foto_perfil %}
-                    <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="">
-                {% else %}
-                
-                    <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="">
-                {% endif %}
-                <ul class="lista-perfil" id="lista-perfil">
-                <li class="imagen">
-                    {% if usuario.foto_perfil %}
-                    <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="">
-                    {% else %}
-                    
-                    <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="">
-                    {% endif %}
-                </li>
-                <li class="informacion-perfil">
-                    <h4> {{ user.username }} </h4>
-                    
-                </li>
-                <li class="correo-perfil">
-                    <p> {{ user.email }} </p>
-                </li>
-                <div class="perfil-cerrar">
-                
-        
-                    <a href="{% url 'perfil' %}">
-                        <i class="fa-solid fa-user-pen icons"></i>
-                        &nbsp;Perfil
-                
-            
-                    
-                </li>
-                <li>
-                    <a href=" {% url 'logout_view' %} ">
-                        <i class="fa-duotone fa-sign-out"></i> &nbsp; Cerrar Sesion
-                    </a>
-                </li>
-                </div>
-                <li>
-                
-            </ul>
-            </div>
-                {% else %}
-                <div class="buton">
-                    <button  onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
-                </div>
-        {% endif %}
-    </nav>
-
-{% endblock %}
 
 {% block contenido %} 
     <!-- Imágen de Fondo-->
@@ -90,8 +19,17 @@
         </div>
 
     </section>
+
+    <div class="container-float" >
+
+        <button class="button-float">   
+           $
+        </button>
+        <span type="text" name=""   class="float-text"> Dólar hoy:  ${{ dolar }} </span>
+    </div>
+    
     <div class="dolar-hoy">
-        <p type="text" name=""   id="dolar"> Dólar hoy: ${{ dolar }} </p>
+        <p type="text" name=""   id="dolar"> Dólar hoy: <br> ${{ dolar }} </p>
         
     </div>
 
@@ -110,7 +48,7 @@
 
       <!-- Clientes-->
     <section class="c">
-        <div class="l" data-aos="fade-down">
+        <div class="l" >
             <h1>  Socios Comerciales  </h1>
             <p>En Petrocentro S.A.S, no solo nos esforzamos por cumplir con las expectativas de nuestros clientes, sino que nos comprometemos a superarlas en cada proyecto. Nuestra reputación se basa en la calidad de nuestro trabajo, la integridad de nuestro equipo y nuestro compromiso inquebrantable con la excelencia en todo lo que hacemos.</p>
         </div>
@@ -130,13 +68,13 @@
     
     <!--Oferta de servicios-->
     <section class="servicios">
-        <div class="let" data-aos="fade-down">
+        <div class="let" >
             <h1>Oferta de Servicios</h1>
             <p>Especializados en una amplia gama de servicios, desde well testing hasta pruebas y controles rigurosos, nuestro equipo altamente capacitado y experimentado garantiza resultados superiores en cada etapa del proceso. Nos destacamos por nuestra capacidad para adaptarnos a las necesidades específicas de cada cliente, ofreciendo soluciones personalizadas que optimizan la productividad y la seguridad en el campo petrolero.</p>
         </div>   
            
         <!-- Cards de promocion de servicios-->
-        <div class="card-group" data-aos="fade-up">
+        <div class="card-group" >
                 <div class="card" >
                     <h5 class="card-title">Pruebas Iniciales y Extensas</h5>
 
@@ -176,7 +114,7 @@
         
             <img class="img-fluid" src="{% static '/images/arboles.webp'%}" alt="">
         </div>
-        <div class="texto" data-aos="fade-up">
+        <div class="texto" >
             <h1>Comprometidos con el Medio Ambiente</h1>
             <p>
               Con un enfoque visionario hacia el desarrollo sostenible, Petrocentro S.A.S, se destaca por su compromiso inquebrantable con la preservación del medio ambiente. Conscientes de los desafíos ambientales que enfrenta nuestro planeta, Petrocentro S.A.S ha adoptado una postura proactiva hacia la mitigación de impactos negativos en los ecosistemas circundantes y en la atmósfera global. 

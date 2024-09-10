@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['72.167.141.51','petrocentro.co', 'www.petrocentro.co' ]
+ALLOWED_HOSTS = ['*' ]
 
 
 # Application definition
@@ -87,9 +87,9 @@ WSGI_APPLICATION = 'Petrocentro.wsgi.application'
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'petrocentro',
-        'USER': 'PTC-DB-01',
-        'PASSWORD': 'Ti.wt.24@',
+        'NAME': 'petrocentropagina',
+        'USER': 'root',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT':'3306',
     }

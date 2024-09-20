@@ -1,0 +1,321 @@
+{% extends "plantillas/plant_configuracion.html" %}
+{% load static %}
+{% block titulo %}
+    Configuracion
+{% endblock %}
+
+{% block nombre_pagina %} Configuracion {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+<div class="btn-accion-empleados align-center " >
+  {% if crear == 1 %}
+      <div class="btn-accion-empleado">
+          <button type="button"  class="btn agregar-empleado" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="fa-solid fa-camera-retro icons"></i>
+            &nbsp;
+            Agregar Foto
+          </button>
+      </div>
+        <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar Foto</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="{% url 'nosotros_foto' %}" method="post"  enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="agregar">Agregar Foto</label>
+                <input type="file" class="form-control" id="agregar"  name="agregar" aria-describedby="agregarHelp" accept= ".avif, .webp, .png, .jpg" >
+            </div>
+            <div class="mb-3">
+                <label for="descripcion">Descripcion</label>
+                <input type="text" name="descripcion" class="form-control" id="descripcion" placeholder="Agregar una breve descripcion">
+            </div>
+            <div class="mb-3 perfil-buttons">
+                <input type="submit" class="btn btn-success" value="Registrar">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+    {% else %}
+        <div class="btn-accion-empleado">
+          <button type="button"  class="btn agregar-empleado" disabled>
+            <i class="fa-solid fa-camera-retro icons"></i>
+            &nbsp;
+            Agregar Foto
+          </button>
+      </div>
+  {% endif %}
+</div>
+<br><br>
+<!-- Button trigger modal -->
+  
+
+
+
+<section class="cards_fotos">
+    {% for foto in fotos %}
+    <!-- Tarjeta 1-->
+     {% if editar == 1  %}
+     <article class="card card--1 " data-bs-toggle="modal" data-bs-target="#staticBackdrop{{foto.id}}">
+      {% else %}
+      <article class="card card--1 " >
+      {% endif %}
+        <div class="card__img">
+        </div>
+        {% if  foto.foto %}
+           <div class="card__img--hover" style="background-image: url('{{ foto.foto.url }}')">
+
+        {% else %}
+            <div class="card__img--hover" style="background-image: url('{% static '/images/no_foto.avif' %}')">
+
+        {% endif %}
+            
+            
+        </div>
+    </a>
+    <div class="card__info">
+        <span class="card__category"> {{ foto.descripcion}} </span> 
+        <h3 class="card__title">
+            <i class="fa-solid fa-trash icons text-danger"></i>
+            &nbsp; 
+            <i class="fa-solid fa-pen-to-square text-primary"></i>
+            
+        </h3>       
+        
+    </div>
+</article>
+<div class="modal fade" id="staticBackdrop{{foto.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Editar o Eliminar foto.</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">  
+            <form action="{% url 'editar-nosotros' foto.id %}" enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                {% if foto.foto  %}
+                  <div class="foto-perfil" style="margin:auto">
+                      <div class="mb-3">
+
+                          <img  class="foto-perfil" src="{{ foto.foto.url }}" alt="{{ foto.foto.name }}">
+                          {% if eliminar == 1 %}
+                              <button class="btn " type="button" style="position:absolute;" onclick="deletePhoto('{{ foto.foto.name }}','{{ foto.id }}')" title="Eliminar">  
+                                <i class="fa-solid fa-trash btn text-danger"></i>
+                              </button>
+                          {% else %}
+                              <button class="btn " type="button" style="position:absolute;" title="No puedes eliminar">  
+                                <i class="fa-solid fa-trash btn text-danger"></i>
+                              </button>
+                          {% endif %}
+                          </div>
+                      </div>
+                {% else %}
+
+                      <div class="mb-3">
+                          <label for="foto" class="form-label">Foto</label>
+                          <input type="file"  class="form-control" id="foto" name="foto" acept=".png, .avif, .jpeg, .jpg, .webp">
+
+                      </div>
+                        
+                {% endif %}
+                <br>
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripcion</label>
+                    <input type="text" name="descripcion" id="descripcion"  class="form-control" value="{{ foto.descripcion }}">               
+                </div>
+                <div class="perfil-buttons">
+                    <input type="submit" value="Registrar" class="btn btn-primary">
+                </div>
+                </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          {% if eliminar == 1 %}
+              <button type="button" onclick=" eliminarFoto('{{ foto.foto.name }}','{{ foto.id }}')" class="btn btn-danger">Eliminar</button>
+          {% else %}
+          <button type="button" class="btn btn-danger" title="No se puede eliminar" diasabled>Eliminar</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endfor %}
+  <!-- Tarjeta 2-->
+  
+  </section>
+  
+  
+  <!-- Modal de Tarjetas-->
+
+
+{% endblock %}
+
+{% block script%}
+
+<script>
+  function eliminarFoto(filename,id) {
+    // Simulando una petición fetch para eliminar la foto
+    console.log(filename)
+    console.log(id)
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+      });
+      swalWithBootstrapButtons.fire({
+        title: "Estás seguro?",
+        text: "No volverás a ver tú archivo nunca más!.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, elimínalo!.",
+
+        cancelButtonText: "No, cancelar!.",
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          console.log(filename)
+          const csrfToken = '{{ csrf_token }}';
+            fetch(`/eliminar-foto-nosotros/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+    
+                body: JSON.stringify({ 
+                ruta_relativa : filename,
+                id_foto: id  })
+    
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon:'success',
+                        title: 'Foto Eliminada',
+                        text: 'La foto se ha eliminado correctamente.',
+                        timer: "1000",
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+    
+                    }).then(function(){
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon:'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                    window.location.reload()
+                }
+            })
+            .catch(error => console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error));
+
+        } else if (
+          /* Read more about handling dismissals below */
+          result.dismiss === Swal.DismissReason.cancel
+        ) {
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "Tu archivo está a salvo de eliminarse",
+            icon: "error"
+          });
+        }
+      });
+
+  
+}
+function deletePhoto(filename,id) {
+    // Simulando una petición fetch para eliminar la foto
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+      });
+      swalWithBootstrapButtons.fire({
+        title: "Estás seguro?",
+        text: "No volverás a ver tú archivo nunca más!.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, elimínalo!.",
+
+        cancelButtonText: "No, cancelar!.",
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+            console.log(filename)
+            const csrfToken = '{{ csrf_token }}';
+            fetch(`/delete-photo-nosotros/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+    
+                body: JSON.stringify({ ruta_relativa : filename,
+                id_foto: id  })
+    
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon:'success',
+                        title: 'Foto Eliminada',
+                        text: 'La foto se ha eliminado correctamente.',
+                        timer: "1000",
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+    
+                    }).then(function(){
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon:'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                    window.location.reload()
+                }
+            })
+            .catch(error => console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error));
+
+        } else if (
+          /* Read more about handling dismissals below */
+          result.dismiss === Swal.DismissReason.cancel
+        ) {
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "Tu archivo está a salvo de eliminarse",
+            icon: "error"
+          });
+        }
+      });
+
+  
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "plantillas/plant_configuracion.html" %}
+{% block titulo %}
+    Crear Post
+{% endblock %}
+
+{% block nombre_pagina %} <a href="{% url 'crear_post_view'%}" style="color:black; text-decoration:none"><i class="fa-solid fa-arrow-left icons "></i> </a> &nbsp;  Crear Post {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+
+<form method="post" action="{% url 'guardar_post' %}" enctype="multipart/form-data" id="crear_post"> 
+        {% csrf_token %}
+        <div class="formulario_crear_post ">
+
+                <div class="mb-3">
+                        <label for="image" class="form-label"> Imagen </label>
+                        
+                        {{ form.image }}
+                </div>
+                <div class="mb-3 ">
+                        <label for="titulo" class="form-label"> Titulo </label>
+                        {{ form.titulo }}
+                        
+                </div>
+                <div class="mb-3 ">
+                        <label for="descripcion" class="form-label"> Descripcion </label>
+                        {{ form.descripcion }}
+                        
+                </div>
+                <div class="mb-3">
+                        <label for="categoria" class="form-label">
+                                Categoria
+                        </label>
+                        {{ form.categoria }}
+                </div>
+                <div class="mb-3" >
+                        <label for="{{ form.empleado.id_for_label }}">¿Este post es solo para el Empleado?:</label>
+                        {{ form.empleado }} 
+
+                </div>
+                <div class="mb-3 ">
+                        <label for="contenido" class="form-label"> Contenido </label>
+                        {{ form.contenido }}
+                        
+                </div>
+        </div>
+        <div class="mb-3 perfil-buttons" >
+                <button type="submit"  style="width:100%"class="btn btn-primary">Guardar</button>
+
+        </div>
+</form>
+<br><br><br>
+
+
+{% endblock contenido %}

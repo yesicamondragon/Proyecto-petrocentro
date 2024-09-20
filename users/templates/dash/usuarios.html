@@ -1,0 +1,278 @@
+{% extends "plantillas/dashboard.html" %}
+
+{% load static %}
+
+{% block titulo %}
+    Usuarios 
+{% endblock %}
+{% block nombre_pagina %} Usuarios {% endblock %}
+
+
+
+{% block contenido %}
+<br>
+<br>
+
+<!-- Botones de acceso a agregar usuario y descargar pdf-->
+<div class="btn-accion-empleados">
+    <!-- Agregar usuario -->
+     {% if crear == 1 %}
+     <button type="button" class="btn agregar-empleado" data-bs-toggle="modal" data-bs-target="#exampleModal">
+         <i class="fa-solid fa-user-plus"></i>&nbsp;
+         Registrar Usuario
+        </button>
+    {% else %}
+     <button type="button" class="btn agregar-empleado" disabled>
+         <i class="fa-solid fa-user-plus"></i>&nbsp;
+         Registrar Usuario
+        </button>
+    {% endif %}
+    
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel"> Registrar Usuario </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Formulario de registro usuario-->
+            <form action="" method="POST">
+                 {% csrf_token %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    {{field.label_tag}}
+                    {{field}}
+                </div>
+                {% endfor %}
+
+
+                <input type="submit" value="Registrar" class="btn btn-primary" >
+   
+            </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+           
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- Descargar pdf -->
+     {% if consultar == 1 %}
+     <button type="buton" class="descargar-pdf"> 
+         <i class="fa-solid fa-file-arrow-down"></i>&nbsp;
+         Descargar PDF
+        </button>
+    {% else %}
+     <button type="buton" disabled class="descargar-pdf"> 
+         <i class="fa-solid fa-file-arrow-down"></i>&nbsp;
+         Descargar PDF
+
+        </button>
+    {% endif %}
+</div>
+
+
+<br>
+<br>
+
+<!-- Tabla que lista los usuarios que estan actualmetne en la base de datos del sistema-->
+<div class="container-table">
+
+    <table class="table">
+        <div class="filtros">
+          
+            {% include "plantillas/buscador.html" %}
+        </div>
+   
+
+    {% if paginas %}
+    <thead>
+        <tr>
+            <th class="foto" scope="col"> </th>
+            <th class="text-center" scope="col">NOMBRE</th>       
+            <th scope="col">TELEFONO</th>
+            <th scope="col" > IDENTIFICACION</th>
+            
+            <th scope="col">ACCIONES</th>
+
+        </tr>
+    </thead>
+                {% for usuario in paginas %}
+               
+        <tbody>
+                <tr>
+                     <!-- Campos de la tabla -->
+                     {% if usuario.foto_perfil  %}
+                     <td data-label="FOTO"><img class="imagen-table" src="{{ usuario.foto_perfil.url }}" alt="{{ usuario.foto_perfil }}"></td>
+                     {% else %}
+                     <td data-label="FOTO"><img class="imagen-table" src="{% static 'images/sin_foto.webp' %}" alt="{{ usuario.foto_perfil }}"></td>
+                     
+                     {% endif %}
+               
+                    <td class="text-center" data-label="NOMBRE">
+                       {{ usuario.nombre }} <br>
+                        <span class="correo">{{ usuario.correo }}</span>
+                    </td>
+                    <td data-label="TELEFONO">{{ usuario.telefono }}</td>
+                   <td data-label='Identificacion'> {{ usuario.identificacion }} </td>
+              
+                    <td data-label="ACCIONES"> 
+                
+                       
+                       
+                     
+                         <!-- boton ver más -->
+                        {% if consultar == 1 %}
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal_ver_mas{{ usuario.id }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="Modal_ver_mas{{ usuario.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel"> {{ usuario.nombre}} </h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="ver-mas text-start" >
+                                            <h5> INFORMACION DE USUARIO</h5>
+                                            <br>
+                                            <div class="foto-perfil">
+                                                <div class="mb-3" style="margin:auto">
+                                                    {% if  usuario.foto_perfil  %}
+                                                        <img src="{{ usuario.foto_perfil.url }}" alt="" class="foto-perfil">
+                                                    {% else %}
+                                                        <img src="{% static 'images/sin_foto.webp' %}" alt="" class="foto-perfil">
+                                            
+                                                    {% endif %}
+                                                    <hr>
+
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="lista">
+                                        
+                                                <h6> NOMBRE:</h6>
+                                                <p  style="text-transform:UPPERCASE">{{ usuario.nombre }} </p>
+                                
+                                            </div>
+                                            <hr class=" text-center">
+
+                                            <div class="lista">
+
+                                                <h6>IDENTIFICACION:</h6>
+                                                <p> {{ usuario.identificacion }} </p>
+                                            </div>
+
+                                            <hr>
+                                            <div class="lista">
+                                                <h6 >CORREO</h6>
+                                                <p> {{ usuario.correo }} </p>
+                                            </div>
+                                            <hr>
+
+                                            <div class="lista">
+                                                <h6> TELEFONO : </h6>
+                                            
+                                                <p> {{ usuario.telefono }} </p>
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+                                                <h6>ESTADO: </h6>
+                                                {% if usuario.estado_id == 1 %}
+                                                    <p style="color:green">ACTIVO</p>
+                                                {% else %}
+                                                    <p style="color:red">INACTIVO</p>
+                                            
+                                                {% endif %}
+                                            </div>
+                                        
+
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <button type="button" class="btn btn-gray" title="Ver más" disabled>
+                                <i class="fa-solid fa-eye"></i>
+                            </button>   
+                        {% endif %}
+
+                       
+                    </td>
+               
+  
+                      
+                </tr>
+                
+              
+                {% endfor %}
+
+                {% else %}
+
+                    <h1 class="text-center" >No hay Usuarios registrados </h1>
+
+                    
+                {% endif %}
+
+       
+        </tbody>
+    </table>
+    </div>
+    <div class="row mt-3 justify-content-center">
+        <nav aria-label="page navigation">
+            <ul class="pagination">
+                {% if insumos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ insumos.previous_page_number }}">&laquo;</a>
+                </li>
+                {% endif %}
+                {% for pagina in empleados.paginator.page_range %}
+                    <li class="page-item{% if insumos.number == pagina %} active{% endif %}">
+                        <a class="page-link" href="?page={{ pagina }}">{{ pagina }}</a>
+                    </li>
+                {% endfor %}
+                {% if insumos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ insumos.next_page_number }}">&raquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ insumos.paginator.num_pages }}">Última página</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    {% include "plantillas/pagination.html" %}
+{% endblock  %}
+
+
+
+{% block script %}
+
+    <!-- Link de script bootstrap-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="{% static 'js/script.js' %}" > </script>
+    <script>
+
+
+    </script>
+
+{% endblock  %}

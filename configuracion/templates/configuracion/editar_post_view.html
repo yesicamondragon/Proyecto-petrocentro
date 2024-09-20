@@ -1,0 +1,61 @@
+{% extends "plantillas/plant_configuracion.html" %}
+{% block titulo %}
+    Editar Post
+{% endblock %}
+
+{% block nombre_pagina %} <a href="{% url 'crear_post_view'%}" style="color:black; text-decoration:none"><i class="fa-solid fa-arrow-left icons "></i> </a> &nbsp;  Editar Post {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+
+<form method="post" action="{% url 'editar_post_view' post.slug %}" enctype="multipart/form-data" > 
+        {% csrf_token %}
+        <div class="formulario_crear_post ">
+
+                <div class="mb-3">
+                        <label for="{{ form.image.id_for_label }}" class="form-label"> Imagen </label>
+                        
+                        {{ form.image }}
+                </div>
+                <div class="mb-3 ">
+                        <label for="{{ form.titulo.id_for_label }}" class="form-label"> Titulo </label>
+                        {{ form.titulo }}
+                        
+                </div>
+                <div class="mb-3 ">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label"> Descripcion </label>
+                        {{ form.descripcion }}
+                        
+                </div>
+                <div class="mb-3">
+                        <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                                Categoria
+                        </label>
+                        {{ form.categoria }}
+                </div>
+                <div class="mb-3" >
+                        <label for="{{ form.empleado.id_for_label }}">¿Este post es solo para el Empleado?:</label>
+                        {{ form.empleado }} 
+
+                </div>
+                <div class="mb-3 ">
+                        <label for="{{ form.estado.id_for_label }}" class="form-label"> Publicado/ No Publicado </label>
+                        {{ form.estado }}
+                        
+                </div>
+                <div class="mb-3 ">
+                        <label for="{{ form.contenido.id_for_label }}" class="form-label"> Contenido </label>
+                        {{ form.contenido }}
+                        
+                </div>
+        </div>
+        <div class="mb-3 perfil-buttons" >
+                <button type="submit"  style="width:100%"class="btn btn-primary">Guardar</button>
+
+        </div>
+</form>
+<br><br><br>
+
+
+{% endblock contenido %}

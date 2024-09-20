@@ -14,7 +14,10 @@ html {
   margin: 0;
   padding: 0;
 }
-
+.formulario_crear_post {
+  margin: auto;
+  width: 80%;
+}
 /* Barra lateral en pantallas grandes*/
 .sidebar img {
   width: 200px;
@@ -300,6 +303,8 @@ html {
       font-size: 17px;
     }
   }
+
+
 
   .imagen-perfil {
     width: 75px;
@@ -1370,14 +1375,15 @@ html {
     width: 90%;
     margin: auto;
   }
-}
-.proyecto-insumos {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  .formulario_crear_post {
+    width: 100%;
+  }
 }
 
-@media screen and(max-width: 700px) {
+
+
+@media screen and (max-width: 700px) {
+
   .filtros {
     display: grid;
     grid-template-columns: repeat(1, 1fr);

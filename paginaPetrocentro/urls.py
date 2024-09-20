@@ -1,7 +1,13 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap
 from .views import CustomPasswordResetView, CustomPasswordResetConfirmView
+
+sitemaps = {
+    'sitemap': StaticViewSitemap,  # Incluimos el sitemap de las vistas estáticas
+}
 urlpatterns = [
     
     path ('', views.index , name='index'),
@@ -31,13 +37,9 @@ urlpatterns = [
     
     path('contacto_correo/', views.contacto_mensaje, name="contacto_correo"),
     
-         #Url de editar perfil
-    path('perfil/', views.perfil, name="perfil"),
-    path('editar_perfil/', views.editar_perfil, name="editar_perfil"),
-    path('password_change/ <int:id>' , views.password_change, name="password_change"),
-    path('delete-photo/', views.delete_photo, name='delete-photo'),
+
     
     path("politicas_nosotros/", views.politicas_nosotros , name="politicas_nosotros"),
     #Url reset password
- 
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 ]

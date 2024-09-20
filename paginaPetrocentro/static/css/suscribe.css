@@ -1,0 +1,113 @@
+.subscribe-container {
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        color: white;
+        font-family: 'Helvetica';
+        max-width: 900px;
+        margin: 2rem auto;
+
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .message{
+        color: #fdfdfd;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .subscribe-container::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        left: -50px;
+        width: 100px;
+        height: 100px;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f39c12"><path d="M12 0l-11 6v12l11 6 11-6v-12l-11-6zm-9 16.813v-9.626l9-4.908 9 4.908v9.626l-9 4.909-9-4.909z"/></svg>') no-repeat center center;
+        background-size: contain;
+        opacity: 0.1;
+        transform: rotate(-45deg);
+    }
+
+    .subscribe-title {
+        font-size: 25px;
+        margin-bottom: 1rem;
+        color: #0c8f4b
+    }
+
+    .subscribe-description {
+        font-size: 16px;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+    }
+
+    .subscribe-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .subscribe-input {
+        background-color: rgba(243, 156, 18, 0.1);
+        border: 2px solid #0b6838;
+        border-radius: 4px;
+        color: white;
+        font-size: 16px;
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .subscribe-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .subscribe-input:focus {
+        background-color: #0b68381f;
+        outline: none;
+    }
+
+    .subscribe-button {
+        background-color: #0b6838;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 18px;
+
+        padding: 0.8rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .subscribe-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px #0b683828;
+    }
+
+    .oil-drop {
+        position: absolute;
+        background: #f39c12;
+        border-radius: 50%;
+        opacity: 0.1;
+    }
+
+    .oil-drop:nth-child(1) {
+        width: 30px;
+        height: 30px;
+        top: 20%;
+        right: 10%;
+    }
+
+    .oil-drop:nth-child(2) {
+        width: 20px;
+        height: 20px;
+        bottom: 30%;
+        left: 15%;
+    }
+
+    .oil-drop:nth-child(3) {
+        width: 25px;
+        height: 25px;
+        top: 50%;
+        right: 20%;
+    }

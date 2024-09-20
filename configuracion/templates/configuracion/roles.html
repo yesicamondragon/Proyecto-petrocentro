@@ -1,0 +1,286 @@
+{% extends "plantillas/plant_configuracion.html" %}
+{% load static %}
+{% block titulo %}
+    Asignación de roles
+{% endblock %}
+
+{% block nombre_pagina %} Asignación de roles {% endblock %}
+
+{% block contenido %}
+
+<br><br>
+<div class="btn-accion-empleados align-center " >
+        <!-- Agregar empleado -->
+    
+            {% if crear == 1 %}
+                <button type="button" class="btn agregar-empleado" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fa-solid fa-user-plus"></i>&nbsp;
+                    Crear Rol
+                </button>
+            {% else %}
+    
+            <button type="button" class="btn agregar-empleado" disabled>
+                <i class="fa-solid fa-user-plus"></i>&nbsp;
+                Crear Rol
+            </button>
+            {% endif %}
+    
+        
+        
+        <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"> Registrar Rol </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'crear-rol' %}" >
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control" name="nombre" id="nombre">
+                            </div>
+                            <div class="mb-3 perfil-buttons">
+                                <input type="submit" value="Registrar" class="btn btn-primary">
+                            </div>
+                        </form>
+            
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                
+                    </div>
+                </div>
+                </div>
+            </div>
+  
+    </div>
+    
+<br><br>
+<div class="container-table roles-usuario">
+      {% for rol in roles  %}
+
+      <div class="card roles" style="width: 18rem;">
+        <img src="{% static 'images/rol.avif' %}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title"> {{ rol.nombre }}</h5>
+          <p class="card-text"> Permisos del rol  {{ rol.nombre }} </p>
+        </div>
+        <ul>
+                {% for permisos in rol_permisos  %}
+                {% if rol.nombre == permisos.rol.nombre%}
+                <li> {{  permisos.permiso.nombre }} </li>
+
+                {% endif %}
+                {% endfor %}
+        </ul>
+        <div class="card-body">
+                {% if editar == 1%}
+                <button type="button"class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal_editar{{rol.nombre}}" onclick="filtrarPermisos('{{ rol.id_rol }}' ,'{{ rol.nombre }}')">Editar</button>
+                {% else %}
+                <button type="button" class="btn btn-secondary" disabled>Editar</button>
+
+                {% endif %}
+        </div>
+      </div>
+      <div class="modal fade" id="modal_editar{{rol.nombre}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Asignar Roles</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'asignar-permisos' rol.id_rol %}" method="post" >
+                    {% csrf_token %}
+                <div class="mb-3">
+                        <label for="id_rol">Nombre Rol</label>
+                        <input type="text"  class="form-control" id="id_rol" name="id_rol" value="{{ rol.nombre }}" disabled>
+
+                        
+                </div>
+                <div class="formulario-perfil" >
+                    
+                        <div class="mb-3"  id="crearPermiso{{rol.nombre}}" >            
+                        </div>
+                   
+                        <div class="mb-3"  id="consultarPermiso{{rol.nombre}}" >
+                        </div>
+                 
+                        <div class="mb-3 " id="editarPermiso{{rol.nombre}}">
+                        </div>
+                
+                        <div class="mb-3"  id="eliminarPermiso{{rol.nombre}}" >
+                        </div>
+                  
+
+                        <div class="mb-3"  id="usuariosPermiso{{rol.nombre}}" >
+                        </div>
+                  
+                    
+            
+                    </div>
+
+
+
+                <div class="perfil-buttons">
+                    <input type="submit" value="Asignar Roles" class="btn btn-primary">
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endfor %}
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        function Label(nombre,permiso,input)
+        {
+        
+            const crearLabel = document.createElement('label')
+            crearLabel.textContent = nombre;
+            crearLabel.htmlFor = input ;
+            crearLabel.classList.add('form-check-label')
+            permiso.appendChild(crearLabel)
+        }
+        function Input(nombre,permiso,boolean){
+            const crearInput = document.createElement('input')
+            crearInput.type = 'checkbox'
+            crearInput.name = nombre
+            crearInput.id = nombre
+            crearInput.classList.add('form-check-input')
+            crearInput.checked = boolean
+            permiso.appendChild(crearInput)
+        }
+        
+        
+        // Simulando una petición fetch para eliminar la fotofub
+        function filtrarPermisos(id,nombre) {
+            // Simulando una petición fetch para eliminar la foto
+            const modal = document.getElementById('modal_editar'+nombre)
+        
+            const crearPermiso = document.getElementById('crearPermiso'+nombre);
+        
+            const consultarPermiso = document.getElementById('consultarPermiso'+nombre);
+            console.log(consultarPermiso);
+        
+            const editarPermiso = document.getElementById('editarPermiso'+nombre);
+        
+            const eliminarPermiso = document.getElementById('eliminarPermiso'+nombre);
+        
+        
+            const usuariosPermiso = document.getElementById('usuariosPermiso'+nombre);
+        
+
+        
+            const csrfToken = '{{ csrf_token }}';
+            fetch(`/filtrar-permisos/`, {
+                    method: 'POST',
+                    headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                    },
+        
+                    body: JSON.stringify({ rol : id})
+        
+                    
+        })
+        .then(response => response.json())
+        .then(data => {
+                if (data.status === 'success') {
+                modal.addEventListener('hidden.bs.modal', function () {
+                        // Elimina el contenido de los divs
+                        crearPermiso.innerHTML =''; 
+                        consultarPermiso.innerHTML = ''; 
+                        editarPermiso.innerHTML = ''; 
+                        eliminarPermiso.innerHTML = '';
+                        usuariosPermiso.innerHTML = '';
+                     
+                        
+                });
+        
+                /* Crear */
+                if (data.data.crear === 1  ){
+        
+                        Input('crear', crearPermiso, true)
+                        Label('Crear',crearPermiso,'crear')
+        
+                }
+                else{
+                        Input('crear', crearPermiso, false)
+                        Label('Crear',crearPermiso,'crear')
+                }
+                /* Consultar*/
+                if (data.data.consultar === 1){
+                        Input('consultar', consultarPermiso, true)
+                        Label('Consultar',consultarPermiso,'consultar')
+        
+                }else{
+                        Input('consultar', consultarPermiso, false)
+                        Label('Consultar',consultarPermiso,'consultar')
+                }
+        
+                /* Editar */
+                if (data.data.editar === 1){
+                        Input('editar', editarPermiso, true)
+                        Label('Editar',editarPermiso,'editar')
+        
+                }
+                else{
+                        
+                        Input('editar', editarPermiso, false)
+                        Label('Editar',editarPermiso,'editar')
+                        
+                }
+                /* Eliminar */
+                if (data.data.eliminar === 1){
+        
+                        Input('eliminar', eliminarPermiso, true)
+                        Label('Eliminar',eliminarPermiso,'eliminar')
+                        
+                }else{
+                        
+                        Input('eliminar', eliminarPermiso, false)
+                        Label('Eliminar',eliminarPermiso,'eliminar')
+                        
+                }
+      
+                if (data.data.usuarios === 1){
+        
+                        Input('usuarios', usuariosPermiso, true)
+                        Label('Usuarios',usuariosPermiso,'usuarios')
+                        
+                }else{
+                        
+                        Input('usuarios', usuariosPermiso, false)
+                        Label('Usuarios',usuariosPermiso,'usuarios')
+                        
+                }   
+               
+                } else {
+                Swal.fire({
+                        icon:'error',
+                        title: 'Error',
+                        text: data.message,
+                });
+        
+                }
+        })
+        .catch(error => console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error));
+        
+        }
+
+
+</script>
+{% endblock %}

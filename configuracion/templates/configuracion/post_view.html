@@ -1,0 +1,83 @@
+{% extends "plantillas/plant_configuracion.html" %}
+{% load static %}
+{% block titulo %}
+Post
+{% endblock %}
+
+{% block nombre_pagina %}  Posts {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+<div class="btn-accion-empleados align-center " >
+  {% if crear == 1 %}
+      <div class="btn-accion-empleado">
+          <button type="button"  class="btn agregar-empleado" onclick="window.location.href='{% url 'crear_post' %}' "  >
+            <i class="fa-solid fa-camera-retro icons"></i>
+            &nbsp;
+            Agregar Post
+          </button>
+      </div>
+        <!-- Modal -->
+
+    {% else %}
+        <div class="btn-accion-empleado">
+          <button type="button"  class="btn agregar-empleado" disabled>
+            <i class="fa-solid fa-camera-retro icons"></i>
+            &nbsp;
+            Agregar Post
+          </button>
+      </div>
+  {% endif %}
+</div>
+<br><br>
+<!-- Button trigger modal -->
+  
+
+
+
+<section class="cards_fotos">
+    {% for post in posts %}
+    <!-- Tarjeta 1-->
+     {% if editar == 1  %}
+     <article class="card card--1 " onclick=" window.location.href='{% url 'editar_post_view' post.slug %} ' " >
+      {% else %}
+      <article class="card card--1 " >
+      {% endif %}
+        <div class="card__img">
+        </div>
+        {% if  post.image %}
+           <div class="card__img--hover" style="background-image: url('{{ post.image.url }}')">
+
+        {% else %}
+            <div class="card__img--hover" style="background-image: url('{% static '/images/no_foto.avif' %}')">
+
+        {% endif %}
+            
+            
+        </div>
+    </a>
+    <div class="card__info">
+        <span class="card__category"> {{ post.descripcion}} </span> 
+        <h3 class="card__title">
+            <i class="fa-solid fa-trash icons text-danger"></i>
+            &nbsp; 
+            <i class="fa-solid fa-pen-to-square text-primary"></i>
+            
+        </h3>       
+        
+    </div>
+</article>
+
+
+{% endfor %}
+  <!-- Tarjeta 2-->
+  
+  </section>
+  
+  
+  <!-- Modal de Tarjetas-->
+
+
+{% endblock %}
+

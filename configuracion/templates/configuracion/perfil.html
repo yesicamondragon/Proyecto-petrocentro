@@ -1,0 +1,274 @@
+{% extends "plantillas/plant_configuracion.html" %}
+
+{% load static %}
+{% block titulo %}
+    Editar Perfil 
+{% endblock %}
+
+{% block nombre_pagina %} Editar Perfil {% endblock %}
+
+{% block contenido %}
+
+<!-- Formulario para editar información del usuario -->
+ {% if usuario  %}
+    
+<br>
+ <div class="">
+     <form action="{% url 'editar_perfil' %}"  method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        
+        <div class="foto-perfil">
+            <div class="mb-3" style="margin:auto">
+                {% if  usuario.foto_perfil  %}
+                <img src="{{ usuario.foto_perfil.url }}" alt="" class="foto-perfil">
+                <button class="btn " type="button" style="position:absolute;" onclick="deletePhoto('{{ usuario.foto_perfil.name }}')">  <i class="fa-solid fa-trash btn text-danger"></i></button>
+                <input type="file" name="foto" id="foto" class="form-control" value="{{ usuario.foto_perfil }}"  style="display:none"  disabled >
+
+                <hr>
+                {% else %}
+                <img src="{% static 'images/sin_foto.webp' %}" alt="" class="foto-perfil">
+                <hr>
+                <input type="file" name="foto" id="foto" class="form-control" value="{{ usuario.foto_perfil }}" accept= ".avif, .webp, .png, .jpg" disabled >
+           
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        <div class="formulario-perfil">
+
+            <div class="mb-3">
+
+                <label for="identificacion " class="form-label">Identificacion </label>
+                <input type="number" name="identificacion" id="identificacion" class="form-control" value= "{{ usuario.identificacion }}" disabled >
+                
+            </div>
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre </label>
+                <input type="text" name="nombre" id="nombre" class="form-control" value="{{ usuario.nombre }}"  disabled>
+
+            </div>
+            <div class="mb-3">
+
+                <label for="correo" class="form-label">Correo Electrónico</label>
+                <input type="text"  name="correo" id="correo" class="form-control" value="{{ usuario.correo }}" disabled>
+                
+            </div>
+            <div class="mb-3">
+                
+                <label for="telefono" class="form-label"> Teléfono </label>
+                <input type="text" name="telefono" id="telefono"  class="form-control" value="{{ usuario.telefono }} " disabled>
+                
+            </div>
+            {% if empleado %}
+            <div class="mb-3">
+                
+                <label for="fecha" class="form-label">Fecha Ingreso </label>
+                <input type="text"  name="fecha" id="fecha" class="form-control" value="{{ empleado.fecha_ingreso }}" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="cargo" class="form-label"> Cargo </label>
+                <input type="text" name="cargo " class="form-control" value=" {{ empleado.id_cargo.nombre }} " disabled>
+                
+            </div>
+            <div class="mb-3">
+                <label for="ubicacion" class="form-label"> Ubicacion </label>
+                <input type="text" name="ubicacion" class="form-control" value=" {{ empleado.id_ubicacion.nombre }} " disabled>
+                
+            </div>
+            {% endif %}
+        
+        </div>
+            <div class="mb-3 perfil-buttons">
+                
+                <input type="submit" id="guardar" style=" display:none;   " class="btn btn-success" value="Guardar Cambios">
+            </div>
+            
+            </form>
+            
+            <br>
+            <hr  >
+        </div>
+        <div class="perfil-buttons">
+
+            <button class="btn btn-info " id="editar" onclick="submit()" > Editar </button>
+            <hr>
+            <button class="btn btn-primary" id="contraseña" data-bs-toggle="modal" data-bs-target="#modalEditarContraseña{{ usuario.id }}"> Cambiar contraseña </button>
+            
+        </div>
+        <!-- Modal de editar usuario -->
+        <div class="modal fade" id="modalEditarContraseña{{ usuario.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel"> Cambiar Contraseña</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Cuerpo del modal-->
+                <div class="modal-body">
+                    <!-- Formulario-->
+                    <form class="formEdit" action="{% url 'password_change' usuario.id  %}"  method="post">
+                        {% csrf_token %}
+
+                   
+                        <div class="mb-3">
+                            <label for="new-contraseña1" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="new-contraseña1" name="new-password1"   >
+                        </div>
+                     
+                        <div class="mb-3">
+                            <label for="new-contraseña2" class="form-label">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="new-contraseña2" name="new-password2">
+                        </div>
+                        <div class="perfil-buttons">
+
+                            <input type="submit"  value="Editar" class="btn btn-primary"> 
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-editar" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    
+        
+ 
+    
+
+ {% endif %}
+
+{% endblock %}
+{% block script %}
+<script>
+
+    function submit(){
+        console.log('click')
+        const identificacion = document.getElementById('identificacion');
+        const nombre = document.getElementById('nombre');   
+        const correo = document.getElementById('correo');
+        const telefono = document.getElementById('telefono');
+        const guardar= document.getElementById('guardar');
+        const contraseña = document.getElementById('contraseña');
+        const foto = document.getElementById('foto');
+
+        guardar.style.display="block";
+        guardar.style.transition="all 500ms ease-in";
+        contraseña.style.display="none"    
+        nombre.style.transition="all 500ms ease-in-out"   
+        identificacion.style.transition="all 500ms ease-in-out"   
+        telefono.style.transition="all 500ms ease-in-out"   
+        correo.style.transition="all 500ms ease-in-out"   
+        nombre.disabled = false;
+        identificacion.disabled= false;
+        telefono.disabled =false;
+        correo.disabled = false;
+         
+        if (foto.disabled == true){
+
+            foto.disabled = false;
+        }
+        document.getElementById('editar').innerText = 'Cancelar';
+        document.getElementById('editar').style.background = 'red';
+        document.getElementById('editar').style.outline = 'none';
+        document.getElementById('editar').style.color = 'white';
+        document.getElementById('editar').style.border = '0px solid red';
+        document.getElementById('editar').style.transition = 'all 500ms ease-in';
+        
+        document.getElementById('editar').onclick = function(){
+            nombre.disabled = true;
+            identificacion.disabled = true;
+            telefono.disabled = true;
+            correo.disabled = true;
+            foto.disabled = true;
+            guardar.style.display="none";
+
+       
+
+                window.location.reload();
+
+        }
+        
+        
+        
+    }
+    
+    function deletePhoto(filename) {
+        // Simulando una petición fetch para eliminar la foto
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: "btn btn-success",
+              cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+          });
+          swalWithBootstrapButtons.fire({
+            title: "Estás seguro?",
+            text: "No volverás a ver tú archivo nunca más!.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, elimínalo!.",
+
+            cancelButtonText: "No, cancelar!.",
+            reverseButtons: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+                console.log(filename)
+                const csrfToken = '{{ csrf_token }}';
+                fetch(`/delete-photo/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+        
+                    body: JSON.stringify({ ruta_relativa : filename})
+        
+                    
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon:'success',
+                            title: 'Foto Eliminada',
+                            text: 'La foto se ha eliminado correctamente.',
+                            timer: "1000",
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+        
+                        }).then(function(){
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon:'error',
+                            title: 'Error',
+                            text: data.message,
+                        });
+                        window.location.reload()
+                    }
+                })
+                .catch(error => console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error));
+
+            } else if (
+              /* Read more about handling dismissals below */
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
+              swalWithBootstrapButtons.fire({
+                title: "Cancelado",
+                text: "Tu archivo está a salvo de está a salvo",
+                icon: "error"
+              });
+            }
+          });
+
+      
+    }
+
+</script>
+
+
+{% endblock  %}

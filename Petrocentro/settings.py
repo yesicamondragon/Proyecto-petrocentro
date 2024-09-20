@@ -38,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'paginaPetrocentro',
+    'django_summernote',
+    'users',
+    'blogs',
+    'configuracion',
+    'django.contrib.sitemaps',
 ]
 PASSWORD_RESET_TIMEOUT_DAYS = 1 
 
@@ -76,6 +81,22 @@ TEMPLATES = [
         },
     },
 ]
+SUMMERNOTE_CONFIG = {
+    
+    'summernote': {
+        'width': '100%',
+        'height': '480',      
+        'styleTags': ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    }
+}
+# Duración de la sesión (en segundos)
+SESSION_COOKIE_AGE = 1209600  # 2 semanas
+
+# Hacer que la sesión expire cuando el navegador se cierre
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Usar solo cookies seguras para la sesión
+SESSION_COOKIE_SECURE = True
 
 
 WSGI_APPLICATION = 'Petrocentro.wsgi.application'
@@ -117,9 +138,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-co'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -138,6 +159,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'dilanfvalencia@gmail.com'
 EMAIL_HOST_PASSWORD = 'pprh yjun noio kewl'
 
+DOMAIN_NAME= "http://localhost:8000"
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'

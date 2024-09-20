@@ -201,13 +201,20 @@
                         <p>PETROCENTRO S.A.S</p>
                     </div>
             </div>
-            <div class="item">
-                <img src="{% static 'images/nosotros_1.webp' %}" alt="fotografia"> 
-                <div class="carousel-caption d-none d-md-block">
-                    <h3> </h3>
-                    <p>PETROCENTRO S.A.S</p>
-                </div>
-            </div>
+            {% if nosotros %}
+                {% for nosotros in nosotros  %}
+                    {% if nosotros.foto != null %}
+                        <div class="item">
+                            <img src="{{ nosotros.foto.url }}" alt="fotografia"> 
+                            <div class="carousel-caption d-none d-md-block">
+                                <h3> {{ nosotros.descripcion }}</h3>
+                                <p>PETROCENTRO S.A.S</p>
+                            </div>
+                        </div>
+                
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             
       
             <a class="left carousel-control" href="#theCarousel" role="button" data-slide="prev">

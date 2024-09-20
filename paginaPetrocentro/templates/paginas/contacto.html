@@ -25,7 +25,7 @@
                 <p class="comentario">Nos encanta recibir a nuestros clientes, así que ven o escríbenos en cualquier momento durante las horas de oficina.</p>
                 
                 <!-- Formulario de contactanos-->
-                <form action="{% url 'contacto_correo' %}" method="post">
+                <form action="{% url 'contacto_correo' %}" method="post" id="contactForm">
                     {% csrf_token %}
                     <input class="input" type="text" placeholder="Nombre*" name="nombre" required>
                     <br>
@@ -163,32 +163,27 @@
         
     </div>
 {% endblock %}
-
+{% block script %}
 <script>
-    
-    {% if messages %}
-    // Recorrer los mensajes que llegan de las vistas 
-    {% for message in messages  %}
-
-        {% if message.tags == 'success' %}
-            Swal.fire({
-                icon:'success',
-                title: 'Exito',
-                text: '{{ message }}',
-            });
-        {% elif message.tags == 'error' %}
-            Swal.fire({
-                icon: 'warning',
-                title: 'warning',
-                text: '{{ message }}',
-            });
-        {% else %}
+    document.getElementById('contactForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        
         Swal.fire({
-                icon: 'warning',
-                title: 'Atención',
-                text: '{{ message }}',
-            });
-        {% endif %}
-    {% endfor %}
-{% endif %}
+                title: 'Enviando...',
+                text: 'Por favor espere mientras se procesa el formulario',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                Swal.showLoading();
+                }
+        });
+        
+        // Envía el formulario
+        this.submit();
+        });
+    
 </script>
+{% endblock  %}
+
+

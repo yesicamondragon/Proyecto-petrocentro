@@ -1,0 +1,103 @@
+{% extends "plantilla/base_blog.html" %}
+{% load static %}
+{% block titulo_pagina %}  {{ post.titulo }} {% endblock titulo_pagina %} 
+
+{% block imagen %}
+
+        {% if post.categoria.nombre == 'Tecnologia' %}
+                {% static 'images/tecnologia.webp' %}
+        {% elif post.categoria.nombre == 'Economia' %}
+                {% static 'images/economia.webp' %}
+        {% elif post.categoria.nombre == 'Medio_ambiente' %}
+                {% static 'images/tierra.webp'  %}
+        {% elif post.categoria.nombre == 'Politica' %}
+                {% static 'images/politica.webp' %}
+        {% else %}
+                {% static 'images/petroleo_blog.webp'%}
+        {% endif %}
+
+{% endblock imagen %}
+
+{% block titulo %}
+<h1>{{ post.titulo }} </h1>
+{% endblock titulo %}
+{% block buscar %}{% endblock buscar %}
+
+{% block content %}
+        <div class="post-detail-blog">
+                <div class="creador-post-detail">
+                        <div class="post-creador-foto">
+                                {% if post.author.foto_perfil %}                
+                                        <img class="imagen-perfil" src="{{ post.author.foto_perfil.url }}" alt="{{ post.author.foto_perfil.name }}">
+                                {% else %}
+                                        <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="Sin imagen de Perfil">
+                                {% endif %}
+                        </div>
+                        <div class="post-creador-nombre">
+                                <p class="nombre-creador"> {{ post.author.nombre }} <br>
+                                <span class="fecha">{{ post.fecha_creacion|date:"d-M-Y h:m " }} </span> 
+                                </p>                                        
+                        </div>
+
+                </div>
+                <div class="descripcion-post-detail">
+                        <p> {{ post.descripcion }}</p>
+                </div>
+                <div class="imagen-post-detail">
+                        <img src="{{ post.image.url }}" alt="{{ post.imagen }}">
+                </div>
+                <div class=" contenido-post-detail  summernote-content ">
+
+                                {{ post.contenido|safe }}
+               
+                </div>
+                
+        </div>
+{% endblock content %}
+
+
+{% block posts %}
+{% if posts  %}
+<hr>
+<h1 class="text-center"> MÁS ARTICULOS </h1>
+<div class="post" >
+        {% for post in posts %}
+                {% if post.slug != slug %}  
+                <div class="post-articulo" onclick="window.location.href='{% url 'detail-post' post.slug %}' "  >
+                        <div class="post-articulo-completo">
+                                <img class=" image-post"src="{{ post.image.url }}" alt="{{ post.image }}" >
+                                <br>
+                                <p class=" post-fecha ">{{ post.fecha_creacion }} </p>
+                        
+                                <p class="post-titulo"> {{ post.titulo }} </p>
+                        </div>
+                        <div class="creador-post">
+                            <div class="creador-post-detail">
+                                <div class="post-creador-foto">
+                                        {% if post.author.foto_perfil %}
+                                                <img class="imagen-perfil" src="{{ post.author.foto_perfil.url }}" alt="{{ post.author.foto_perfil.name }}">
+                                        {% else %}
+                                                <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="Sin imagen de Perfil">
+                                        {% endif %}
+                                </div>
+                                <div class="post-creador-nombre">
+                                        <p class="nombre-creador"> {{ post.author.nombre }} <br>
+                                        <span class="fecha">{{ post.fecha_creacion|date:'d-M-Y h:m' }} </span> 
+                                        </p>                                        
+                                </div>
+
+                            </div>
+                        </div>
+               
+                </div>
+
+                {% endif %}
+                
+        {% endfor %}
+                
+</div>
+{% else %}
+<h1 class="text-center">No hay entradas en este blog</h1>
+<hr>
+{% endif %}
+{% endblock posts %}

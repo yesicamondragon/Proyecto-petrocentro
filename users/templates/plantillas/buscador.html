@@ -1,0 +1,9 @@
+{% load static %}
+
+<div class="filtrar-buscar">
+    <form action="" method="GET" > 
+        {% csrf_token %}
+        <input  name="buscar"  id="buscar" type="search" placeholder="Buscar" aria-label="Search" class="buscar">
+        <button type="submit" ><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+</div>

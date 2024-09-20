@@ -1,0 +1,486 @@
+{% extends "plantillas/dashboard.html" %}
+
+{% load static %}
+{% block titulo %}
+    Empleados 
+{% endblock %}
+
+{% block nombre_pagina %} Empleados {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+
+<!-- Botones de acceso a agregar empleado y descargar pdf-->
+<div class="btn-accion-empleados">
+    <!-- Agregar empleado -->
+
+        {% if crear == 1 %}
+        <button type="button" class="btn agregar-empleado" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="fa-solid fa-user-plus"></i>&nbsp;
+            Registrar Empleado
+        </button>
+
+            <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"> Registrar Empleado </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+    
+                    <!-- Formulario de registro empleado-->
+                <form action=" {% url 'registrar_empleados' %} " method="POST">
+    
+                    {% csrf_token %}
+                    <!-- Traer Todos los id de los usuarios-->
+                    {% if users %}
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <select name="usuario_id" id="usuario_id" class="form-control usuario" required>
+                            <option value="#" selected > Seleccione </option>
+                        {% for user in users %}
+                        {% if user.empleado %}
+                        
+                        {% else %}
+                            <option value="{{ user.id }}">{{ user.user_id.username }}</option>
+                        {% endif %}
+                        {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Recorrer los roles y traerlos -->
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol</label>
+                            <select name="rol" id="rol" class="form-control" required>
+                            <option value="#" selected > Seleccione </option>
+                        {% for rol in roles %}
+                            <option value="{{ rol.id_rol }}">{{ rol.nombre }}</option>
+                        {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Recorrer las ubicaciones y traerlas-->
+                        <div class="mb-3">
+                            <label for="ubicacion" class="form-label">Ubicacion</label>
+                            <select name="ubicacion" id="ubicacion" class="form-control" required>
+                            <option value="#" selected > Seleccione </option>
+                        {% for ubicacion in ubicaciones %}
+                            <option value="{{ ubicacion.idUbicacion }}">{{ ubicacion.nombre }}</option>
+                        {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Recorrer los cargos y traerlos-->
+                        <div class="mb-3">
+                            <label for="cargo" class="form-label">Cargo</label>
+                            <select name="cargo" id="cargo" class="form-control" required>
+                            <option value="#" selected > Seleccione </option>
+                        {% for cargo in cargos %}
+                            <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                        {% endfor %}
+                            </select>
+                        </div>
+    
+                        <!-- Fecha de ingreso -->
+                        <div class="mb-3">
+                            <label for="fechaIngreso" class="form-label">Fecha Ingreso</label>
+                            <input type="Date" class="form-control" id="fechaIngreso" name="fechaIngreso" required>
+                        </div>
+                        <div class="mb-3 perfil-buttons">
+                        <input type="submit" value="Registrar" class="btn btn-primary" >
+                        </div>
+    
+                    {% endif %}
+    
+                </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+               
+                </div>
+            </div>
+            </div>
+        </div>
+        {% else %}
+
+        <button type="button" class="btn agregar-empleado" disabled>
+            <i class="fa-solid fa-user-plus"></i>&nbsp;
+            Registrar Empleado
+        </button>
+        {% endif %}
+
+    
+    
+
+   
+    <!-- Descargar pdf -->
+    {% if consultar == 1 %}
+        <button type="buton" class="descargar-pdf"> 
+            <i class="fa-solid fa-file-arrow-down"></i>&nbsp;
+            Descargar PDF
+        </button>
+    {% else %}
+    <button type="button" class="descargar-pdf" disabled> 
+        <i class="fa-solid fa-file-arrow-down"></i>&nbsp;
+        Descargar PDF
+    </button>
+    {% endif %}
+</div>
+
+
+<br>
+<br>
+
+<!-- Tabla que lista los empleados que estan actualmetne en la base de datos del sistema-->
+<div class="container-table">
+
+    <table class="table">
+        <div class="filtros">
+            <div class="filtrar-estado" > 
+                <form action=" {% url 'empleados' %}" method="post" >
+                    {% csrf_token %}
+                <select class="estado" name="estado" id="estado">
+                    <option value="0" selected > Estado</option>
+                    <option value="1">Activo</option>
+                    <option value="2">Inactivo</option>
+                </select>
+                
+                </form>
+            </div>
+            <div class="filtrar-estado">
+                <div class="estado" >
+                  
+                    <form action="{% url 'empleados' %} " id="fInicio" method="POST">
+                        {% csrf_token %}
+                        <input type="date" name="fechaI" value="{{request.POST.fechaI}}" class="fecha-input" id="fecha-inicio">
+                   
+                    </form>
+                </div>
+            
+                
+
+            </div>
+            {% include "plantillas/buscador.html" %}
+        </div>
+   
+
+    {% if paginas %}
+    <thead>
+        <tr>
+            <th class="foto text" scope="col"> </th>
+            <th class="text-center" scope="col">NOMBRE</th>       
+            <th scope="col">TELEFONO</th>
+            <th scope="col" > ESTADO</th>
+            <th scope="col">CARGO</th>
+            <th scope="col">ACCIONES</th>
+
+        </tr>
+    </thead>
+                {% for empleado in paginas %}
+               
+        <tbody>
+                <tr>
+                     <!-- Campos de la tabla -->
+                      {% if empleado.foto_perfil  %}
+                      <td data-label="FOTO"><img class="imagen-table" src="{{ empleado.foto_perfil.url }}" alt="{{ empleado.foto_perfil }}"></td>
+                      {% else %}
+                      <td data-label="FOTO"><img class="imagen-table" src="{% static 'images/sin_foto.webp' %}" alt="{{ empleado.foto_perfil }}"></td>
+                      
+                      {% endif %}
+                    <td class="text-center" data-label="NOMBRE">
+                       {{ empleado.nombre }} <br>
+                        <span class="correo">{{ empleado.correo }}</span>
+                    </td>
+                    <td data-label="TELEFONO">{{ empleado.telefono }}</td>
+                    <td data-label="ESTADO"> 
+                                {% if nombre_rol == "Administrador" %}
+                                <input type="checkbox" onclick="window.location.href='{% url  'cambiar_estado' empleado.id %}' " id="{{ empleado.id }}"  data-id="{{ empleado.estado_id }}"  {% if empleado.estado_id == 1 %} checked {% endif %} class="offscreen">
+                                <label for="{{ empleado.id }}" class="switch"></label> 
+                         
+                                {% else %}
+                                <input type="checkbox"  disabled  id="{{ empleado.id }}"  data-id="{{ empleado.estado_id }}"  {% if empleado.estado_id == 1 %} checked {% endif %} class="offscreen"> 
+                                <label for="{{ empleado.id }}" class="switch"></label> 
+                                
+                                {% endif %}
+                    </td>
+                    <td data-label="CARGO"> {{ empleado.id_cargo.nombre }} </td>
+                    <td data-label="ACCIONES"> 
+                        <!-- Botones de accion, editar, eliminar y ver más -->
+                        {% if editar == 1%}
+                            <button type="button" class="btn btn-success" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditarEmpleado{{ empleado.id }}">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <!-- Modal de editar usuario -->
+                            <div class="modal fade" id="modalEditarEmpleado{{ empleado.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel"> Editar Empleado, {{ empleado.nombre }} </h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <!-- Cuerpo del modal-->
+                                    <div class="modal-body text-start">
+                                        <!-- Formulario-->
+                                        <form class="formEdit" action="{% url 'editar_empleados' empleado.id  %}"  method="post">
+                                            {% csrf_token %}
+    
+                                            <div class="mb-3">
+                                                <label for="nombre" class="form-label">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ empleado.nombre }}" disabled>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="telefono" class="form-label">Telefono</label>
+                                                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ empleado.telefono }}" disabled >
+                                            </div>
+                                            {% if nombre_rol == "Administrador" %}
+                                                <div class="mb-3">
+                                                    <label for="rol" class="form-label">Rol</label>
+                                                    <select name="rol" id="rol" class="form-select" required>
+                                                        {% for rol in roles %}
+                                                            {% if rol.id_rol == empleado.id_rol.id_rol%}
+
+                                                                <option value="{{ rol.id_rol }}" selected >{{ rol.nombre }}</option>
+
+                                                            {% else %}
+
+                                                            <option value="{{ rol.id_rol }}" >{{ rol.nombre }}</option>
+                                                                {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                             
+                                                </div>
+                                            {% endif %}
+    
+                                            <div class="mb-3">
+                                                <label for="cargo" class="form-label">Cargo</label>
+                                                <select name="cargo" id="cargo" class="form-select" required>
+                                                    {% for cargo in cargos %}
+                                                        {% if cargo.id_cargo == empleado.id_cargo.id_cargo %}
+                                                            <option value="{{ cargo.id_cargo }}" selected >{{ cargo.nombre }}</option>
+                                                        {% else %}
+    
+                                                            <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="correo" class="form-label">Correo</label>
+                                                <input type="text" class="form-control" id="correo" name="correo" value="{{ empleado.correo }}" disabled>
+                                            </div>
+                                            <div class="mb-3 perfil-buttons">
+        
+                                                <input type="submit"  value="Editar" class="btn btn-primary"> 
+                                            </div>
+    
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" id="btn-editar" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+    
+
+                        {% else %}
+                                <button type="button" class="btn btn-gray" title="Editar" disabled>
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>                         
+                        {% endif %}
+                       
+                       
+                       
+           
+                     
+                         <!-- boton ver más -->
+                        {% if consultar == 1 %}
+
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal_ver_mas{{ empleado.id }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="Modal_ver_mas{{ empleado.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel"> {{ empleado.nombre }} </h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-start">
+                                        <div class="ver-mas" >
+                                            <br>
+                                            <h5> INFORMACION DE EMPLEADO</h5>
+                                            <br>
+                                            <div class="foto-perfil">
+                                                <div class="mb-3" style="margin:auto">
+                                                    {% if  empleado.foto_perfil  %}
+                                                        <img src="{{ empleado.foto_perfil.url }}" alt="" class="foto-perfil">
+                                                    {% else %}
+                                                        <img src="{% static 'images/sin_foto.webp' %}" alt="" class="foto-perfil">
+                                            
+                                                    {% endif %}
+                                                    <hr>
+
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="lista">
+                                            
+                                                <h6> NOMBRE:</h6>
+                                                <p>{{ empleado.nombre }} </p>
+
+                                            </div>
+                                            <hr class=" text-center">
+                                            <div class="lista">
+
+                                                <h6>IDENTIFICACION:</h6>
+                                                <p> {{ empleado.identificacion }} </p>
+
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+
+                                                <h6>CORREO:</h6>
+                                                <p> {{ empleado.correo }} </p>
+
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+
+                                                <h6> TELEFONO: </h6>
+                                                <p> {{ empleado.telefono }} </p>
+
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+                                                <h6> ESTADO: </h6>
+                                                {% if empleado.estado_id == 1 %}
+                                                    <p style="color:GREEN"> ACTIVO </p>
+                                                
+                                                {% else %}
+                                                    <p style="color:RED"> INACTIVO </p>
+
+                                                {% endif %}
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+                                                <h6> UBICACION:</h6>
+                                                <p>{{empleado.id_ubicacion.nombre}}</p>
+                                            </div>
+                                            <hr>
+                                            <div class="lista">
+                                                <h6>FECHA INGRESO:</h6>
+                                                <p> {{ empleado.fecha_ingreso }} </p>
+                                            </div>
+                                            <hr>    
+                                            <div class="lista">
+                                                <h6> CARGO: </h6>
+                                                <p> {{ empleado.id_cargo.nombre }} </p>
+                                            </div>
+                                        
+
+                                        </div>
+                                        
+                                    </div>
+                                    <br>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            
+                        {% else %}
+                            <button type="button" class="btn btn-gray" title="Ver más" disabled>
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        {% endif %}
+                   
+                    </td>
+               
+  
+                      
+                </tr>
+                
+              
+                {% endfor %}
+
+                {% else %}
+
+                    <h1 class="text-center" >  NO SE ENCUENTRAN COINCIDENCIAS </h1>
+
+                    
+                {% endif %}
+       
+        </tbody>
+                </table>
+                </div>
+              
+                {% include "plantillas/pagination.html" %}
+                {% endblock  %}
+
+{% block script %}
+
+    <!-- Link de script bootstrap-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", (e) =>{
+            const buscarEstado = document.getElementById('estado')
+            buscarEstado.addEventListener('change', () => {
+                console.log('buscarEstado')
+                buscarEstado.form.submit();
+            });
+        })
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dateInput = document.querySelector('input[name="fechaI"]');
+            dateInput.addEventListener('change', () => {
+                dateInput.form.submit();
+            });
+        });
+
+     
+     
+
+
+        //funcion para preguntar si esta seguro de editar
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('.formEdit');
+            forms.forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();  // Evita el envío del formulario inmediatamente
+    
+                Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Estás a punto de enviar los cambios realizados.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'No, cancelar'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, envía el formulario
+                    form.submit();
+                } else {
+                    Swal.fire(
+                    'Cancelado',
+                    'El formulario no fue enviado :)',
+                    'error'
+                    );
+                }
+                });
+            });
+            });
+        });
+
+    </script>
+
+{% endblock  %}

@@ -1,11 +1,6 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
-# Create your views here.
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -14,6 +9,8 @@ import os
 
 from django.urls import reverse_lazy
 from Petrocentro import settings
+from configuracion.models import Nosotros
+from users.models import Empleado
 from .forms import RegisterForm
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -22,8 +19,6 @@ from django.template.loader import render_to_string
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup 
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.hashers import make_password
 
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 
@@ -68,55 +63,105 @@ def index(request):
     soup = BeautifulSoup(response.text, 'html.parser')
     price_element = soup.find("div", {"class": "YMlKec fxKbKc"})
     
+    
     if price_element:
         # Extraer el texto (precio) del elemento
         price = price_element.text
+    else:
+        price = "No se pudo obtener el precio del dólar"
+        
 
     usuario_logeado = request.session.get('usuario_logeado')
     # ·Si el usuario no esta logeado, lo redirige al index sin sus datos
     if  not  usuario_logeado:
-        data={
-                'dolar': price,
-                'usuario':usuario_logeado
-            }
-        return render(request,'paginas/index.html',data )
+        return render(request,'paginas/index.html' )
      
-   # Si el usuairio está logeado, envia sus datos y lo redirige
+   # Si el usuario está logeado, envia sus datos y lo redirige
     else:
         try:
             usuario_logeado = request.session.get('usuario_logeado')
+            emp = Usuario.objects.get(id = usuario_logeado )
+            emplea = Empleado.objects.get(id = emp.id)
+            emplea = emplea.id_rol.nombre
+            
+            if emplea == "Administrador" or emplea == "Inventario" or emplea == "Empleado":
+                
+                empleado = Empleado.objects.all()   
+                data={
+                    'usuario':emp,
+                    'rol' : emplea,
+                    'empleado':empleado,
+                    'dolar':price,
+                }
+                return render(request,'paginas/index.html', data )
+            else:
+                usuario_logeado = request.session.get('usuario_logeado')
+                usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                print(usuario_logeado)             
+                
+                data={
+                    'dolar': price,
+                    'usuario':usuario_logeado
+                }
+                return render(request,'paginas/index.html', data)
+        except Exception as e:
+            usuario_logeado = request.session.get('usuario_logeado')
             usuario_logeado = Usuario.objects.get(id = usuario_logeado)
-
+            print(usuario_logeado)
             data={
                 'dolar': price,
                 'usuario':usuario_logeado
             }
             return render(request,'paginas/index.html', data)
-        except Exception as e:
-                return render(request,'paginas/index.html')
         
 #Funcion para redirigir al nosotros
 def nosotros(request):
     usuario_logeado = request.session.get('usuario_logeado')
-
+    nosotros= Nosotros.objects.all()
     if  not  usuario_logeado:
-       
-        return render(request,'paginas/nosotros.html' )
+        data={
+            'nosotros':nosotros
+        }
+        return render(request,'paginas/nosotros.html' ,data)
     
 # Si el usuairio está logeado, envia sus datos y lo redirige
     else:
         try:
             
-       
+            usuario_logeado = request.session.get('usuario_logeado')
+            emp = Usuario.objects.get(id = usuario_logeado )
+            emplea = Empleado.objects.get(id = emp.id)
+            emplea = emplea.id_rol.nombre
+            
+            if emplea == "Administrador" or emplea == "Inventario" or emplea == "Empleado":
+                
+                empleado = Empleado.objects.all()   
+                data={
+                    'usuario':emp,
+                    'nosotros':nosotros,
+                    'rol' : emplea,
+                    'empleado':empleado
+                }
+                return render(request,'paginas/nosotros.html', data )
+            else:
+                usuario_logeado = request.session.get('usuario_logeado')
+                usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                print(usuario_logeado)             
+                
+                data={
+                    'nosotros':nosotros,
+                    'usuario':usuario_logeado
+                }
+                return render(request,'paginas/nosotros.html', data)
+        except Exception as e:
             usuario_logeado = request.session.get('usuario_logeado')
             usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+            print(usuario_logeado)
             data={
                 'nosotros':nosotros,
                 'usuario':usuario_logeado
             }
             return render(request,'paginas/nosotros.html', data)
-        except Exception as e:
-                return render(request,'paginas/nosotros.html')
 
 def politicas_nosotros(request):
     usuario_logeado = request.session.get('usuario_logeado')
@@ -128,12 +173,17 @@ def politicas_nosotros(request):
 # Si el usuairio está logeado, envia sus datos y lo redirige
     else:
         try:
-            usuario_logeado = request.session.get('usuario_logeado')
             usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+            emp = Usuario.objects.get(id = usuario_logeado )
+            emplea = Empleado.objects.get(id = emp.id)
+            emplea = emplea.id_rol.nombre
+            
 
             data={
+                'empleado': emplea,
                 'nosotros':nosotros,
-                'usuario':usuario_logeado
+                'usuario':usuario_logeado,
+                
             }
             return render(request,'paginas/politicas.html', data)
         except Exception as e:
@@ -147,20 +197,43 @@ def servicios(request):
         return render(request,'paginas/servicios.html')
     else:
         try:
+                
+                usuario_logeado = request.session.get('usuario_logeado')
+                emp = Usuario.objects.get(id = usuario_logeado )
+                emplea = Empleado.objects.get(id = emp.id)
+                emplea = emplea.id_rol.nombre
+                
+                if emplea == "Administrador" or emplea == "Inventario" or emplea == "Empleado":
+                    
+                    empleado = Empleado.objects.all()   
+                    data={
+                        'usuario':emp,
+                        'rol' : emplea,
+                        'empleado':empleado
+                    }
+                    return render(request,'paginas/servicios.html', data )
+                else:
+                    usuario_logeado = request.session.get('usuario_logeado')
+                    usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                    print(usuario_logeado)             
+                    
+                    data={
+                        'usuario':usuario_logeado
+                    }
+                    return render(request,'paginas/servicios.html', data)
+        except Exception as e:
             usuario_logeado = request.session.get('usuario_logeado')
             usuario_logeado = Usuario.objects.get(id = usuario_logeado)
-
+            print(usuario_logeado)
             data={
                 'usuario':usuario_logeado
             }
             return render(request,'paginas/servicios.html', data)
-        except Exception as e:
-                return render(request,'paginas/servicios.html')
-        
 
 #Funcion para redirigir al contacto
 def contacto(request):
     
+      
         usuario_logeado = request.session.get('usuario_logeado')
     
         if  not  usuario_logeado:
@@ -168,35 +241,81 @@ def contacto(request):
 
         else:
                 try:
+                        
+                        usuario_logeado = request.session.get('usuario_logeado')
+                        emp = Usuario.objects.get(id = usuario_logeado )
+                        emplea = Empleado.objects.get(id = emp.id)
+                        emplea = emplea.id_rol.nombre
+                        
+                        if emplea == "Administrador" or emplea == "Inventario" or emplea == "Empleado":
+                            
+                            empleado = Empleado.objects.all()   
+                            data={
+                                'usuario':emp,
+                                'rol' : emplea,
+                                'empleado':empleado
+                            }
+                            return render(request,'paginas/contacto.html', data )
+                        else:
+                            usuario_logeado = request.session.get('usuario_logeado')
+                            usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                            print(usuario_logeado)             
+                            
+                            data={
+                                'usuario':usuario_logeado
+                            }
+                            return render(request,'paginas/contacto.html', data)
+                except Exception as e:
                     usuario_logeado = request.session.get('usuario_logeado')
                     usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                    print(usuario_logeado)
                     data={
                         'usuario':usuario_logeado
                     }
                     return render(request,'paginas/contacto.html', data)
-                except Exception as e:
-                        return render(request,'paginas/contacto.html')
-                        
             
     #Funcion para redirigir al pqrs
 
 def pqrs(request):
         usuario_logeado = request.session.get('usuario_logeado')
-        try:
-                if  not  usuario_logeado:
-                        return render(request,'paginas/PQRS.html')
+    
+        if  not  usuario_logeado:
+            return render(request,'paginas/PQRS.html')
 
-                else:
-      
+        else:
+            try:
+                    
+                    usuario_logeado = request.session.get('usuario_logeado')
+                    emp = Usuario.objects.get(id = usuario_logeado )
+                    emplea = Empleado.objects.get(id = emp.id)
+                    emplea = emplea.id_rol.nombre
+                    
+                    if emplea == "Administrador" or emplea == "Inventario" or emplea == "Empleado":
+                        
+                        empleado = Empleado.objects.all()   
+                        data={
+                            'usuario':emp,
+                            'rol' : emplea,
+                            'empleado':empleado
+                        }
+                        return render(request,'paginas/PQRS.html', data )
+                    else:
                         usuario_logeado = request.session.get('usuario_logeado')
                         usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                        print(usuario_logeado)             
+                        
                         data={
-                        'usuario':usuario_logeado
+                            'usuario':usuario_logeado
                         }
                         return render(request,'paginas/PQRS.html', data)
-                
-        except Exception as e:
-               return render(request,'paginas/PQRS.html')
+            except Exception as e:
+                usuario_logeado = requests.request.session.get('usuario_logeado')
+                usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+                print(usuario_logeado)
+                data={
+                    'usuario':usuario_logeado
+                }
+                return render(request,'paginas/PQRS.html', data)
 
         
 
@@ -273,7 +392,8 @@ def registro(request):
                 
                 #declaracion de variable que indica la direccion de corero elecrtónico a la cuál será enviado el correo
                 to_email = [email]
-                
+               
+                    
                 #envio de correo, con las variables anteriormetne mencionadas
                 send_mail(subject, message, from_email, to_email, html_message=mensaje_html)
             
@@ -385,96 +505,3 @@ def contacto_mensaje(request):
 
         template_name='registration/password_reset_done.html'
         
-@login_required
-def perfil(request):
-    
-        usuario_logeado = request.session.get('usuario_logeado') #Obtener el id del user logeado
-    
-        try:
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                data = {'usuario': usuario}
-                
-                return render(request, 'paginas/perfil.html', data)
-        except Usuario.DoesNotExist as e:
-                messages.error(request, 'No se pudo encontrar el usuario')
-                return redirect('/')
-
-def editar_perfil(request):
-    if request.method == 'POST':
-       
-        usuario_logeado = request.session.get('usuario_logeado')
-        usuario = Usuario.objects.get(id = usuario_logeado)
-        nombre = request.POST.get('nombre')
-        identificacion = request.POST.get('identificacion')
-        correo = request.POST.get('correo')
-        telefono = request.POST.get('telefono')
-        foto= request.FILES.get('foto')
-         
-         
-        if foto:
-            usuario.foto_perfil=foto
-        usuario.nombre=nombre
-        usuario.identificacion=identificacion
-        usuario.correo=correo
-        usuario.telefono = telefono
-        usuario.save()
-            
-        if usuario:
-            messages.success(request, 'Perfil modificado exitosamente')
-            return redirect('perfil')
-        else:
-            messages.error(request, 'No se pudo modificar el usuario')
-
-        return redirect('perfil')
-    
-def delete_photo(request):
-   
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            ruta = data.get('ruta_relativa')
-            
-            file_path = os.path.join(settings.MEDIA_ROOT,ruta.lstrip('/'))
-            
-            print(file_path)
-            usuario_logeado = request.session.get('usuario_logeado')
-            usuario_logeado = Usuario.objects.get(id = usuario_logeado)
-            
-            if os.path.exists(file_path):
-                print(file_path)
-                os.remove(file_path)
-                usuario_logeado.foto_perfil.delete()
-                usuario_logeado.save()
-                return JsonResponse({'status': 'success'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Archivo no encontrado'})
-        except Exception as e:
-            print(file_path)
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
-
-def password_change(request, id):
-    
-    if request.method == 'POST':
-        usuario = Usuario.objects.get(id = id)
-        user = User.objects.get(username = usuario.user_id.username)
-        password=user.password
-        print('la contraseña es',password)
-  
-        newPasword1 = request.POST.get('new-password1')
-        newPasword2 = request.POST.get('new-password2')
-        if newPasword1 == newPasword2:
-            newPasword1 = make_password(newPasword1)
-            user.password = newPasword1
-            update_session_auth_hash(request, user)
-            user.save()
-            if user:
-                messages.success(request, 'Contraseña cambiada exitosamente.')
-                return redirect('perfil')    
-        else:
-            messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('password_change', id=id)
-  
-    else:
-        messages.error(request, 'Por favor corrija los errores en el formulario.')
-    return redirect('perfil')

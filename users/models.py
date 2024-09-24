@@ -27,13 +27,16 @@ class Cargo(models.Model):
 
 # Create your models here.
 class Empleado(Usuario):
-    id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
-    fecha_ingreso= models.DateField()
-    id_cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
-    id_ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE)
+        
+        identificacion = models.IntegerField(null=False )
+        telefono = models.CharField(max_length=10, null=False)
+        id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+        fecha_ingreso= models.DateField()
+        id_cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
+        id_ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE)
     
-    class Meta:
-            db_table = "empleado"
-            ordering=['nombre']
-            verbose_name = 'Empleado'
-            verbose_name_plural = 'Empleados'
+        class Meta:
+                db_table = "empleado"
+                ordering=['nombre']
+                verbose_name = 'Empleado'
+                verbose_name_plural = 'Empleados'

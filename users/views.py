@@ -1,6 +1,6 @@
 from pyexpat.errors import messages
 from django.shortcuts import redirect, render
-
+from django.contrib.sessions.models import Session
 from paginaPetrocentro.models import *
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout
@@ -13,6 +13,8 @@ from django.db.models import Q
 from paginaPetrocentro.forms import RegisterForm
 from configuracion.models import *
 from configuracion.views import obtener_permisos
+from django.utils import timezone
+
 #------------------------------------------------------EMPELADOS Y USUARIOS----------------------------------------------
 @login_required
 def listar_empleados(request):
@@ -131,8 +133,11 @@ def editar_empleados(request, id):
             #Variable para almacenar el cargo enviado en el formulario, ya que solo se permite editar el cargo
             id_cargo = request.POST.get('cargo')
             id_rol = request.POST.get('rol')
-
+            telefono = request.POST.get('telefono1')
+            identificacion = request.POST.get('identificacion1')
             #En la variable usuario, se obtiene el cargo y se realiza una consulta que trae el cargo de la tabla "CARGO" para validar coincidencias y asi mismo cambiarlo en el empleado
+            usuario.telefono = telefono
+            usuario.identificacion = identificacion
             usuario.id_cargo = Cargo.objects.get(id_cargo = id_cargo)
             usuario.id_rol = Rol.objects.get(id_rol = id_rol)
             #gurdar el cargo
@@ -176,6 +181,8 @@ def registrar_empleados(request):
             fecha = request.POST.get("fechaIngreso")
             id_cargo = request.POST.get('cargo')
             id_rol= request.POST.get('rol')
+            identificacion = request.POST.get('identificacion')
+            telefono = request.POST.get('telefono')
             ubicacion = request.POST.get('ubicacion')
             usuario_id= request.POST.get('usuario_id')
             
@@ -197,11 +204,11 @@ def registrar_empleados(request):
             
                     id=user.id,  # Usar la clave primaria del usuario
                     user_id= User.objects.get(id=usuario_num),  #la clave de user_auth para el usuario
-                    identificacion= user.identificacion,
+                    identificacion= identificacion,
                     estado=user.estado,
                     nombre=user.nombre,
                     correo=user.correo,
-                    telefono=user.telefono,
+                    telefono=telefono,
                     fecha_ingreso=fecha,
                     id_cargo= Cargo.objects.get(id_cargo = id_cargo),
                     id_rol = Rol.objects.get(id_rol = id_rol ),
@@ -264,9 +271,24 @@ def cambiar_estado(request, id):
    
     #----------------------------------------------------------------------------------------------------------------
     else:
-        if usuario.user_id.is_authenticated:
-                messages.error(request, 'Tu cuenta ha sido deshabilitada!')
-                logout(request)
+        user = User.objects.get(username = usuario.user_id)
+
+# Cierra la sesión de usuarios cuya cuenta está deshabilitada
+        if user.is_active:
+            # Buscar las sesiones activas del usuario
+            active_sessions =  Session.objects.filter(expire_date__gte=timezone.now())
+
+
+            for session in active_sessions:
+              # Si hay más de una sesión activa, se desloguea la última
+                session_data = session.get_decoded()
+                if session_data.get('_auth_user_id') == str(user.id):
+                    messages.error(request,'cuenta deshabilitada')
+                    # Eliminar la sesión activa
+                    session.delete()
+                 
+             
+              
         #generar una variable que es la que cambiara el estado        
         id_estado = 2
         
@@ -293,7 +315,6 @@ def registrar_usuario(request):
             emp = Usuario.objects.get(id = usuario_logeado )
             emplea= Empleado.objects.get(id = emp.id)
             rol = emplea.id_rol
-            nombre_rol = rol.nombre
             permiso = Rol_permiso.objects.filter(rol = rol)
             permisos = obtener_permisos(permiso)
             #Permisos de rol
@@ -310,8 +331,6 @@ def registrar_usuario(request):
                 if busqueda:
                     user = Usuario.objects.filter(
                         Q(nombre__icontains = busqueda)|
-                        Q(telefono__icontains= busqueda)|
-                        Q(identificacion__icontains= busqueda)|
                         Q(correo__icontains = busqueda)
                         ).distinct()
             
@@ -348,20 +367,19 @@ def registrar_usuario(request):
                         #declarar variable de usuario para validar si el usuario se creo correctamente en la base de datos, teniendo en cuenta el metodo save() creado en la clase RegisterForm del archovo forms.py        
                         user = form.save()
                         user_id = user.id
-                        identificacion = form.cleaned_data['identificacion']
+                   
                         estado = 1
-                        nombre = form.cleaned_data['nombre_completo']
+                        nombre = form.cleaned_data['Nombre_completo']
                         correo= form.cleaned_data['correo_electronico']
-                        telefono=form.cleaned_data['telefono']
+              
                         
                         #----------------------------------------------------------------------------------------------------------------        
                         usuario = Usuario(
                             user_id = User.objects.get(id=user_id),
-                            identificacion = identificacion,
                             estado = Estado.objects.get(id=estado),
                             nombre = nombre,
                             correo = correo,
-                            telefono =  telefono ,
+              
                         
                         )
                         usuario.save()
@@ -390,6 +408,6 @@ def registrar_usuario(request):
                 return redirect('/')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-        return redirect('/')              
+        return redirect('usuarios')              
 
 

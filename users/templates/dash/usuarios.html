@@ -95,8 +95,8 @@
         <tr>
             <th class="foto" scope="col"> </th>
             <th class="text-center" scope="col">NOMBRE</th>       
-            <th scope="col">TELEFONO</th>
-            <th scope="col" > IDENTIFICACION</th>
+            <th scope="col">CORREO</th>
+            <th scope="col" > ESTADO</th>
             
             <th scope="col">ACCIONES</th>
 
@@ -115,11 +115,18 @@
                      {% endif %}
                
                     <td class="text-center" data-label="NOMBRE">
-                       {{ usuario.nombre }} <br>
-                        <span class="correo">{{ usuario.correo }}</span>
+                       {{ usuario.nombre }}
+                  
                     </td>
-                    <td data-label="TELEFONO">{{ usuario.telefono }}</td>
-                   <td data-label='Identificacion'> {{ usuario.identificacion }} </td>
+                    <td data-label="CORREO">{{ usuario.correo }}</td>
+                   <td data-label='ESTADO'>
+                {% if usuario.estado.id == 1 %}
+                <span class="text-success">Activo</span>
+
+                {% else %}
+                 <span class="text-danger">Inactivo</span>
+                {% endif %}    
+                </td>
               
                     <td data-label="ACCIONES"> 
                 
@@ -164,11 +171,7 @@
                                             </div>
                                             <hr class=" text-center">
 
-                                            <div class="lista">
-
-                                                <h6>IDENTIFICACION:</h6>
-                                                <p> {{ usuario.identificacion }} </p>
-                                            </div>
+                                            
 
                                             <hr>
                                             <div class="lista">
@@ -177,11 +180,8 @@
                                             </div>
                                             <hr>
 
-                                            <div class="lista">
-                                                <h6> TELEFONO : </h6>
-                                            
-                                                <p> {{ usuario.telefono }} </p>
-                                            </div>
+                                         
+                        
                                             <hr>
                                             <div class="lista">
                                                 <h6>ESTADO: </h6>
@@ -221,10 +221,11 @@
 
                 {% else %}
 
-                    <h1 class="text-center" >No hay Usuarios registrados </h1>
+                <h1 class="text-center" >  NO SE ENCUENTRAN COINCIDENCIAS </h1>
 
-                    
-                {% endif %}
+                
+            {% endif %}
+   
 
        
         </tbody>

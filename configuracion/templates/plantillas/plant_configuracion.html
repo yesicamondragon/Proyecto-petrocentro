@@ -30,7 +30,7 @@
     <nav class="sidebar" id="sidebar">
         <!-- Logo-->
         <a href=""> <img src="{% static 'images/logo.webp'%}" alt=""></a>
-        <button class="x" onclick="toggleSidebar()" > <i class="fa-duotone fa-chevron-left"></i> </button>
+        <button class="x" onclick="toggleSidebar()" > <i class="fa-solid fa-angle-left"></i> </button>
         <!-- Acciones de menu -->
         <div class="menu-content">
 
@@ -292,24 +292,7 @@
     
     // Al presionar el boton de desplegar, va a poner en funcionamiento las funciones 
 
-    document.getElementById('crear_post').addEventListener('submit', function(e){
-        e.preventDefault();
-        
-        Swal.fire({
-                title: 'Enviando...',
-                text: 'Por favor espere mientras se procesa el formulario',
-                icon: 'info',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                Swal.showLoading();
-                }
-        });
-        
-        // Envía el formulario
-        this.submit();
-        });
-
+    
     </script>
 
 

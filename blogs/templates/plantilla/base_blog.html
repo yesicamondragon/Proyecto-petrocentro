@@ -9,6 +9,8 @@
         <link rel="stylesheet" href=" {% static "css/post.css" %}">
         <link rel="stylesheet" href=" {% static "css/Style.css" %}">
         <link rel="stylesheet" href=" {% static "css/suscribe.css" %}">
+        <link rel="stylesheet" href=" {% static "css/men.css" %}">
+
 
         <!-- Font AWesome-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css" integrity="sha512-U9Y1sGB3sLIpZm3ePcrKbXVhXlnQNcuwGQJ2WjPjnp6XHqVTdgIlbaDzJXJIAuCTp3y22t+nhI4B88F/5ldjFA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -111,6 +113,41 @@
                 </nav>
               </header>
         <br><br>
+
+        <nav id="hidden-menu"  >  
+            <input id="menu-open" name="menu" type="radio" />
+            <input id="menu-close" name="menu" type="radio" />
+            <label for="menu-open" class="open"><i class="fa-solid fa-angle-right"></i></label>
+            <article class="expanded">
+              
+              <div class="title">Menú</div>
+              <!-- Acciones menú -->
+              <div class="links">
+                <a href="{% url 'index'%}">INICIO</a></a>
+                <a href="{% url 'blog' %}">GENERAL</a>
+                <a href="{% url 'tecnologia' %}" >TECNOLOGIA</a>
+                <a href="{% url 'medio_ambiente' %}">M/AMBIENTE</a>
+                <a href="{% url 'economia' %}">ECONOMIA</a>
+                <a href="{% url 'politica' %}">POLITICA</a>
+                <a href="{% url 'hidrocarburos' %}">HIDROCARBUROS</a>
+                <a href="{% url 'perfil' %}">Ajustes</a>
+
+    
+                <!-- Verificar si el usuario está logeado-->
+                {% if user.is_authenticated %}
+                <a href="{% url 'perfil' %}" > perfil </a>
+                
+                  <a href="{% url 'logout_view' %}" class="person"><i class="fw-bold bi bi-box-arrow-left "></i>&nbsp; cerrar sesion</a>
+              
+                  {% else %}
+                    <a href="{% url 'login_view' %}" class="person"><i class="fa-solid fa-right-to-bracket"></i> &nbsp; iniciar sesion</a>
+                {% endif %}
+               
+              </div>
+              <label for="menu-close" class="cerrar"><i class="fa-solid fa-angle-left"></i> </label>
+ 
+            </article>
+        </nav>
             <div class="image-blog">
 
                 <div class="imagen-post">
@@ -173,7 +210,7 @@
             <img src="{% static "images/nofound.webp" %}" alt="">
             <h1 class="text-center">NO HAY ARTÍCULOS CON EL CRITERIO DE BÚSQUEDA</h1>
         </div>
-        <hr>
+        
     {% endif %}
         {% endblock content %}
         

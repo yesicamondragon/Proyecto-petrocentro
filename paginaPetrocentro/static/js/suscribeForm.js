@@ -8,7 +8,7 @@ document.getElementById('subscribeForm').addEventListener('submit', function(e) 
   formData.append('email', email);
 
   // Enviar la solicitud AJAX
-  fetch('suscribirse', {
+  fetch('/suscribirse/', {
       method: 'POST',
       body: formData,
       headers: {

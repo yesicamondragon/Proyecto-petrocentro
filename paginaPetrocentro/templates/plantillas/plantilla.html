@@ -149,6 +149,8 @@
             <a href="{% url 'nosotros' %}">Nosotros</a>
             <a href="{% url 'contacto' %}">Contacto</a>
             <a href="{% url 'pqrs' %}">PQRS</a>
+            <a href="{% url 'perfil' %}">Ajustes</a>
+            <a href="{% url 'blog' %}">Blog</a>
 
             <!-- Verificar si el usuario está logeado-->
             {% if user.is_authenticated %}
@@ -161,9 +163,9 @@
             {% endif %}
            
           </div>
-          <label for="menu-close" class="close"><i class="fa-solid fa-angle-left"></i> </label>
+          <label for="menu-close" class="cerrar"><i class="fa-solid fa-angle-left"></i> </label>
        
-          <p>&copy; 2020 // PETROCENTRO S.A.S</p>
+
         </article>
     </nav>
     {% block contenido%} 
@@ -194,7 +196,7 @@
             <div class="box">
               <figure>
                 
-                      <a href="index2.html">
+                      <a href="{% url 'index' %}">
                       <img class="img-fluid" src="{% static '/images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S">
                       </a>
                 

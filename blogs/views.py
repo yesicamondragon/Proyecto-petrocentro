@@ -1,9 +1,9 @@
 from pyexpat.errors import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
-
+from blogs.models import *
 from users.models import Empleado
-from .models import *
+from django.contrib.auth.models import User as Usuario
 from paginaPetrocentro.models import Usuario
 from .forms import Form_post
 import uuid
@@ -132,10 +132,14 @@ def post_detail_view(request, slug):
         return render(request, 'blog/detail_blog.html', context)
 
 #Busqueda funcion
-def obtener_post(busqueda=None, categoria=None):
+def obtener_post(busqueda=None, categoria=None,empleado = None):
         categoria = Categoria.objects.get(nombre__iexact = categoria)
-        post = Post.objects.filter(estado=True, categoria = categoria).order_by('-fecha_creacion')
-        
+        if empleado == None:
+                post = Post.objects.filter(estado=True, categoria = categoria).order_by('-fecha_creacion')
+        else:
+                post = Post.objects.filter(estado=True, categoria = categoria, empleado = empleado).order_by('-fecha_creacion')
+       
+                   
         if busqueda:
                 post = post.filter(
                         Q(titulo__icontains=busqueda) |
@@ -155,8 +159,7 @@ def paginacion( request, posts ):
 def tecnologia(request):
         usuario_logeado = request.session.get('usuario_logeado')
         busqueda = request.GET.get('busqueda')
-        
-        post = obtener_post(busqueda,'Tecnologia')
+        post = obtener_post(busqueda,'Tecnologia', False)            
         post = paginacion(request,post)
         
         context= {
@@ -164,21 +167,26 @@ def tecnologia(request):
         }
         usuario_logeado = request.session.get('usuario_logeado')
         if usuario_logeado:
-                usuario = Usuario.objects.get(id = usuario_logeado)
+                usuario = Usuario.objects.get(id=usuario_logeado)
                 context['usuario'] = usuario
                 try:
-                        empleado = Empleado.objects.get(id = usuario.id)
+                        empleado = Empleado.objects.get(id=usuario.id)
+                        post = obtener_post(busqueda,'Tecnologia')                        
+                        post = paginacion(request,post)
                         context['empleado'] = empleado
-                except:
-                        pass
-        
+                        context['posts'] = post  
+                        
+                # Si es empleado, mostrar todos los posts
+                except Empleado.DoesNotExist:
+                # Si no es empleado, filtrar los posts
+                     pass
                 
         return render(request, 'blog/tecnologia.html', context)
         
 def medio_ambiente(request):
         busqueda = request.GET.get('busqueda')
         
-        post = obtener_post(busqueda,'Medio_ambiente')
+        post = obtener_post(busqueda,'Medio_ambiente',False)
         post = paginacion(request, post)
         
         context={
@@ -190,7 +198,11 @@ def medio_ambiente(request):
                 context['usuario'] = usuario
                 try:
                         empleado = Empleado.objects.get(id = usuario.id)
+                        post = obtener_post(busqueda,'Medio_ambiente')
+                        post = paginacion(request,post)
+                        context['posts'] = post  
                         context['empleado'] = empleado
+                        
                 except:
                         pass
      
@@ -199,7 +211,7 @@ def medio_ambiente(request):
 def economia(request):
         busqueda = request.GET.get('busqueda')
         
-        post = obtener_post(busqueda,'economia')
+        post = obtener_post(busqueda,'economia',False)
         post = paginacion(request, post)
         
         context={
@@ -213,6 +225,9 @@ def economia(request):
                 context['usuario'] = usuario
                 try:
                         empleado = Empleado.objects.get(id = usuario.id)
+                        post = obtener_post(busqueda,'economia')
+                        post = paginacion(request, post)
+                        context['posts'] = post                        
                         context['empleado'] = empleado
                 except:
                         pass
@@ -222,7 +237,7 @@ def economia(request):
 def politica(request):
         busqueda = request.GET.get('busqueda')
         
-        post = obtener_post(busqueda,'politica')
+        post = obtener_post(busqueda,'politica',False)
         post = paginacion(request, post)
         
         context= {
@@ -236,6 +251,9 @@ def politica(request):
                 context['usuario'] = usuario
                 try:
                         empleado = Empleado.objects.get(id = usuario.id)
+                        post = obtener_post(busqueda,'politica')
+                        post = paginacion(request, post)
+                        context['posts'] = post 
                         context['empleado'] = empleado
                 except:
                         pass
@@ -258,6 +276,9 @@ def hidrocarburos(request):
                 context['usuario'] = usuario
                 try:
                         empleado = Empleado.objects.get(id = usuario.id)
+                        post = obtener_post(busqueda,'hidrocarburos')
+                        post = paginacion(request, post)
+                        context['posts'] = post 
                         context['empleado'] = empleado
                 except:
                         pass

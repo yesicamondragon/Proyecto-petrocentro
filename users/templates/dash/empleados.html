@@ -50,7 +50,14 @@
                         {% endfor %}
                             </select>
                         </div>
-    
+                        <div class="mb-3">
+                            <label for="identificacion" class="form-label"> identificacion </label>
+                            <input type="number" id="identificacion" name="identificacion" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label"> Telefono </label>
+                            <input type="number" id="telefono" name="telefono" class="form-control">
+                        </div>
                         <!-- Recorrer los roles y traerlos -->
                         <div class="mb-3">
                             <label for="rol" class="form-label">Rol</label>
@@ -140,7 +147,7 @@
     <table class="table">
         <div class="filtros">
             <div class="filtrar-estado" > 
-                <form action=" {% url 'empleados' %}" method="post" >
+                <form action=" {% url 'empleados' %}" method="GET" >
                     {% csrf_token %}
                 <select class="estado" name="estado" id="estado">
                     <option value="0" selected > Estado</option>
@@ -153,7 +160,7 @@
             <div class="filtrar-estado">
                 <div class="estado" >
                   
-                    <form action="{% url 'empleados' %} " id="fInicio" method="POST">
+                    <form action="{% url 'empleados' %} " id="fInicio" method="GET">
                         {% csrf_token %}
                         <input type="date" name="fechaI" value="{{request.POST.fechaI}}" class="fecha-input" id="fecha-inicio">
                    
@@ -232,8 +239,12 @@
                                                 <input type="text" class="form-control" id="nombre" name="nombre" value="{{ empleado.nombre }}" disabled>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="telefono" class="form-label">Telefono</label>
-                                                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ empleado.telefono }}" disabled >
+                                                <label for="identificacion1" class="form-label"> Identificacion </label>
+                                                <input type="number" id="identificacion1" name="identificacion1" class="form-control" value="{{ empleado.identificacion }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="telefono1" class="form-label"> Telefono </label>
+                                                <input type="number" id="telefono1" name="telefono1" class="form-control" value="{{ empleado.telefono }}">
                                             </div>
                                             {% if nombre_rol == "Administrador" %}
                                                 <div class="mb-3">

@@ -54,3 +54,28 @@
 
 
 {% endblock contenido %}
+
+{% block script %}
+<script>
+        document.getElementById('crear_post').addEventListener('submit', function(e){
+                e.preventDefault();
+                
+                Swal.fire({
+                        title: 'Enviando...',
+                        text: 'Por favor espere mientras se procesa el formulario',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                        Swal.showLoading();
+                        }
+                });
+                
+                // Envía el formulario
+                this.submit();
+                });
+</script>
+
+
+{% endblock script %}
+

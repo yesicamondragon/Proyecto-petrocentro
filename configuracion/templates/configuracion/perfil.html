@@ -37,12 +37,7 @@
         <br>
         <div class="formulario-perfil">
 
-            <div class="mb-3">
-
-                <label for="identificacion " class="form-label">Identificacion </label>
-                <input type="number" name="identificacion" id="identificacion" class="form-control" value= "{{ usuario.identificacion }}" disabled >
-                
-            </div>
+          
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre </label>
                 <input type="text" name="nombre" id="nombre" class="form-control" value="{{ usuario.nombre }}"  disabled>
@@ -54,13 +49,20 @@
                 <input type="text"  name="correo" id="correo" class="form-control" value="{{ usuario.correo }}" disabled>
                 
             </div>
+        
+            {% if empleado %}
+            <div class="mb-3">
+
+                <label for="identificacion " class="form-label">Identificacion </label>
+                <input type="number" name="identificacion" id="identificacion" class="form-control" value= "{{ empleado.identificacion }}" disabled >
+                
+            </div>
             <div class="mb-3">
                 
                 <label for="telefono" class="form-label"> Teléfono </label>
-                <input type="text" name="telefono" id="telefono"  class="form-control" value="{{ usuario.telefono }} " disabled>
+                <input type="text" name="telefono" id="telefono"  class="form-control" value="{{ empleado.telefono }} " disabled>
                 
             </div>
-            {% if empleado %}
             <div class="mb-3">
                 
                 <label for="fecha" class="form-label">Fecha Ingreso </label>
@@ -143,12 +145,13 @@
 {% endblock %}
 {% block script %}
 <script>
+{% if empleado %}
 
     function submit(){
-        console.log('click')
-        const identificacion = document.getElementById('identificacion');
+
         const nombre = document.getElementById('nombre');   
         const correo = document.getElementById('correo');
+        const identificacion = document.getElementById('identificacion');
         const telefono = document.getElementById('telefono');
         const guardar= document.getElementById('guardar');
         const contraseña = document.getElementById('contraseña');
@@ -157,13 +160,11 @@
         guardar.style.display="block";
         guardar.style.transition="all 500ms ease-in";
         contraseña.style.display="none"    
-        nombre.style.transition="all 500ms ease-in-out"   
-        identificacion.style.transition="all 500ms ease-in-out"   
-        telefono.style.transition="all 500ms ease-in-out"   
+        nombre.style.transition="all 500ms ease-in-out"     
         correo.style.transition="all 500ms ease-in-out"   
         nombre.disabled = false;
-        identificacion.disabled= false;
-        telefono.disabled =false;
+        identificacion.disabled = false
+        telefono.disabled=false;
         correo.disabled = false;
          
         if (foto.disabled == true){
@@ -191,10 +192,51 @@
 
         }
         
-        
-        
     }
     
+{% else %}
+    function submit(){
+        
+        const nombre = document.getElementById('nombre');   
+        const correo = document.getElementById('correo');
+
+        const guardar= document.getElementById('guardar');
+        const contraseña = document.getElementById('contraseña');
+        const foto = document.getElementById('foto');
+
+        guardar.style.display="block";
+        guardar.style.transition="all 500ms ease-in";
+        contraseña.style.display="none"    
+        nombre.style.transition="all 500ms ease-in-out"     
+        correo.style.transition="all 500ms ease-in-out"   
+        nombre.disabled = false;
+    
+    
+        correo.disabled = false;
+        
+        if (foto.disabled == true){
+
+            foto.disabled = false;
+        }
+        document.getElementById('editar').innerText = 'Cancelar';
+        document.getElementById('editar').style.background = 'red';
+        document.getElementById('editar').style.outline = 'none';
+        document.getElementById('editar').style.color = 'white';
+        document.getElementById('editar').style.border = '0px solid red';
+        document.getElementById('editar').style.transition = 'all 500ms ease-in';
+        
+        document.getElementById('editar').onclick = function(){
+            nombre.disabled = true;
+            correo.disabled = true;
+            foto.disabled = true;
+            guardar.style.display="none";
+                window.location.reload();
+
+        }
+    }
+
+{% endif %}
+
     function deletePhoto(filename) {
         // Simulando una petición fetch para eliminar la foto
         const swalWithBootstrapButtons = Swal.mixin({

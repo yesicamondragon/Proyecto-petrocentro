@@ -24,6 +24,9 @@ class Post(models.Model):
         author = models.ForeignKey(Usuario, blank=True, null=True,on_delete=models.CASCADE)
         estado= models.BooleanField('Publicado/no Publicado', default=True)
         fecha_creacion = models.DateTimeField(auto_now_add=True)
+        
+        fecha_publicacion = models.DateTimeField(blank=True, null=True)
+        fecha_fin = models.DateTimeField(blank=True, null=True)
         empleado = models.BooleanField('Empleados/ No Empleados', default=False)
         class Meta:
                 db_table='Post'

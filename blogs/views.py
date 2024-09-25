@@ -19,7 +19,7 @@ def blog_view(request):
     usuario_logeado = request.session.get('usuario_logeado')
     busqueda = request.GET.get('busqueda')
     
-    # Inicializar queryset base
+
     post = Post.objects.filter(estado=True)
     
     if usuario_logeado:
@@ -177,7 +177,7 @@ def tecnologia(request):
                         context['posts'] = post  
                         
                 # Si es empleado, mostrar todos los posts
-                except Empleado.DoesNotExist:
+                except:
                 # Si no es empleado, filtrar los posts
                      pass
                 
@@ -262,7 +262,7 @@ def politica(request):
 def hidrocarburos(request):
         busqueda = request.GET.get('busqueda')        
        
-        post = obtener_post(busqueda,'hidrocarburos')
+        post = obtener_post(busqueda,'Hidrocarburos',False )
         post = paginacion(request, post)
         
         context= {
@@ -276,7 +276,7 @@ def hidrocarburos(request):
                 context['usuario'] = usuario
                 try:
                         empleado = Empleado.objects.get(id = usuario.id)
-                        post = obtener_post(busqueda,'hidrocarburos')
+                        post = obtener_post(busqueda,'Hidrocarburos')
                         post = paginacion(request, post)
                         context['posts'] = post 
                         context['empleado'] = empleado

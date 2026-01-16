@@ -24,7 +24,6 @@ html {
 }
 
 .sidebar {
-
   position: fixed;
   height: 100%;
   width: 280px;
@@ -953,6 +952,7 @@ html {
   margin: auto;
   width: 80%;
   display: grid;
+
   grid-template-columns: repeat(auto-fill, minmax(400px,1fr));
   grid-row-gap: 15px;
 }
@@ -1121,18 +1121,15 @@ html {
 }
 
 @media screen and (max-width: 1300px) {
+
+  .cards_fotos{
+    grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+  }
   .dash-relleno {
     max-width: 75%;
     margin: 0;
-    .servicios {
-      display: grid;
-      grid-template-columns: repeat(2, 60% 40%);
-      margin: auto;
-      column-gap: 0;
-    }
-    .actualizaciones .card {
-      width: 100%;
-    }
+   
+   
     .btn-accion-empleados {
       width: 90%;
       margin: auto;
@@ -1438,6 +1435,11 @@ html {
 }
 
 @media screen and (max-width: 400px) {
+  .cards_fotos{
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    row-gap: 10px;
+  }
   .navbar {
     height: 80px;
   }

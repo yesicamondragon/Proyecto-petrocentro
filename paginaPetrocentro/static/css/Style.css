@@ -17,7 +17,7 @@
   }
   
   .swal2-html-container{
-    font-family: "Times New Roman", Times, serif;
+    font-family: "Helvetica", Times, serif;
     font-size: 20px !important;
 
   }
@@ -156,15 +156,12 @@ body{
     background-color: #3a803c;
 
 }
-
-
-
     div.buton-cerrar{
         object-fit: cover;
         height: 40px;
         width: 120px;
-        
     }
+
     .imagen-perfil{
         width: 50px;
         margin: auto;
@@ -174,9 +171,7 @@ body{
         height: 50px;
     }
 
-    .lista-perfil{
-
-        
+    .lista-perfil{       
         margin:15px 15px 15px 15px;
         opacity: 0;
         visibility: hidden;
@@ -470,7 +465,7 @@ body{
     top: 25px;
 }
 .let{
-    padding-top: 130px;
+    padding-top: 100px;
 }
 .servicios .let p{
     text-align: justify;
@@ -606,15 +601,15 @@ body{
 }
 .nosotros .collage{
     position: relative;
-    max-width: 1200px;
-    max-height: 400px;
+    max-width: 900px;
+    max-height: 300px;
     margin: auto;
     border-radius:10px ;
 }
 
 .nosotros img{
     width: 100%;
-    height: 400px; /* Permite que la imagen se ajuste proporcionalmente */
+    height: 300px; /* Permite que la imagen se ajuste proporcionalmente */
     z-index: -2;
     object-fit: cover;
     transition: all 500ms ease-in-out;
@@ -757,64 +752,63 @@ body{
 }
 
 /*barra de navegación */
-.nav-2{
-    display: flex;
-    width: 100%;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 10;
-    background-color: #ffffffcc;
-    font-size: 15px;
-    color: #000000;
-  
-  
-
-}
-.nav-2 .little-boton{
-
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 20px;
-    text-decoration: none;
-    color: rgb(0, 0, 0);
-    border-bottom: 2px solid rgb(0, 0, 0);
-
-}
-
-.nav-2 .boton{
-    font-family: 'Helvetica' sans-serif;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 16px;
-    padding: 20px;
-    text-decoration: none;
-    color: rgb(0, 0, 0);
-}
-.nav-2 .boton:hover, .nav-2 .little-boton:hover{
-    background-color: #373d2e4d;
-    text-decoration: none;
-}
-.nav-2 [type=button]{
-    font-family: 'Helvetica' sans-serif;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 15px;
-    background-color: var(--color-1);
-    border-radius: 8px;
-    border: var(--color-1);
-    color: white;
-    height: 50px;
-    width: 150px;
-    transition: all 500ms ease-in-out;
-}
-.nav-2 [type=button]:hover{
-    background-color: white;
-    color: var(--color-1);
+    .nav-2{
+        display: flex;
+        width: 100%;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
+        background-color: #ffffffcc;
+        font-size: 15px;
+        color: #000000;
     
-}
+
+    }
+    .nav-2 .little-boton{
+
+        font-style: normal;
+        font-weight: 600;
+        font-size: 16px;
+        padding: 20px;
+        text-decoration: none;
+        color: rgb(0, 0, 0);
+        border-bottom: 2px solid rgb(0, 0, 0);
+
+    }
+
+    .nav-2 .boton{
+        font-family: 'Helvetica' sans-serif;
+        font-style: normal;
+        font-weight: 500;
+        font-size: 16px;
+        padding: 20px;
+        text-decoration: none;
+        color: rgb(0, 0, 0);
+    }
+    .nav-2 .boton:hover, .nav-2 .little-boton:hover{
+        background-color: #373d2e4d;
+        text-decoration: none;
+    }
+    .nav-2 [type=button]{
+        font-family: 'Helvetica' sans-serif;
+        font-style: normal;
+        font-weight: 500;
+        font-size: 15px;
+        background-color: var(--color-1);
+        border-radius: 8px;
+        border: var(--color-1);
+        color: white;
+        height: 50px;
+        width: 150px;
+        transition: all 500ms ease-in-out;
+    }
+    .nav-2 [type=button]:hover{
+        background-color: white;
+        color: var(--color-1);
+        
+    }
 
 
 
@@ -1146,7 +1140,6 @@ body{
 
 .valores .lista{
     z-index: -1;
-    
     display: flex;
     align-items: center ;
     justify-content: center;
@@ -1169,7 +1162,6 @@ body{
     font-size: 20px;
     
 }
-
 
 /* mision */
 
@@ -3414,7 +3406,7 @@ svg{
         font-size: 40px;
     }
     .cards .card {
-        margin-left:45px ;
+        
         width:60%;
     }
 

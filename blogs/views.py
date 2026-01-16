@@ -59,7 +59,6 @@ def blog_view(request):
             context['empleado'] = empleado
     
     return render(request, 'blog/blog.html', context)
-    
                
 @login_required   
 def crear_blog(request):
@@ -110,20 +109,20 @@ def post_detail_view(request, slug):
                                 emp = Empleado.objects.get(id=usuario.id)
                                 context['empleado'] = emp
                                 # Si es empleado, muestra todos los posts
-                                post = get_object_or_404(Post, slug=slug)
-                                posts = Post.objects.exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                                post = get_object_or_404(Post, slug=slug,estado=True)
+                                posts = Post.objects.filter(estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
                         except Empleado.DoesNotExist:
                                 # Si no es empleado, muestra solo los posts que no son para empleados
                                 post = get_object_or_404(Post, slug=slug, empleado=False)
-                                posts = Post.objects.filter(empleado=False).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                                posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
                 except Usuario.DoesNotExist:
                 # Manejar el caso en que el usuario no existe
                         post = get_object_or_404(Post, slug=slug, empleado=False)
-                        posts = Post.objects.filter(empleado=False).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                        posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
         else:
                 # Si no está logueado, muestra solo los posts que no son exclusivos para empleados
                 post = get_object_or_404(Post, slug=slug, empleado=False)
-                posts = Post.objects.filter(empleado=False).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
 
         context['post'] = post
         context['posts'] = posts

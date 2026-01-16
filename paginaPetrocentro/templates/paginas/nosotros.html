@@ -161,7 +161,7 @@
                 <h1>ISO 9001:2015</h1>
                 <p>Estándar internacional de carácter certificable que regula los Sistemas de Gestión de la Calidad.</p>
             </div>
-            <img class="img-fluid" src="{% static '/images/C-1.webp'%}" alt="">
+            <img class="img-fluid" src="{% static '/images/C-ACTUAL1.webp'%}" alt="">
         </div>
         <div class="certificacion" data-aos="fade-down"> 
             <div class="text">
@@ -169,14 +169,14 @@
                 <p> Norma internacional para sistemas de gestión de seguridad y salud en el trabajo,</p>
             </div>
 
-            <img class="img-fluid" src="{% static '/images/C-2.webp'%}" alt=""></div>
+            <img class="img-fluid" src="{% static '/images/C-ACTUAL2.webp'%}" alt=""></div>
         <div class="certificacion" data-aos="fade-up">
             <div class="text">
                 <h1>ISO 14001:2015</h1>
                 <p>Definir y controlar los aspectos e impactos ambientales significativos para el MinCIT.</p>
             </div>
 
-            <img class="img-fluid" src="{% static '/images/C-3.webp'%}" alt=""></div>
+            <img class="img-fluid" src="{% static '/images/C-ACTUAL3.webp'%}" alt=""></div>
     </div>
     <!-- Galeria de fotos-->
      <br><br><br>
@@ -203,7 +203,7 @@
             </div>
             {% if nosotros %}
                 {% for nosotros in nosotros  %}
-                    {% if nosotros.foto != null %}
+                    {% if nosotros.foto != "" %}
                         <div class="item">
                             <img src="{{ nosotros.foto.url }}" alt="fotografia"> 
                             <div class="carousel-caption d-none d-md-block">
@@ -287,7 +287,7 @@
             <button onmouseover="cambiarColor('sibate-path', '#936fe9', 'sibate-h1')" onmouseout="restaurarColor('sibate-path', 'sibate-h1')" id="sibate">Sibate</button>
             <button onmouseover="cambiarColor('sibate-path', '#03fff2', 'bogota-h1')" onmouseout="restaurarColor('sibate-path', 'bogota-h1')" id="bogota">Bogotà</button>
             <button onmouseover="cambiarColor('meta-path', 'rgba(214, 18, 18, 0.767)','meta-h1')" onmouseout="restaurarColor('meta-path', 'meta-h1')" id="meta">Chichimene (Meta)</button>
-            <button onmouseover="cambiarColor('putumayo-path' ,'#dbc607cc', 'putumayo-h1')" onmouseout="restaurarColor('putumayo-path', 'putumayo-h1')" id="putumayo">Villa-Garzon (Putumayo)</button>
+            <button onmouseover="cambiarColor('putumayo-path' ,'#dbc607cc', 'putumayo-h1')" onmouseout="restaurarColor('putumayo-path', 'putumayo-h1')" id="putumayo">Mocoa (Putumayo)</button>
             
 
             

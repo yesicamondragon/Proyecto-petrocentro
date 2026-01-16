@@ -16,9 +16,9 @@ class Categoria(models.Model):
         
 class Post(models.Model):
         image = models.ImageField(upload_to="blog_images")
-        titulo = models.CharField(max_length=90)
+        titulo = models.CharField(max_length=200)
         categoria = models.ForeignKey(Categoria, blank=True, null=False, on_delete=models.CASCADE)
-        descripcion = models.CharField(max_length=110)
+        descripcion = models.CharField(max_length=300)
         contenido = models.TextField()
         slug = models.CharField(max_length=100,)
         author = models.ForeignKey(Usuario, blank=True, null=True,on_delete=models.CASCADE)

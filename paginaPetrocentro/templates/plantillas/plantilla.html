@@ -149,12 +149,11 @@
             <a href="{% url 'nosotros' %}">Nosotros</a>
             <a href="{% url 'contacto' %}">Contacto</a>
             <a href="{% url 'pqrs' %}">PQRS</a>
-            <a href="{% url 'perfil' %}">Ajustes</a>
             <a href="{% url 'blog' %}">Blog</a>
 
             <!-- Verificar si el usuario está logeado-->
             {% if user.is_authenticated %}
-            <a href="{% url 'perfil' %}" > perfil </a>
+            <a href="{% url 'perfil' %}" > Ajustes </a>
             
               <a href="{% url 'logout_view' %}" class="person"><i class="fw-bold bi bi-box-arrow-left "></i>&nbsp; cerrar sesion</a>
           

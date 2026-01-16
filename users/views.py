@@ -32,8 +32,7 @@ def listar_empleados(request):
         permisos = obtener_permisos(permiso)
                 
         #A partir de este permiso mostrará la página, si tiene acceso 
-        for permiso in permisos:
-                print(permiso)
+
         if permisos['usuarios']== 1:
             usuarios =1
             cargo = Cargo.objects.all()
@@ -132,14 +131,20 @@ def editar_empleados(request, id):
         try:    
             #Variable para almacenar el cargo enviado en el formulario, ya que solo se permite editar el cargo
             id_cargo = request.POST.get('cargo')
+        
             id_rol = request.POST.get('rol')
             telefono = request.POST.get('telefono1')
             identificacion = request.POST.get('identificacion1')
             #En la variable usuario, se obtiene el cargo y se realiza una consulta que trae el cargo de la tabla "CARGO" para validar coincidencias y asi mismo cambiarlo en el empleado
             usuario.telefono = telefono
             usuario.identificacion = identificacion
+           
             usuario.id_cargo = Cargo.objects.get(id_cargo = id_cargo)
-            usuario.id_rol = Rol.objects.get(id_rol = id_rol)
+        
+            if id_rol != '#':
+                usuario.id_rol = Rol.objects.get(id_rol = id_rol)
+            else:
+                usuario.id_rol = None
             #gurdar el cargo
             usuario.save()
             
@@ -176,7 +181,7 @@ def registrar_empleados(request):
         
         #----------------------------------------------------------------------------------------------------------------
         #try para pedirle que en caso que falle, arroje el error en un mensaje y no el error de django 
-        try:
+
             #Obtener toda la informacion del dormulario de empleados
             fecha = request.POST.get("fechaIngreso")
             id_cargo = request.POST.get('cargo')
@@ -185,6 +190,7 @@ def registrar_empleados(request):
             telefono = request.POST.get('telefono')
             ubicacion = request.POST.get('ubicacion')
             usuario_id= request.POST.get('usuario_id')
+            
             
             #----------------------------------------------------------------------------------------------------------------
             #Obtener las fechas y convertirlas 
@@ -199,22 +205,44 @@ def registrar_empleados(request):
             usuario_num = user.user_id.pk
 
             #----------------------------------------------------------------------------------------------------------------
-            #instancia de empleado para crear el mismo
-            empleado= Empleado(
-            
-                    id=user.id,  # Usar la clave primaria del usuario
-                    user_id= User.objects.get(id=usuario_num),  #la clave de user_auth para el usuario
-                    identificacion= identificacion,
-                    estado=user.estado,
-                    nombre=user.nombre,
-                    correo=user.correo,
-                    telefono=telefono,
-                    fecha_ingreso=fecha,
-                    id_cargo= Cargo.objects.get(id_cargo = id_cargo),
-                    id_rol = Rol.objects.get(id_rol = id_rol ),
-                    id_ubicacion=Ubicacion.objects.get(idUbicacion = ubicacion),
 
-                    )
+            if id_rol == "#"  :
+            #instancia de empleado para crear el mismo
+                empleado= Empleado(
+                
+                        id=user.id,  # Usar la clave primaria del usuario
+                        user_id= User.objects.get(id=usuario_num),  #la clave de user_auth para el usuario
+                        identificacion= identificacion,
+                        estado=user.estado,
+                        nombre=user.nombre,
+                        correo=user.correo,
+                        telefono=telefono,
+                        fecha_ingreso=fecha,
+                        
+                        id_cargo= Cargo.objects.get(id_cargo = id_cargo),
+                        
+  
+                        id_ubicacion=Ubicacion.objects.get(idUbicacion = ubicacion),
+
+                        )
+                
+            else:
+                        empleado= Empleado(
+                
+                        id=user.id,  # Usar la clave primaria del usuario
+                        user_id= User.objects.get(id=usuario_num),  #la clave de user_auth para el usuario
+                        identificacion= identificacion,
+                        estado=user.estado,
+                        nombre=user.nombre,
+                        correo=user.correo,
+                        telefono=telefono,
+                        fecha_ingreso=fecha,
+                        id_rol = Rol.objects.get(id_rol = id_rol ),
+                        id_cargo= Cargo.objects.get(id_cargo = id_cargo),
+                    
+                        id_ubicacion=Ubicacion.objects.get(idUbicacion = ubicacion),
+
+                        )
             #----------------------------------------------------------------------------------------------------------------
             #Condición para valdiar si el empleado ya existe
             if (Empleado.objects.filter(id=usuario_id)).exists():
@@ -231,10 +259,7 @@ def registrar_empleados(request):
                 empleado.save()
                 messages.success(request, 'Se ha registrado exitosamente.')
                 
-        #excepción        
-        except (User.DoesNotExist, Estado.DoesNotExist, Rol.DoesNotExist, Cargo.DoesNotExist, Ubicacion.DoesNotExist, ValueError) as e:
-                messages.error(request, 'Error en el formulario, por favor diligéncialo bien')
-     
+
     return redirect('empleados')
 
 #funcion para cambiar el estado de un empleado

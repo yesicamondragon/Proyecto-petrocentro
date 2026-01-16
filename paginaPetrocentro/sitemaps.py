@@ -7,7 +7,7 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         # Lista de nombres de vistas que quieres incluir en el sitemap
-        return ['index', 'nosotros', 'contacto', 'pqrs', 'servicios']
+        return ['index', 'nosotros', 'contacto', 'pqrs', 'servicios','blog']
 
     def location(self, item):
         # Utiliza el nombre de la vista para generar la URL

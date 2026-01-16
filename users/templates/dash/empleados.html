@@ -59,15 +59,20 @@
                             <input type="number" id="telefono" name="telefono" class="form-control">
                         </div>
                         <!-- Recorrer los roles y traerlos -->
+                        
+                        {% if nombre_rol == "Administrador" %}
                         <div class="mb-3">
                             <label for="rol" class="form-label">Rol</label>
-                            <select name="rol" id="rol" class="form-control" required>
-                            <option value="#" selected > Seleccione </option>
-                        {% for rol in roles %}
-                            <option value="{{ rol.id_rol }}">{{ rol.nombre }}</option>
-                        {% endfor %}
+                            <select name="rol" id="rol" class="form-select" >
+                                <option value="#">Seleccione</option>
+                                {% for rol in roles %}
+                                        <option value="{{ rol.id_rol }}" >{{ rol.nombre }}</option>
+                                {% endfor %}
                             </select>
+                     
                         </div>
+                
+                        {% endif %}
     
                         <!-- Recorrer las ubicaciones y traerlas-->
                         <div class="mb-3">
@@ -249,7 +254,8 @@
                                             {% if nombre_rol == "Administrador" %}
                                                 <div class="mb-3">
                                                     <label for="rol" class="form-label">Rol</label>
-                                                    <select name="rol" id="rol" class="form-select" required>
+                                                    <select name="rol" id="rol" class="form-select" >
+                                                        <option value="#">Seleccione</option>
                                                         {% for rol in roles %}
                                                             {% if rol.id_rol == empleado.id_rol.id_rol%}
 

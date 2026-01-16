@@ -30,7 +30,7 @@ class Empleado(Usuario):
         
         identificacion = models.IntegerField(null=False )
         telefono = models.CharField(max_length=10, null=False)
-        id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+        id_rol = models.ForeignKey(Rol, on_delete=models.CASCADE, null=True, blank=True)
         fecha_ingreso= models.DateField()
         id_cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
         id_ubicacion = models.ForeignKey(Ubicacion, on_delete=models.CASCADE)

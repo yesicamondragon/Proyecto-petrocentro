@@ -57,18 +57,22 @@ def obtener_permisos(permisos):
     }
     return data
 
-# Create your views here.
+
+# -----------------------------------------------------------------------PERFIL-------------
+#Funcion que redirige a la vista del perfil.
 @login_required
 def perfil(request):
     
         usuario_logeado = request.session.get('usuario_logeado') #Obtener el id del user logeado
 
-        
         try:
                 emp = Usuario.objects.get(id = usuario_logeado )
                 emplea= Empleado.objects.get(id = emp.id)
                 rol = emplea.id_rol
-                nombre_rol = rol.nombre
+                if rol != None:
+                    nombre_rol = rol.nombre
+                else: 
+                    nombre_rol = "No tiene rol"
                 empleado = Empleado.objects.get(id = emp.id) 
                 permisos = Rol_permiso.objects.filter(rol = rol)
                 obtener_permiso = obtener_permisos(permisos)
@@ -87,12 +91,12 @@ def perfil(request):
                 }
                 return render(request, 'configuracion/perfil.html', data)
 
-
         except Usuario.DoesNotExist as e :
                 usuario = Usuario.objects.get(id = usuario_logeado)
                 data = {'usuario': usuario}
                 return render(request, 'configuracion/perfil.html', data)
 
+#Funcion que edita si es preciso los campos del perfil.
 def editar_perfil(request):
     if request.method == 'POST':
        
@@ -128,6 +132,7 @@ def editar_perfil(request):
 
         return redirect('perfil')
     
+#Función que permite eliminar la foto de perfil.
 def delete_photo(request):
    
     if request.method == "POST":
@@ -154,6 +159,7 @@ def delete_photo(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
+#Función para cambiar la contraseña.
 def password_change(request, id):
     
     if request.method == 'POST':
@@ -182,6 +188,7 @@ def password_change(request, id):
 
 #------------------------------------------------------------COFIGURACION ----------------------------------------------------------------
 
+#Funcion que dirige a la vista de configuracion de las fotos del carrusel en la pagina "nosotros".
 @login_required
 def configuracion_nosotros (request):
     usuario_logeado = request.session.get('usuario_logeado')
@@ -214,6 +221,7 @@ def configuracion_nosotros (request):
         messages.error(request, f'Error : {e}')
         return redirect('inicio')
 
+#Funcion que permite agregar las fotos al carrusel.
 def agregar_fotos_nosotros(request):
     if request.method == 'POST':
         
@@ -233,6 +241,7 @@ def agregar_fotos_nosotros(request):
             messages.error(request, f'Error: {e}')
             return redirect('nosotros_conf')
 
+#Funcion que permite eliminar la foto, simplemente la foto.
 def eliminar_foto_nosotros(request):
      if request.method == "POST":
         try:
@@ -259,6 +268,9 @@ def eliminar_foto_nosotros(request):
         
             return JsonResponse({'status': 'error', 'message': str(e)})
  
+ #Funcion que permite eliminar todo el campo de la base de datos. Foto, descripcion; todo.
+
+#Funcion que permite eliminar el campo completo 
 def delete_photo_nosotros(request):
      if request.method == "POST":
         try:
@@ -286,6 +298,7 @@ def delete_photo_nosotros(request):
         
             return JsonResponse({'status': 'error', 'message': str(e)})
  
+ #Funcion que permite editar los datos de la imagen
 def editar_nosotros(request,id):
     if request.method == 'POST':
         try:
@@ -317,6 +330,8 @@ def editar_nosotros(request,id):
    
    
 #---------------------------------------------------------------- ROLES Y PERMISOS ----------------------------------------------------------------
+
+#Funcion que dirige a la vista de los roles.
 @login_required
 def roles(request):
     usuario_logeado = request.session.get('usuario_logeado')
@@ -361,6 +376,7 @@ def roles(request):
         messages.error(request, f'Error: {e}')
         return redirect('empleados')
     
+#Funcion que filtra los roles desde la plantilla, esta funcion se llama mediante javascript.
 def filtrar_permisos(request):
     try:
         data = json.loads(request.body)
@@ -382,6 +398,7 @@ def filtrar_permisos(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
     
+#Funcion que permite crear un nuevo rol.
 @login_required
 def crear_rol(request):
     if request.method == 'POST':
@@ -408,7 +425,7 @@ def crear_rol(request):
             messages.error(request, f'Error: {e}')
             return redirect('asignar_roles')
 
-
+#Funcion que permite agregar permisos a un rol.
 def agregar_permisos(request,id):
     if request.method == 'POST':
         try:
@@ -482,6 +499,7 @@ def agregar_permisos(request,id):
     return redirect('asignar_roles')
         
 #---------------------------------------------------------------- POSTS ----------------------------------------------------------------
+
 def send_email_post(email,creador,fecha,post,titulo):
     
         template = render_to_string('emails/email_blog_suscriptor.html',{
@@ -621,6 +639,7 @@ def guardar_post(request):
                                 for suscriptor in suscriptores:
                                     send_email_post(suscriptor.correo, creador.nombre, post.fecha_creacion,full_url,titulo )
                             return redirect('blog')
+                        
         except Exception as e:
             messages.error(request, f'Error: {e}')
             return redirect('crear_post')

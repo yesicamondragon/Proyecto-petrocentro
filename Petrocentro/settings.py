@@ -107,15 +107,23 @@ WSGI_APPLICATION = 'Petrocentro.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-   'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'petrocentropagina',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT':'3306',
+        'NAME': 'petrocentro',
+        'USER': 'petrocentro_user',
+        'PASSWORD': 'petrocentro@2026',
+        'HOST': '127.0.0.1',
+        'PORT': '3307',
+        'OPTIONS': {
+            'ssl': {'disabled': True},
+        },
     }
 }
+
+
+
+
+
 
 
 # Password validation

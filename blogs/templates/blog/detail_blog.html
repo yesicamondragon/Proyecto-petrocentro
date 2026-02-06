@@ -43,9 +43,14 @@
                 <div class="descripcion-post-detail">
                         <p> {{ post.descripcion }}</p>
                 </div>
-                <div class="imagen-post-detail">
-                        <img src="{{ post.image.url }}" alt="{{ post.imagen }}">
-                </div>
+             <div class="imagen-post-detail">
+    {% if post.image %}
+        <img class="image-post-detail" src="{{ post.image.url }}" alt="{{ post.titulo }}">
+    {% else %}
+        <img class="image-post-detail" src="{% static 'images/default.jpg' %}" alt="Imagen por defecto">
+    {% endif %}
+</div>
+
                 <div class=" contenido-post-detail  summernote-content ">
 
                                 {{ post.contenido|safe }}
@@ -64,13 +69,17 @@
         {% for post in posts %}
                 {% if post.slug != slug %}  
                 <div class="post-articulo" onclick="window.location.href='{% url 'detail-post' post.slug %}' "  >
-                        <div class="post-articulo-completo">
-                                <img class=" image-post"src="{{ post.image.url }}" alt="{{ post.image }}" >
-                                <br>
-                                <p class=" post-fecha ">{{ post.fecha_creacion }} </p>
-                        
-                                <p class="post-titulo"> {{ post.titulo }} </p>
-                        </div>
+                   <div class="post-articulo-completo">
+    {% if post.image %}
+        <img class="image-post" src="{{ post.image.url }}" alt="{{ post.titulo }}">
+    {% else %}
+        <img class="image-post" src="{% static 'images/default.jpg' %}" alt="Imagen por defecto">
+    {% endif %}
+    <br>
+    <p class="post-fecha">{{ post.fecha_creacion }}</p>
+    <p class="post-titulo">{{ post.titulo }}</p>
+</div>
+
                         <div class="creador-post">
                             <div class="creador-post-detail">
                                 <div class="post-creador-foto">

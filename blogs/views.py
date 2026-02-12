@@ -44,7 +44,7 @@ def blog_view(request):
     
     # Ordenar y paginar
     post = post.order_by('-fecha_creacion')
-    paginator = Paginator(post, 40)
+    paginator = Paginator(post, 50)
     page = request.GET.get('page')
     post = paginator.get_page(page)
     

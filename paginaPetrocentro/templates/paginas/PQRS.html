@@ -14,16 +14,19 @@
 
         <!-- Letras e imagen -->       
         <div class="letras-pqrs">
-                <div class="bola-izquierda"></div>
                 <div class="l-pqrs">
+                    <div class="breadcrumb-container dark-mode">
+                        <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
+                        <span class="breadcrumb-separator">&gt;</span>
+                        <span class="breadcrumb-current">PQRS</span>
+                    </div>
                     <h1 class="politica-atencion">POLITICA DE ATENCION</h1>
                     
                     <h1>PETICIONES, QUEJAS, RECLAMOS Y SUGERENCIAS</h1>
                 </div>
                 <div class="imagen-pqrs">
-                
 
-                    <img src="{% static '/images/pqrs_1.webp'%}" alt="">
+                    <img src="{% static 'images/pqrs_2.webp' %}" alt="Imagen PQRS">
                 </div>
                 <div class="bola-derecha"></div>
         </div>
@@ -31,11 +34,30 @@
         <!-- Texto introduccion -->
         <div class="texto-principal">
             <div class="txt-pr">
+                <p>En Petrocentro S.A.S. valoramos la opinión de nuestros clientes, colaboradores y grupos de interés. A través de este canal puede presentar Peticiones, Quejas, Reclamos o Sugerencias.</p>
                 <p>Los requerimientos pueden ser recibidos a través de un documento en físico firmado por parte de los grupos de interés, en los sitios establecidos en campo para tal fin, únicamente en horarios de oficina (las únicas personas autorizadas de recibir este documento son el Administrador, Advisor, Coordinador o Supervisor HSEQ), documento en digital firmado a través del correo corporativo, llamando vía telefónica a nuestra línea corporativa, en horario de oficina, o través de nuestra página web diligenciando el siguiente formulario:</p>
-            </div>
-            <div class="boton-formulario">
-                <button onclick="window.location.href='https://forms.gle/u7EWkYi93BwfLpdG6'  " >FORMULARIO &nbsp; <i class="fa-regular fa-file-lines "></i></button>
-
+                
+                <div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
+                    <h3 style="font-weight: 700; color: #161C2D; margin-bottom: 20px;">¿Cómo puedes enviar tu PQRS?</h3>
+                    <ul style="list-style: none; padding: 0; text-align: left; display: inline-block; width: 100%; max-width: 600px;">
+                        <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                            <span><i class="fa-solid fa-file-contract" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Documento físico</span>
+                            <a href="{% url 'contacto' %}" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Ver Ubicación</a>
+                        </li>
+                        <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                            <span><i class="fa-solid fa-envelope" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Correo corporativo</span>
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Enviar Email</a>
+                        </li>
+                        <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                            <span><i class="fa-brands fa-whatsapp" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Línea WhatsApp</span>
+                            <a href="https://wa.me/573134267179" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Chatear</a>
+                        </li>
+                        <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                            <span><i class="fa-solid fa-globe" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Formulario web</span>
+                            <a href="https://forms.gle/u7EWkYi93BwfLpdG6" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Ir al Formulario</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         
@@ -48,59 +70,158 @@
             <hr>
         </h1>
 
-        <!-- Pasos -->
+        <!-- Pasos Detallados -->
         <div class="pasos-pqrs">
-            <div class="paso_1">
-                <div class="bola-izquierda2"></div>
-
-                <br>
-                <p>
-                    1. Una vez recibido el requerimiento por parte del área de Recursos Humanos, se procede a verificar su origen (Si el documento no contiene datos de contacto, se tratará como un reclamo anónimo y no será procesado).
-                </p>
-                <br>
-                <hr>
+            <div class="paso-item">
+                <div class="paso-icono"><i class="fa-solid fa-file-signature"></i></div>
+                <div class="paso-contenido">
+                    <p>
+                        <strong>1. Verificación Inicial:</strong> Una vez recibido el requerimiento por parte del área de Recursos Humanos, se procede a verificar su origen (Si el documento no contiene datos de contacto, se tratará como un reclamo anónimo y no será procesado).
+                    </p>
+                </div>
             </div>
-            <div class="paso_2">
-                <div class="bola-izquierda3"></div>
-
-                <p>
-                    2. Luego de llamar y consultar a los interesados respecto al requerimiento recibido, si el documento va dirigido al cliente o a algún contratista, se remite a estos, únicamente a través del correo corporativo, con el fin que le den el trámite que corresponde.
-
-                </p>
-                <ul>
-                    <li>Se registra en la matriz de PQR (si va dirigido a algún contratista).</li>
-                    <li>El requerimiento se cierra con el soporte otorgado por parte de la empresa contratista a la cual iba dirigido.</li>
-                    <li>Petrocentro SAS emitirá respuesta oficial de la PQRS en el menor tiempo posible sin excederse de quince (15) días hábiles.</li>
-                </ul>
-                <br>
-                <hr>
+            <hr>
+            <div class="paso-item">
+                <div class="paso-icono"><i class="fa-solid fa-share-from-square"></i></div>
+                <div class="paso-contenido">
+                    <p>
+                        <strong>2. Remisión y Seguimiento:</strong> Luego de consultar a los interesados, si el documento va dirigido al cliente o a algún contratista, se remite a través del correo corporativo para su trámite.
+                    </p>
+                    <ul>
+                        <li>Se registra en la matriz de PQR para seguimiento.</li>
+                        <li>El requerimiento se cierra con el soporte otorgado por la empresa contratista.</li>
+                        <li>Petrocentro SAS emitirá respuesta oficial en un plazo máximo de quince (15) días hábiles.</li>
+                    </ul>
+                </div>
             </div>
-            <div class="paso_3">
-                <div class="bola-izquierda4"></div>
-
-                
-                <p>
-                    3. Si el documento va dirigido a la empresa:
-                </p>
-                <ul>
-                    <li>Se registra en la matriz de PQR, para el respectivo seguimiento interno del Requerimiento.</li>
-                    <li>El área de Recursos Humanos de la empresa es la responsable de direccionar al área encargada (HSEQ, Administrativa, Operaciones, Compras, Financiera, Comercial) el requerimiento, quienes definirán las actividades o acciones a implementar y de igual forma, realizarán el acompañamiento y verificación su gestión y cierre.</li>
-                    <li>
-                        Dependiendo del tipo de requerimiento recibido y el tipo de respuesta brindado, el cual puede variar de ser de manera inmediata o hasta 15 días hábiles para el respectivo cierre, buscando siempre brindar una respuesta oportuna y pronta en la medida de lo posible, con el fin de mitigar los impactos negativos que se puedan generar con las partes interesadas.
-                    </li>
-                </ul>
-                <br>
-                <hr>
+            <hr>
+            <div class="paso-item">
+                <div class="paso-icono"><i class="fa-solid fa-sitemap"></i></div>
+                <div class="paso-contenido">
+                    <p>
+                        <strong>3. Gestión Interna:</strong> Si el documento va dirigido a Petrocentro:
+                    </p>
+                    <ul>
+                        <li>Se registra en la matriz de PQR para seguimiento interno.</li>
+                        <li>Recursos Humanos direcciona el requerimiento al área encargada (HSEQ, Operaciones, etc.) para definir acciones.</li>
+                        <li>Se busca brindar una respuesta oportuna, con un plazo máximo de 15 días hábiles para el cierre.</li>
+                    </ul>
+                </div>
             </div>
-            <div class="paso_4">
-                <div class="bola-izquierda5"></div>
-
-                <p>
-                    4. El cierre formal de los requerimientos, se podrán realizar por cualquiera de los medios descritos; vía correo electrónico corporativo, por medio de comunicado en físico, o mediante una reunión formal (si hay necesidad); esta actividad se realizará siempre y cuando, el personal involucrado cumpla con las indicaciones del gobierno nacional en cuando a la situación de emergencia sanitaria (uso de tapabocas, distanciamiento social). De la actividad ejecutada se adjunta Acta de Reunión, Listado de Asistencia, Fotografía (de permitirse) y los interesados siempre quedan con copia de la respuesta otorgada.
-                </p>
-                <br>
+            <hr>
+            <div class="paso-item">
+                <div class="paso-icono"><i class="fa-solid fa-handshake"></i></div>
+                <div class="paso-contenido">
+                    <p>
+                        <strong>4. Cierre Formal:</strong> El cierre se realiza por correo, comunicado físico o reunión formal, cumpliendo con los protocolos de bioseguridad. Se adjunta el soporte correspondiente (Acta, listado, etc.) y se entrega copia de la respuesta a los interesados.
+                    </p>
+                </div>
             </div>
         </div>
 
+        <!-- Pasos (Línea de tiempo horizontal) -->
+        <div class="timeline-pqrs-container">
+            <div class="timeline-pqrs">
+                <div class="timeline-step">
+                    <div class="step-icon">1</div>
+                    <div class="step-content">
+                        <h3>Recepción</h3>
+                        <p>El área de Recursos Humanos recibe y verifica la información.</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="step-icon">2</div>
+                    <div class="step-content">
+                        <h3>Análisis</h3>
+                        <p>Se valida el tipo de requerimiento y se direcciona al área correspondiente.</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="step-icon">3</div>
+                    <div class="step-content">
+                        <h3>Gestión</h3>
+                        <p>El área responsable implementa acciones y da respuesta.</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="step-icon">4</div>
+                    <div class="step-content">
+                        <h3>Respuesta oficial</h3>
+                        <p>Se entrega respuesta en un plazo máximo de 15 días hábiles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consulta de Estado -->
+        <div class="consulta-estado-pqrs">
+            <div class="estado-box">
+                <h2><i class="fa-solid fa-magnifying-glass"></i> CONSULTA EL ESTADO DE TU SOLICITUD</h2>
+                <p>Si ya radicaste una PQRS, puedes verificar su estado actual ingresando el número de radicado asignado.</p>
+                <form class="form-consulta" onsubmit="event.preventDefault(); consultarEstado();">
+                    <input type="text" id="radicado-input" placeholder="Ingrese su número de radicado (Ej. 2024-058)" required>
+                    <button type="submit">CONSULTAR</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Compromiso -->
+        <section class="compromiso-section">
+            <h2 class="titulo-compromiso">NUESTRO COMPROMISO</h2>
+            <div class="grid-compromiso">
+                <div class="item-compromiso">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <h3>Confidencialidad</h3>
+                    <p>Garantizamos el manejo seguro, ético y privado de toda la información suministrada en su solicitud, cumpliendo con la normativa de protección de datos.</p>
+                    <img src="{% static '/images/politicas.webp' %}" alt="Confidencialidad" class="compromiso-img">
+                </div>
+                <div class="item-compromiso">
+                    <i class="fa-solid fa-clock"></i>
+                    <h3>Respuesta Oportuna</h3>
+                    <p>Nos comprometemos a gestionar y dar respuesta a su requerimiento dentro de los tiempos establecidos (máximo 15 días hábiles).</p>
+                    <img src="{% static '/images/nosotros_2.webp' %}" alt="Respuesta Oportuna" class="compromiso-img">
+                </div>
+                <div class="item-compromiso">
+                    <i class="fa-solid fa-magnifying-glass-location"></i>
+                    <h3>Seguimiento y Trazabilidad</h3>
+                    <p>Realizamos un monitoreo detallado de cada caso desde su recepción hasta el cierre formal, asegurando transparencia en el proceso.</p>
+                    <img src="{% static '/images/DEH.webp' %}" alt="Seguimiento" class="compromiso-img">
+                </div>
+                <div class="item-compromiso">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h3>Mejora Continua</h3>
+                    <p>Valoramos sus aportes como una oportunidad fundamental para optimizar nuestros procesos y elevar la calidad de nuestro servicio.</p>
+                    <img src="{% static '/images/C-ACTUAL1.webp' %}" alt="Mejora Continua" class="compromiso-img">
+                </div>
+            </div>
+        </section>
+
 {% endblock %}
 {% block sucribirse_blog %}{% endblock sucribirse_blog %}
+
+{% block script %}
+<script>
+    function consultarEstado() {
+        var radicado = document.getElementById('radicado-input').value;
+        if(radicado) {
+            Swal.fire({
+                title: 'Consultando...',
+                text: 'Verificando el estado del radicado ' + radicado,
+                icon: 'info',
+                timer: 1500,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            }).then(() => {
+                Swal.fire({
+                    title: 'Información',
+                    text: 'Para conocer el estado detallado del radicado ' + radicado + ', por favor revise su correo electrónico o comuníquese con nuestra línea de atención.',
+                    icon: 'success',
+                    confirmButtonColor: '#0b6838'
+                });
+            });
+        }
+    }
+</script>
+{% endblock %}

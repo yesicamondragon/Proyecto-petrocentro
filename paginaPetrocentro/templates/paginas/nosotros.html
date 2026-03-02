@@ -4,14 +4,14 @@
 
 {%load static %}
 
-{% block titulo %} Nosotros Petrocentro S.A.S {% endblock %}
+{% block titulo %} Nosotros - Well Testing, Equipos Petroleros y Facilidades de Producción Colombia {% endblock %}
 
 
 {% block contenido %} 
     <!-- Imagen de fondo -->
     <section class="container-img2">
         <div  >
-            <img class="img-fluid" src="{% static '/images/nosotros_0.webp'%}" alt="">
+            <img class="img-fluid" src="{% static '/images/nosotros_0.webp'%}" alt="Petrocentro empresa de servicios petroleros en Colombia">
         </div>
         <div class="img-luid flyer2 ">
             
@@ -22,8 +22,13 @@
     <!-- Letras de Fondo -->
     <section class="letras1">
         <div class="LP1">
+            <div class="breadcrumb-container">
+                <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
+                <span class="breadcrumb-separator">&gt;</span>
+                <span class="breadcrumb-current">Nosotros</span>
+            </div>
             <h1>SOBRE NOSOTROS</h1>
-            
+            <p style="text-align: center; width: 80%; margin: 20px auto; font-family: 'Helvetica'; font-size: 22px; color: #FFFFFF; line-height: 1.5; font-weight: 400;">Petrocentro S.A.S: Ingeniería, Operación y Soluciones Integrales para el Sector Oil & Gas</p>
         </div>
     </section>
 
@@ -35,7 +40,7 @@
         <!-- Imagen -->
         <div class="imagen img-fluid" data-aos="fade-up">
             
-            <img class="img-fluid" src="{% static '/images/nosotros_1.webp'%}" alt="">
+            <img class="img-fluid" src="{% static '/images/nosotros_1.webp'%}" alt="Operación y mantenimiento de facilidades de producción de gas y petróleo">
         </div>
         <div class="texto1" data-aos="fade-down">
             <h1>¿QUIÉNES SOMOS?</h1>
@@ -55,26 +60,26 @@
         
         <div class="valores" data-aos="fade-up">
                 <div class="ir">
-                    <img src="{% static '/images/valores.webp'%}" alt="">
+                    <img src="{% static '/images/valores.webp'%}" alt="Valores corporativos Petrocentro">
                 </div>
 
                 <!-- Valores de la empresa con letras que forman el nombre de la misma-->
                 <div class="lista"> 
                     <ul>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;P</span>ertenencia </li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;E</span>ficiencia</li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;T</span>rabajo en Equipo </li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;R</span>esponsabilidad</li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;O</span>rganización </li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-hand-holding-heart"></i>&nbsp;P</span>ertenencia </li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-stopwatch"></i>&nbsp;E</span>ficiencia</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-users"></i>&nbsp;T</span>rabajo en Equipo </li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-clipboard-check"></i>&nbsp;R</span>esponsabilidad</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-sitemap"></i>&nbsp;O</span>rganización </li>
 
                     </ul>
                     <ul>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;C</span>alidad </li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;E</span>ficacia</li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;N</span>ormatividad</li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;T</span>ransparencia </li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;R</span>ectitud</li>
-                        <li> <span class="siglas"> <i class="fa-solid fa-check"></i>&nbsp;O</span>rden</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-medal"></i>&nbsp;C</span>alidad </li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-bullseye"></i>&nbsp;E</span>ficacia</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-scale-balanced"></i>&nbsp;N</span>ormatividad</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-magnifying-glass"></i>&nbsp;T</span>ransparencia </li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-gavel"></i>&nbsp;R</span>ectitud</li>
+                        <li> <span class="siglas"> <i class="fa-solid fa-list-check"></i>&nbsp;O</span>rden</li>
                     </ul>
                 </div>
         
@@ -90,7 +95,7 @@
             <p>  Somos una empresa innovadora en la prestación de Servicios integrales para la fabricación, montaje, operación, y mantenimiento de facilidades de producción en superficie para Gas y/o Petróleo y Well Testing, desarrollando tecnología de punta, con personal altamente calificado, altos  estándares de calidad,  seguridad y en armonía con el medio ambiente.</p>
         </div>
         <div class="imagen-mision" data-aos="fade-down">  
-            <img src="{% static '/images/mision.webp'%}" alt="">
+            <img src="{% static '/images/mision.webp'%}" alt="Misión Petrocentro Well Testing">
         </div>
 
     </div>
@@ -104,12 +109,11 @@
             <p>  Petrocentro S.A.S. será reconocida en el 2030 a nivel nacional e internacional en el sector de hidrocarburos  por su  competitividad, eficiencia, innovación, confiabilidad, responsabilidad y  compromiso  socio-ambiental, aportando soluciones integrales  en el desarrollo de la productividad petrolera. .</p>
         </div>
         <div class="imagen-mision" data-aos="fade-up">
-            <img src="{% static '/images/vision.webp'%}" alt="">
+            <img src="{% static '/images/vision.webp'%}" alt="Visión Petrocentro Servicios Petroleros">
         </div>
         
     </div>
     
-
     <!-- Politicas -->
     <div class="politicas" >
         <div class="politicas-titulo " data-aos="fade-up">
@@ -117,7 +121,7 @@
         </div>
         <div class="politicas-cuerpo">
             <div class="politicas-imagen" data-aos="fade-up">
-                <img src="{% static '/images/politicas.webp'%}" alt="">
+                <img src="{% static '/images/politicas.webp'%}" alt="Políticas corporativas sector hidrocarburos">
             </div>
             <!-- Primer lista de políticas, esto para computadores o pantallas grandes-->
             <div class="politicas-lista" data-aos="fade-down">
@@ -158,26 +162,127 @@
         
         <div class="certificacion" data-aos="fade-up">
             <div class="text">
-                <h1>ISO 9001:2015</h1>
+                <h3>ISO 9001:2015</h3>
                 <p>Estándar internacional de carácter certificable que regula los Sistemas de Gestión de la Calidad.</p>
             </div>
             <img class="img-fluid" src="{% static '/images/C-ACTUAL1.webp'%}" alt="">
         </div>
         <div class="certificacion" data-aos="fade-down"> 
             <div class="text">
-                <h1>ISO 45001:2018 </h1>
+                <h3>ISO 45001:2018 </h3>
                 <p> Norma internacional para sistemas de gestión de seguridad y salud en el trabajo,</p>
             </div>
 
             <img class="img-fluid" src="{% static '/images/C-ACTUAL2.webp'%}" alt=""></div>
         <div class="certificacion" data-aos="fade-up">
             <div class="text">
-                <h1>ISO 14001:2015</h1>
+                <h3>ISO 14001:2015</h3>
                 <p>Definir y controlar los aspectos e impactos ambientales significativos para el MinCIT.</p>
             </div>
 
             <img class="img-fluid" src="{% static '/images/C-ACTUAL3.webp'%}" alt=""></div>
     </div>
+
+    <!-- Casos de Éxito y Testimonios -->
+    <section class="testimonios-section" data-aos="fade-up">
+        <div class="contenedor-testimonios">
+            <h2 class="titulo-testimonios">CASOS DE ÉXITO Y TESTIMONIOS</h2>
+            <p class="subtitulo-testimonios">La confianza de nuestros clientes es nuestro mayor aval. Conoce algunas de nuestras experiencias exitosas en el sector de hidrocarburos.</p>
+            
+            <div class="grid-testimonios">
+                <!-- Testimonio 1 -->
+                <div class="testimonio-card">
+                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
+                    <p class="texto-testimonio">"Petrocentro ha sido un aliado estratégico fundamental en nuestras operaciones de Well Testing en el Meta. Su capacidad de respuesta y la calidad de sus equipos nos han permitido optimizar tiempos y reducir costos significativamente."</p>
+                    <div class="autor-testimonio">
+                        <div class="info-autor">
+                            <h4>Ing. Carlos Rodríguez</h4>
+                            <span>Gerente de Operaciones - Petrolera del Llano</span>
+                        </div>
+                    </div>
+                    <img src="{% static '/images/WT.webp' %}" alt="Operaciones Well Testing" class="caso-img">
+                </div>
+
+                <!-- Testimonio 2 -->
+                <div class="testimonio-card">
+                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
+                    <p class="texto-testimonio">"Destacamos el compromiso de Petrocentro con la seguridad y el medio ambiente. Durante el proyecto de facilidades tempranas en Putumayo, demostraron un cumplimiento riguroso de la normativa y una ejecución impecable."</p>
+                    <div class="autor-testimonio">
+                        <div class="info-autor">
+                            <h4>Lic. María Fernanda López</h4>
+                            <span>Directora HSEQ - Energy Corp</span>
+                        </div>
+                    </div>
+                    <img src="{% static '/images/arboles.webp' %}" alt="Compromiso Ambiental" class="caso-img">
+                </div>
+
+                <!-- Testimonio 3 -->
+                <div class="testimonio-card">
+                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
+                    <p class="texto-testimonio">"La disponibilidad de stock en tubería y accesorios de alta presión nos salvó en una parada crítica. Su servicio al cliente es excelente y siempre están dispuestos a brindar soluciones técnicas a la medida."</p>
+                    <div class="autor-testimonio">
+                        <div class="info-autor">
+                            <h4>Ing. Juan Pablo Martínez</h4>
+                            <span>Superintendente de Campo - Servicios Petroleros S.A.</span>
+                        </div>
+                    </div>
+                    <img src="{% static '/images/tuberia.webp' %}" alt="Stock Tubería" class="caso-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Innovación y Tecnología -->
+    <section class="innovacion-section" data-aos="fade-up">
+        <div class="contenedor-innovacion">
+            <h2 class="titulo-innovacion">INNOVACIÓN Y TECNOLOGÍA</h2>
+            <p class="subtitulo-innovacion">Integramos soluciones tecnológicas avanzadas para optimizar la eficiencia, seguridad y sostenibilidad en la industria de hidrocarburos.</p>
+            
+            <div class="grid-innovacion">
+                <div class="innovacion-item">
+                    <div class="icono-tech"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Automatización de Procesos</h3>
+                    <p>Implementación de sistemas de control automático en facilidades de superficie para reducir riesgos y mejorar la precisión operativa.</p>
+                    <div class="tech-visual">
+                        <img src="{% static '/images/separador.webp' %}" alt="Automatización">
+                    </div>
+                </div>
+                <div class="innovacion-item">
+                    <div class="icono-tech"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <h3>Telemetría y Monitoreo</h3>
+                    <p>Supervisión remota de variables críticas en tiempo real, permitiendo una toma de decisiones ágil y basada en datos.</p>
+                    <div class="tech-visual telemetry-container">
+                        <div class="live-indicator"><span class="blink">●</span> LIVE DATA</div>
+                        <div class="telemetry-chart">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="innovacion-item">
+                    <div class="icono-tech"><i class="fa-solid fa-flask"></i></div>
+                    <h3>Laboratorios Móviles</h3>
+                    <p>Unidades portátiles equipadas con tecnología de punta para análisis de fluidos en sitio con resultados inmediatos.</p>
+                    <div class="tech-visual">
+                        <img src="{% static '/images/WT.webp' %}" alt="Laboratorios Móviles">
+                    </div>
+                </div>
+                <div class="innovacion-item">
+                    <div class="icono-tech"><i class="fa-solid fa-leaf"></i></div>
+                    <h3>Tecnologías Limpias</h3>
+                    <p>Desarrollo de equipos de Well Testing diseñados para minimizar emisiones y maximizar la eficiencia energética.</p>
+                    <div class="tech-visual">
+                        <img src="{% static '/images/costayaco_PTARI.webp' %}" alt="Tecnologías Limpias">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Galeria de fotos-->
      <br><br><br>
     <div class="images-carousel w-75" data-aos="fade-up"     >
@@ -293,5 +398,82 @@
             
         </div>
     </div>
+
+    <!-- Preguntas Frecuentes (FAQ) -->
+    <section class="faq-section" data-aos="fade-up">
+        <div class="contenedor-faq">
+            <h2 class="titulo-faq">PREGUNTAS FRECUENTES</h2>
+            <p class="subtitulo-faq">Resolvemos las dudas más comunes sobre nuestra empresa y operaciones.</p>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿Son confiables?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sí, somos una empresa con más de 14 años de experiencia en el sector Oil & Gas, reconocidos por nuestra excelencia operativa, cumplimiento de normativas y compromiso con la seguridad y el medio ambiente. Nuestros clientes y socios comerciales avalan nuestra trayectoria.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿Cuánto tiempo llevan?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Fundados en abril de 2012, contamos con más de una década de experiencia ininterrumpida prestando servicios integrales en la industria de hidrocarburos en Colombia.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿Dónde operan?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Nuestra sede principal se encuentra en Bogotá, y contamos con bases operativas estratégicas en Chichimene (Meta) y Mocoa (Putumayo), lo que nos permite una cobertura eficiente en las principales cuencas petroleras del país.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿Son grandes o pequeños?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Somos una empresa en crecimiento sostenido, lo suficientemente ágil para ofrecer atención personalizada y lo suficientemente robusta para manejar proyectos de gran envergadura con equipos propios y personal altamente calificado.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿Tienen certificaciones?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sí, contamos con un Sistema de Gestión Integral certificado bajo las normas ISO 9001:2015 (Calidad), ISO 14001:2015 (Gestión Ambiental) e ISO 45001:2018 (Seguridad y Salud en el Trabajo), garantizando los más altos estándares en nuestras operaciones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+      // Script para el Acordeón de FAQ
+      var acc = document.getElementsByClassName("faq-question");
+      var i;
+
+      for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          var panel = this.nextElementSibling;
+          var icon = this.querySelector("i");
+          if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+            icon.style.transform = "rotate(0deg)";
+          } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+            icon.style.transform = "rotate(180deg)";
+          } 
+        });
+      }
+    </script>
     <!-- Footer (pie de página)-->
 {% endblock %}

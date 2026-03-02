@@ -21,8 +21,15 @@
 
             <!-- Formulario de contacto de la empresa-->
             <div class="formulario color">
+                <div class="breadcrumb-container dark-mode" style="justify-content: flex-start; margin-bottom: 10px;">
+                    <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
+                    <span class="breadcrumb-separator">&gt;</span>
+                    <span class="breadcrumb-current">Contacto</span>
+                </div>
                 <h1>CONTÁCTANOS</h1>
                 <p class="comentario">Nos encanta recibir a nuestros clientes, así que ven o escríbenos en cualquier momento durante las horas de oficina.</p>
+                <p class="comentario" style="height: auto;">Estamos listos para atender tu operación.<br>
+                Nuestro equipo técnico y administrativo responderá tu solicitud en el menor tiempo posible.</p>
                 
                 <!-- Formulario de contactanos-->
                 <form action="{% url 'contacto_correo' %}" method="post" id="contactForm">
@@ -42,11 +49,15 @@
                 </form>
                 <!-- Informacion de contacto de la empresa-->
                 <div class="con">
-
-                    <p class="telefono"><i class="fa-solid fa-envelope"></i></i> &nbsp; EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span></p>
-                    <p class="telefono"> <i class="fa-solid fa-phone"></i> &nbsp;TELEFONO:<span class="bold">+57&nbsp;313&nbsp;8414053</span> </p>
-
-                    <p class="telefono" > <i class="fa-solid fa-location-dot"> &nbsp; </i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span></p>
+                    <p class="telefono"><i class="fa-solid fa-envelope"></i> &nbsp; EMAIL: <span class="bold">ti.petrocentro@gmail.com</span>
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Enviar</a>
+                    </p>
+                    <p class="telefono"> <i class="fa-solid fa-phone"></i> &nbsp;TELEFONO:<span class="bold">+57&nbsp;313&nbsp;4267179</span> 
+                        <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Chatear</a>
+                    </p>
+                    <p class="telefono" > <i class="fa-solid fa-location-dot"> &nbsp; </i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Ver Mapa</a>
+                    </p>
                
 
                     
@@ -61,10 +72,16 @@
                         </button>
                       </h2>
                       <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                        <div class="accordion-body"><p class="telefono"> <i class="fa-solid fa-envelope"></i> EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span></p>
-                            <p class="telefono"> <i class="fa-solid fa-phone"></i></i> TELEFONO:<span class="bold">+57&nbsp;316&nbsp;4060347</span> </p></div>
+                        <div class="accordion-body">
+                            <p class="telefono"> <i class="fa-solid fa-envelope"></i> EMAIL: <span class="bold">ti.petrocentro@gmail.com</span>
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Enviar</a>
+                            </p>
+                            <p class="telefono"> <i class="fa-solid fa-phone"></i> TELEFONO:<span class="bold">+57&nbsp;313&nbsp;4267179</span> 
+                                <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Chatear</a>
+                            </p>
                         </div>
                         </div>
+                    </div>
                     <div class="accordion-item pt-2">
                       <h2 class="accordion-header">
                         <button class="accordion-button collapsed button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
@@ -73,7 +90,9 @@
                       </h2>
                       <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                         <div class="accordion-body">
-                            <p class="telefono" > <i class="fa-solid fa-location-dot"></i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span></p>
+                            <p class="telefono" > <i class="fa-solid fa-location-dot"></i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Ver Mapa</a>
+                            </p>
                             
                         </div>
                       </div>
@@ -152,15 +171,68 @@
                     </li>
                 </ul>
             </div>
-        
         </div>
     </div>
+</div>
+    <!-- Redes Sociales -->
+    <section class="redes-sociales-section" data-aos="fade-up">
+        <div class="contenedor-redes">
+            <h2 class="titulo-redes">Síguenos en Redes Sociales</h2>
+            <div class="grid-redes">
+                <a href="https://www.facebook.com/profile.php?id=61588063301788" target="_blank" class="red-item">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a href="https://www.instagram.com/petro.centro/?hl=en" target="_blank" class="red-item">
+                    <i class="fa-brands fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://wa.me/message/5R3AZZHYENO5F1" target="_blank" class="red-item">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </a>
+                <a href="https://www.tiktok.com/@sector_pretolero?lang=es" target="_blank" class="red-item">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+        <!-- Mapa Interactivo (Movido de nosotros.html) -->
+        <section class="mapa-interactivo-section" data-aos="fade-up">
+            <div class="contenedor-mapa">
+                <h2 class="titulo-mapa">UBICACIÓN ESTRATÉGICA</h2>
+                <p class="subtitulo-mapa">Nuestras bases operativas están situadas estratégicamente para garantizar una respuesta rápida en todo el territorio nacional.</p>
+                
+                <div class="mapa-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                
+                <div class="info-sedes">
+                    <div class="sede-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <h4>Sede Principal - Bogotá</h4>
+                        <p>Centro administrativo y logístico para la coordinación nacional.</p>
+                    </div>
+                    <div class="sede-item">
+                        <i class="fa-solid fa-industry"></i>
+                        <h4>Base Operativa - Meta</h4>
+                        <p>Infraestructura especializada en Chichimene para soporte en campo.</p>
+                    </div>
+                    <div class="sede-item">
+                        <i class="fa-solid fa-oil-well"></i>
+                        <h4>Base Putumayo</h4>
+                        <p>Operaciones estratégicas en Mocoa y zonas aledañas.</p>
+                    </div>
+                </div>
+            </div>
+        
+        </section>
      
     <!-- Boton que redirige al whatsApp de la empresa-->
     <div class="whatsapp">
-        <button onclick="window.location.href='https://wa.me/3138414053' "  >Contactar por WhatsApp &nbsp; <i class="fa-brands fa-whatsapp"></i></button>
-    </div>
-        
+        <button onclick="window.location.href='https://wa.me/3134267179' "  >Contactar por WhatsApp &nbsp; <i class="fa-brands fa-whatsapp"></i></button>
     </div>
 {% endblock %}
 {% block script %}
@@ -182,8 +254,5 @@
         // Envía el formulario
         this.submit();
         });
-    
 </script>
 {% endblock  %}
-
-

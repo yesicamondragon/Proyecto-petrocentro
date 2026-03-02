@@ -9,9 +9,128 @@
 {% block titulo %}
 
 <h1>Todas las Noticias</h1>
+<p style="color: #fff; font-size: 22px; font-weight: 400; margin-top: 10px;">Blog Técnico de Petrocentro – Innovación y Servicios Oil & Gas en Colombia</p>
 {% endblock titulo %}
 
 
-<br>
+{% block content %}
+    <!-- Sección de Noticias Automáticas (API Externa) -->
+    <section class="blog-section" style="padding-bottom: 0; background-color: #fff;">
+        <div class="contenedor-blog">
+            <h2 class="titulo-blog">ACTUALIDAD DEL SECTOR OIL & GAS</h2>
+            <p class="subtitulo-blog">Noticias en tiempo real sobre hidrocarburos, petróleo y energía en Colombia.</p>
+            
+            <div class="grid-blog" id="news-container">
+                <div style="width: 100%; text-align: center; grid-column: 1/-1; padding: 20px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 30px; color: #0b6838;"></i>
+                    <p style="margin-top: 10px; color: #666;">Cargando noticias en tiempo real...</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // URL del feed RSS de Google News filtrado por temas relevantes
+            const feedURL = "https://news.google.com/rss/search?q=hidrocarburos+petroleo+colombia+ecopetrol&hl=es-419&gl=CO&ceid=CO:es-419";
+            // Usamos api.rss2json.com para convertir RSS a JSON y poder consumirlo con JS
+            const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedURL);
 
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('news-container');
+                if(data.status === 'ok' && data.items.length > 0){
+                    container.innerHTML = '';
+                    // Tomamos las 3 noticias más recientes
+                    const items = data.items.slice(0, 3);
+                    // Imágenes de respaldo ya que el RSS de Google News no siempre trae imágenes limpias
+                    const images = [
+                        "{% static '/images/WT.webp' %}",
+                        "{% static '/images/tuberia.webp' %}",
+                        "{% static '/images/separador.webp' %}"
+                    ];
+                    
+                    items.forEach((item, index) => {
+                        const randomImg = images[index % images.length];
+                        const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                        // Limpiar título (Google News suele agregar " - Fuente" al final)
+                        let title = item.title.split(' - ')[0];
+                        // Crear tarjeta HTML
+                        const html = `
+                        <article class="blog-card">
+                            <div class="blog-imagen">
+                                <img src="${randomImg}" alt="Noticia Sector" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="blog-contenido">
+                                <span class="blog-fecha">${date}</span>
+                                <h3 style="font-size: 18px; margin-bottom: 10px;">${title}</h3>
+                                <p style="font-size: 15px;">Manténgase informado con las últimas novedades del sector energético y de hidrocarburos.</p>
+                                <a href="${item.link}" target="_blank" class="leer-mas">Leer noticia completa <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                        </article>
+                        `;
+                        container.innerHTML += html;
+                    });
+                } else {
+                    container.innerHTML = '<p style="text-align:center; width:100%; color: #666;">No se pudieron cargar las noticias en este momento.</p>';
+                }
+            })
+            .catch(e => {
+                console.error("Error cargando noticias:", e);
+                document.getElementById('news-container').innerHTML = '<p style="text-align:center; width:100%; color: #666;">Verifique su conexión para ver las noticias.</p>';
+            });
+        });
+    </script>
+
+    <!-- Blog Integrado -->
+    <!-- Sección de Noticias -->
+    <section class="blog-section" data-aos="fade-up">
+        <div class="contenedor-blog">
+            <h2 class="titulo-blog">ÚLTIMAS NOTICIAS Y ARTÍCULOS</h2>
+            <p class="subtitulo-blog">Manténgase informado sobre las novedades del sector, avances tecnológicos y actividades de Petrocentro.</p>
+            
+            <div class="grid-blog">
+                <!-- Articulo 1 -->
+                <article class="blog-card">
+                    <div class="blog-imagen">
+                        <img src="{% static '/images/nosotros_1.webp' %}" alt="Innovación en Hidrocarburos">
+                    </div>
+                    <div class="blog-contenido">
+                        <span class="blog-fecha">Actualidad</span>
+                        <h3>Innovación en Hidrocarburos</h3>
+                        <p>Descubra las últimas tendencias en tecnología para la optimización de la producción petrolera y eficiencia energética.</p>
+                        <a href="{% url 'blog' %}" class="leer-mas">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <!-- Articulo 2 -->
+                <article class="blog-card">
+                    <div class="blog-imagen">
+                        <img src="{% static '/images/mision.webp' %}" alt="Seguridad Industrial HSEQ">
+                    </div>
+                    <div class="blog-contenido">
+                        <span class="blog-fecha">Seguridad</span>
+                        <h3>Compromiso HSEQ</h3>
+                        <p>Nuestros estándares de seguridad industrial y medio ambiente garantizan operaciones responsables en campo.</p>
+                        <a href="{% url 'blog' %}" class="leer-mas">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <!-- Articulo 3 -->
+                <article class="blog-card">
+                    <div class="blog-imagen">
+                        <img src="{% static '/images/vision.webp' %}" alt="Proyectos Petrocentro">
+                    </div>
+                    <div class="blog-contenido">
+                        <span class="blog-fecha">Proyectos</span>
+                        <h3>Casos de Éxito 2026</h3>
+                        <p>Resumen de nuestros proyectos más recientes de Well Testing y facilidades tempranas en Colombia.</p>
+                        <a href="{% url 'blog' %}" class="leer-mas">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+    {{ block.super }}
+{% endblock %}

@@ -37,12 +37,42 @@
     <!-- Letras de Fondo -->
     <section class="letras">  
         <div class="LP">
+            <div class="breadcrumb-container" style="justify-content: flex-start;">
+                <span class="breadcrumb-current">Inicio</span>
+            </div>
             <h1>Especialistas en Servicios Oil & Gas</h1>
-            <p>Somos una empresa innovadora en la prestación de Servicios integrales para el diseño, montaje, operación, y mantenimiento de facilidades de producción en superficie para Gas y/o Petróleo y Well Testing</p>
+            <p>Somos una empresa innovadora en la prestación de Servicios integrales para el diseño, montaje, operación, y mantenimiento de facilidades de producción en superficie para Gas y/o Petróleo y Well Testing con  14 años de experiencia</p>
             <button type="button" onclick="window.location.href='{% url 'contacto'%}'">CONTÁCTANOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
             <button class="boton-servicios" type="button" onclick="window.location.href='{% url 'servicios'%}'">SERVICIOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
             <p type="text" name=""  class="text-light" id="petroleo"></p>
 
+        </div>
+    </section>
+
+    <!-- Propuesta de Valor -->
+    <section class="propuesta-valor-index">
+        <div class="contenedor-propuesta">
+            <h2 class="titulo-propuesta">PROPUESTA DE VALOR</h2>
+            <div class="grid-propuesta">
+                <div class="propuesta-item">
+                    <div class="icono-propuesta"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3>Reducción de tiempos operativos</h3>
+                    <p>Optimizamos procesos para minimizar tiempos muertos y aumentar la eficiencia en campo.</p>
+                    <img src="{% static '/images/WT.webp' %}" alt="Reducción de tiempos" class="caso-img">
+                </div>
+                <div class="propuesta-item">
+                    <div class="icono-propuesta"><i class="fa-solid fa-certificate"></i></div>
+                    <h3>Cumplimiento HSEQ certificado</h3>
+                    <p>Operaciones seguras bajo estrictos estándares de calidad, seguridad y medio ambiente.</p>
+                    <img src="{% static '/images/nosotros_1.webp' %}" alt="Cumplimiento HSEQ" class="caso-img">
+                </div>
+                <div class="propuesta-item">
+                    <div class="icono-propuesta"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Equipos de última tecnología</h3>
+                    <p>Infraestructura moderna y herramientas avanzadas para resultados precisos.</p>
+                    <img src="{% static '/images/separador.webp' %}" alt="Tecnología" class="caso-img">
+                </div>
+            </div>
         </div>
     </section>
 
@@ -105,6 +135,349 @@
                     </div>
                 </div>
               </div>
+
+        <!-- Nuevas Cards con detalles -->
+        <div class="card-group" >
+                <div class="card" >
+                    <h5 class="card-title">Well Testing</h5>
+                  <div class="card-body">
+                    <img src="{% static '/images/WT.webp'%}" class="card-img-top" alt="Well Testing">
+                    <p class="card-text">Descripción estratégica y soluciones integrales para la evaluación de pozos.</p>
+                    <button class="btn-detalles" onclick="abrirModal('modal-wt')"> Ver detalles &nbsp; <i class="fa-solid fa-eye"></i> </button>
+                  </div>
+                </div>
+                <div class="card">
+                    <h5 class="card-title">Facilidades en superficie</h5>
+                    <div class="card-body">
+                            <img src="{% static '/images/nosotros_2.webp'%}" class="card-img-top" alt="Facilidades">
+                        <p class="card-text">Diseño, montaje y operación de infraestructura petrolera eficiente.</p>       
+                        <button class="btn-detalles" onclick="abrirModal('modal-fs')"> Ver detalles &nbsp;<i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h5 class="card-title">Tratamiento de crudo</h5>
+                    <div class="card-body">
+                        <img src="{% static '/images/costayaco_PTARI.webp'%}" class="card-img-top" alt="Tratamiento">
+                        <p class="card-text">Tecnologías avanzadas para la deshidratación y calidad del crudo.</p>
+                        <button class="btn-detalles" onclick="abrirModal('modal-tc')"> Ver detalles &nbsp; <i class="fa-solid fa-eye"></i> </button>
+                    </div>
+                </div>
+              </div>
+        </div>
+    </section>
+
+    <!-- Indicadores de Experiencia -->
+    <section class="indicadores-experiencia">
+        <div class="contenedor-indicadores">
+            <div class="indicador-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span class="contador" data-target="14">0</span>
+                <p>Años de Experiencia</p>
+                <img src="{% static '/images/nosotros_2.webp' %}" alt="Años de Experiencia" class="caso-img">
+            </div>
+            <div class="indicador-item">
+                <i class="fa-solid fa-briefcase"></i>
+                <span class="contador" data-target="60">0</span>
+                <p>Proyectos Ejecutados</p>
+                <img src="{% static '/images/MO.webp' %}" alt="Proyectos Ejecutados" class="caso-img">
+            </div>
+            <div class="indicador-item">
+                <i class="fa-solid fa-users"></i>
+                <span class="contador" data-target="15">0</span>
+                <p>Clientes Satisfechos</p>
+                <img src="{% static '/images/Collage.webp' %}" alt="Clientes Satisfechos" class="caso-img">
+            </div>
+            <div class="indicador-item">
+                <i class="fa-solid fa-award"></i>
+                <span class="contador" data-target="3">0</span>
+                <p>Certificaciones</p>
+                <img src="{% static '/images/C-ACTUAL1.webp' %}" alt="Certificaciones" class="caso-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- Propuesta de Valor y CTA (Movido de nosotros.html) -->
+    <section class="propuesta-valor" data-aos="fade-up">
+        <div class="contenido-propuesta">
+            <h2>¿POR QUÉ ELEGIR PETROCENTRO?</h2>
+            <p class="subtitulo-propuesta">Generamos valor a través de la excelencia operativa, la innovación tecnológica y un firme compromiso con la sostenibilidad.</p>
+            
+            <div class="grid-valores-agregados">
+                <div class="valor-item">
+                    <i class="fa-solid fa-helmet-safety"></i>
+                    <h3>Seguridad Primero</h3>
+                    <p>Priorizamos la integridad de nuestro equipo y operaciones bajo estrictos estándares de seguridad industrial.</p>
+                    <img src="{% static '/images/nosotros_1.webp' %}" alt="Seguridad" class="caso-img">
+                </div>
+                <div class="valor-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h3>Eficiencia Operativa</h3>
+                    <p>Optimizamos procesos de producción y Well Testing para maximizar la rentabilidad de sus proyectos.</p>
+                    <img src="{% static '/images/WT.webp' %}" alt="Eficiencia" class="caso-img">
+                </div>
+                <div class="valor-item">
+                    <i class="fa-solid fa-leaf"></i>
+                    <h3>Sostenibilidad</h3>
+                    <p>Operaciones responsables con el medio ambiente, cumpliendo con la normativa y certificaciones vigentes.</p>
+                    <img src="{% static '/images/arboles.webp' %}" alt="Sostenibilidad" class="caso-img">
+                </div>
+                <div class="valor-item">
+                    <i class="fa-solid fa-certificate"></i>
+                    <h3>Calidad Certificada</h3>
+                    <p>Garantía de servicio respaldada por nuestro sistema de gestión de calidad y experiencia en el sector.</p>
+                    <img src="{% static '/images/C-ACTUAL1.webp' %}" alt="Calidad" class="caso-img">
+                </div>
+            </div>
+
+            <div class="cta-botones">
+                <a href="{% url 'contacto' %}" class="btn-cta primario">SOLICITAR COTIZACIÓN</a>
+                <a href="{% url 'servicios' %}" class="btn-cta secundario">NUESTROS SERVICIOS</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historia de la Empresa -->
+    <section class="historia-empresa">
+        <div class="contenedor-historia">
+            <h2 class="titulo-historia">NUESTRA HISTORIA</h2>
+            <p class="subtitulo-historia">Un recorrido por los hitos que han marcado nuestro crecimiento y consolidación en el sector.</p>
+            
+            <div class="timeline">
+                <div class="timeline-item izquierda" data-aos="fade-right">
+                    <div class="content">
+                        <div class="timeline-icon"><i class="fa-solid fa-flag"></i></div>
+                        <h3>14 Años de Experiencia</h3>
+                        <p>Fundados en abril de 2012, contamos con más de una década de trayectoria consolidada en el sector de hidrocarburos.</p>
+                        <div class="timeline-img-container">
+                            <img src="{% static '/images/nosotros_2.webp'%}" alt="Fundación Petrocentro">
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item derecha" data-aos="fade-left">
+                    <div class="content">
+                        <div class="timeline-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <h3>Expansión Nacional</h3>
+                        <p>Operaciones en Meta desde 2018 y en Putumayo desde 2019, consolidando nuestra presencia regional estratégica.</p>
+                        <div class="timeline-img-container">
+                            <img src="{% static '/images/arboles.webp'%}" alt="Expansión Meta">
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item izquierda" data-aos="fade-right">
+                    <div class="content">
+                        <div class="timeline-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        <h3>Clientes y Proyectos</h3>
+                        <p>Más de 60 proyectos ejecutados y más de 15 clientes satisfechos que avalan nuestra calidad y compromiso.</p>
+                        <div class="timeline-img-container">
+                            <img src="{% static '/images/costayaco_PTARI.webp'%}" alt="Proyectos Ejecutados">
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item derecha" data-aos="fade-left">
+                    <div class="content">
+                        <div class="timeline-icon"><i class="fa-solid fa-award"></i></div>
+                        <h3>Certificaciones ISO</h3>
+                        <p>Renovación en septiembre de 2024 de ISO 9001, ISO 14001 e ISO 45001, reafirmando compromiso con calidad, seguridad y medio ambiente.</p>
+                        <div class="timeline-img-container">
+                            <img src="{% static '/images/Collage.webp' %}" alt="Certificaciones ISO">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Casos de Éxito y Proyectos Destacados (Movido de nosotros.html) -->
+    <section class="casos-exito-section" data-aos="fade-up">
+        <div class="contenedor-casos">
+            <h2 class="titulo-casos">PROYECTOS DESTACADOS</h2>
+            <p class="subtitulo-casos">Ejemplos prácticos de nuestra capacidad técnica y operativa en los campos más exigentes de Colombia.</p>
+            
+            <div class="grid-casos">
+                <!-- Caso 1 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-oil-well"></i>
+                        <h3>Facilidades Tempranas Putumayo</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Puesta en marcha de producción en zona remota con restricciones logísticas severas.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Diseño modular de facilidades y movilización de equipos de Well Testing portátiles.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Inicio de producción 2 semanas antes del cronograma con 0 incidentes HSEQ.</p>
+                        </div>
+                        <img src="{% static '/images/MO.webp' %}" alt="Facilidades Tempranas" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 2 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-fire-flame-simple"></i>
+                        <h3>Optimización de Gas en Meta</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Alto contenido de agua en gas asociado afectando la calidad para venta.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Implementación de Scrubbers de alta eficiencia y sistema de deshidratación.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Cumplimiento de especificaciones RUT y aumento del 15% en volumen de venta.</p>
+                        </div>
+                        <img src="{% static '/images/separador.webp' %}" alt="Optimización de Gas" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 3 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                        <h3>Mantenimiento Mayor Chichimene</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Parada de planta crítica con ventana de tiempo limitada a 48 horas.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Despliegue de 3 cuadrillas especializadas y stock de repuestos Fig 1502/602 en sitio.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Entrega operativa en 36 horas, reduciendo el impacto en la producción diferida.</p>
+                        </div>
+                        <img src="{% static '/images/tuberia.webp' %}" alt="Mantenimiento Mayor" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 4 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-gears"></i>
+                        <h3>Montaje de Manifold en Casanare</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Incremento de producción requiriendo expansión de capacidad de recolección.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Fabricación y montaje de manifold de 8 slots con válvulas automatizadas.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Aumento del 20% en capacidad de manejo de fluidos y mejora en seguridad.</p>
+                        </div>
+                        <img src="{% static '/images/nosotros_1.webp' %}" alt="Montaje Manifold" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 5 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-flask"></i>
+                        <h3>Pruebas de Producción en Arauca</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Caracterización de yacimiento en pozo exploratorio de alta presión.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Servicio de Well Testing con separador trifásico y laboratorio móvil.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Datos precisos para certificación de reservas y plan de desarrollo.</p>
+                        </div>
+                        <img src="{% static '/images/WT.webp' %}" alt="Pruebas Producción" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 6 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-industry"></i>
+                        <h3>Adecuación de Facilidades en Huila</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Actualización tecnológica de planta de tratamiento de agua.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Instalación de sistema de flotación por gas inducido (IGF) y skimmers.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Cumplimiento de vertimientos < 5 ppm de grasas y aceites.</p>
+                        </div>
+                        <img src="{% static '/images/costayaco_PTARI.webp' %}" alt="Tratamiento Agua" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 7 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-cogs"></i>
+                        <h3>Intervención con Coiled Tubing</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Reactivar pozos con baja producción debido a obstrucciones por parafinas.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Operación con unidad de Coiled Tubing para limpieza mecánica y estimulación química.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Incremento promedio del 30% en la producción de los pozos intervenidos.</p>
+                        </div>
+                        <img src="{% static '/images/nosotros_2.webp' %}" alt="Coiled Tubing" class="caso-img">
+                    </div>
+                </div>
+
+                <!-- Caso 8 -->
+                <div class="caso-card">
+                    <div class="caso-header">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                        <h3>Implementación de SCADA</h3>
+                    </div>
+                    <div class="caso-body">
+                        <div class="caso-detalle">
+                            <strong>Reto:</strong>
+                            <p>Falta de visibilidad en tiempo real de operaciones en campos dispersos.</p>
+                        </div>
+                        <div class="caso-detalle">
+                            <strong>Solución:</strong>
+                            <p>Instalación de sistema SCADA para telemetría de presión, flujo y temperatura.</p>
+                        </div>
+                        <div class="caso-detalle resultado">
+                            <strong>Resultado:</strong>
+                            <p>Reducción del 25% en paradas no programadas y optimización logística.</p>
+                        </div>
+                        <img src="{% static '/images/C-ACTUAL3.webp' %}" alt="Sistema SCADA" class="caso-img">
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -122,6 +495,114 @@
         </div>
     </div>
 
+    <!-- Gestión Ambiental Detallada -->
+    <section class="gestion-ambiental-section" data-aos="fade-up">
+        <div class="contenedor-gestion">
+            <h2 class="titulo-gestion-ambiental">Gestión Ambiental en Operaciones de Hidrocarburos</h2>
+            <div class="grid-gestion-ambiental">
+                <!-- Item 1: Política y Compromiso Ambiental -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/arboles.webp' %}" alt="Compromiso Ambiental" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        <h3>Política y Compromiso Ambiental</h3>
+                        <p>Nuestra política ambiental se centra en la protección de los ecosistemas y la biodiversidad en todas nuestras áreas de operación.</p>
+                    </div>
+                </div>
+                <!-- Item 2: Gestión de Impactos y PMA -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/DEH.webp' %}" alt="Gestión de Impactos" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-chart-area"></i></div>
+                        <h3>Gestión de Impactos y PMA</h3>
+                        <p>Identificamos, evaluamos y mitigamos los impactos ambientales potenciales mediante la evaluación de aspectos e impactos, matriz de riesgos ambientales y la ejecución del Plan de Manejo Ambiental (PMA).</p>
+                    </div>
+                </div>
+                <!-- Item 3: Control de Emisiones – Tea Petrolera -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/WT.webp' %}" alt="Tea Petrolera" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                        <h3>Control de Emisiones – Tea Petrolera</h3>
+                        <p>Implementación de sistemas de tea petrolera (flare stack) con ignición segura y control operacional, permitiendo la quema controlada de gases excedentes, reducción de venteos directos y mitigación del impacto atmosférico durante pruebas y operaciones temporales.</p>
+                    </div>
+                </div>
+                <!-- Item 4: Manejo de Aguas de Producción -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/costayaco_PTARI.webp' %}" alt="Aguas de Producción" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-water"></i></div>
+                        <h3>Manejo de Aguas de Producción</h3>
+                        <p>Tratamiento avanzado y disposición responsable de aguas asociadas a la producción, cumpliendo con la normativa ambiental colombiana y lineamientos establecidos por el Ministerio de Ambiente y Desarrollo Sostenible y autoridades competentes.</p>
+                    </div>
+                </div>
+                <!-- Item 5: Manejo de Hidrocarburos y Químicos -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/separador.webp' %}" alt="Manejo de Químicos" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-flask"></i></div>
+                        <h3>Manejo de Hidrocarburos y Químicos</h3>
+                        <p>Protocolos rigurosos para el almacenamiento, transporte y manipulación segura de crudo y productos químicos en todas las fases operativas.</p>
+                    </div>
+                </div>
+                <!-- Item 6: Prevención y Atención de Derrames -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/tuberia.webp' %}" alt="Prevención de Derrames" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h3>Prevención y Atención de Derrames</h3>
+                        <p>Planes de contingencia activos y kits de control de derrames estratégicamente ubicados para una respuesta inmediata y efectiva ante incidentes.</p>
+                    </div>
+                </div>
+                <!-- Item 7: Gestión Integral de Residuos -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/nosotros_1.webp' %}" alt="Gestión de Residuos" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-recycle"></i></div>
+                        <h3>Gestión Integral de Residuos</h3>
+                        <p>Clasificación, acopio temporal y disposición final certificada de residuos sólidos peligrosos y no peligrosos, cumpliendo con la normativa ambiental colombiana y lineamientos establecidos por el Ministerio de Ambiente y Desarrollo Sostenible y autoridades competentes.</p>
+                    </div>
+                </div>
+                <!-- Item 8: Uso eficiente de recursos -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/WT.webp' %}" alt="Uso de Recursos" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-droplet"></i></div>
+                        <h3>Uso eficiente de recursos</h3>
+                        <p>Optimizamos el consumo de agua y energía, implementando tecnologías que reducen la huella ecológica de nuestras actividades.</p>
+                    </div>
+                </div>
+                <!-- Item 9: Equipos ambientales en campo -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/nosotros_2.webp' %}" alt="Equipos Ambientales" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-toolbox"></i></div>
+                        <h3>Equipos ambientales en campo</h3>
+                        <p>Despliegue de geomembranas, skimmers, barreras oleofílicas y tecnología de contención para la máxima protección del suelo y cuerpos de agua.</p>
+                    </div>
+                </div>
+                <!-- Item 10: Transparencia y reportes -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/politicas.webp' %}" alt="Transparencia" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-file-contract"></i></div>
+                        <h3>Transparencia y reportes</h3>
+                        <p>Mantenemos una comunicación abierta con las comunidades y autoridades, reportando nuestro desempeño ambiental con claridad.</p>
+                    </div>
+                </div>
+                <!-- Item 11: Mejora continua -->
+                <div class="item-gestion-ambiental">
+                    <div class="img-container-gestion"><img src="{% static '/images/C-ACTUAL3.webp' %}" alt="Mejora Continua" class="img-gestion"></div>
+                    <div class="contenido-gestion">
+                        <div class="icono-gestion"><i class="fa-solid fa-arrows-rotate"></i></div>
+                        <h3>Mejora continua</h3>
+                        <p>Revisamos y actualizamos constantemente nuestros procesos para superar los estándares ambientales y normativos vigentes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Nosotros -->
     <section class="nosotros" data-aos="fade-up">
         <div class="collage img-fluid">   
@@ -133,4 +614,105 @@
           </div>
         </div>     
     </section>
+
+    <!-- Modales de Información Detallada -->
+    <div id="modal-wt" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modal-wt')">&times;</span>
+            <h2 class="modal-titulo">Well Testing Estratégico</h2>
+            <div class="modal-contenido">
+                <p>En Petrocentro, entendemos el Well Testing no solo como una prueba, sino como una herramienta estratégica para la toma de decisiones. Ofrecemos adquisición de datos de alta precisión en tiempo real, permitiendo caracterizar el yacimiento, optimizar la producción y reducir la incertidumbre geológica.</p>
+                <p><strong>Nuestros servicios incluyen:</strong></p>
+                <ul>
+                    <li>Pruebas cortas y extensas en pozos exploratorios y de desarrollo.</li>
+                    <li>Limpieza de pozos y manejo de fluidos.</li>
+                    <li>Separación trifásica y medición fiscal.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-fs" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modal-fs')">&times;</span>
+            <h2 class="modal-titulo">Facilidades en Superficie</h2>
+            <div class="modal-contenido">
+                <p>Proveemos soluciones integrales para el manejo de la producción en superficie, desde el diseño conceptual hasta la operación y mantenimiento (O&M). Nos enfocamos en la eficiencia operativa y la seguridad de los procesos.</p>
+                <p><strong>Capacidades:</strong></p>
+                <ul>
+                    <li>Facilidades Tempranas de Producción (EPF).</li>
+                    <li>Manifolds, líneas de flujo y sistemas de bombeo.</li>
+                    <li>Tratamiento y disposición de agua de producción.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-tc" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modal-tc')">&times;</span>
+            <h2 class="modal-titulo">Tratamiento de Crudo</h2>
+            <div class="modal-contenido">
+                <p>Implementamos tecnologías de vanguardia para asegurar que el crudo cumpla con las especificaciones de venta y transporte (BS&W, salinidad), maximizando el valor comercial del hidrocarburo.</p>
+                <p><strong>Soluciones:</strong></p>
+                <ul>
+                    <li>Deshidratación térmica y electrostática.</li>
+                    <li>Sistemas de inyección de química especializada.</li>
+                    <li>Separación gravitacional mejorada.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Script para animar los contadores
+        const counters = document.querySelectorAll('.contador');
+        const speed = 100; 
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText.replace('+', '');
+                    const inc = target / speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 30);
+                    } else {
+                        counter.innerText = target + "+";
+                    }
+                };
+                updateCount();
+            });
+        }
+        
+        // Intersection Observer para activar la animación cuando sea visible
+        let observer = new IntersectionObserver((entries, observer) => { 
+            entries.forEach(entry => {
+                if(entry.isIntersecting){
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {threshold: 0.5});
+
+        document.querySelectorAll('.indicadores-experiencia').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Script para Modales
+        function abrirModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
 {% endblock %}

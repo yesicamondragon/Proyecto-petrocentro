@@ -26,8 +26,8 @@
      <!--Font Awesome -->
 
     <!-- WhatsApp-->
-    <link rel="stylesheet" href="{% static '/plugin/components/Font Awesome/css/font-awesome.min.css'%}">
-    <link rel="stylesheet" href="{% static '/plugin/whatsapp-chat-support.css'%}">
+    <link rel="stylesheet" href="{% static 'plugin/components/Font Awesome/css/font-awesome.min.css'%}">
+    <link rel="stylesheet" href="{% static 'plugin/whatsapp-chat-support.css'%}">
     <!-- Animate.css-->
 
 
@@ -40,7 +40,7 @@
 <header class="header fixed-top">
   <nav class="nav-2" >
     <div class="logo">
-        <a href="#"><img src="{% static '/images/logo.webp'%}" alt=""></a>
+        <a href="#"><img src="{% static 'images/logo.webp'%}" alt=""></a>
     </div>
     <!-- Acciones de menú-->
     <div class="botones">
@@ -192,7 +192,7 @@
               <figure>
                 
                       <a href="{% url 'index' %}">
-                      <img class="img-fluid" src="{% static '/images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S">
+                      <img class="img-fluid" src="{% static 'images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S">
                       </a>
                 
                   <div class="red_social  ">
@@ -267,7 +267,7 @@
               <i class="fa fa-play"></i>
           </div>
           <div class="wcs_popup_avatar">
-              <img src="{% static "/images/logo1.webp" %}" alt="">
+              <img src="{% static "images/logo1.webp" %}" alt="">
           </div>
       </div>
     </div>
@@ -277,11 +277,11 @@
     <!--Script de whatsapp-->
 
     <!-- jQuery 1.8+ -->
-    <script src="{% static '/plugin/components/jQuery/jquery-1.11.3.min.js'%}"></script>
+    <script src="{% static 'plugin/components/jQuery/jquery-1.11.3.min.js'%}"></script>
     <!-- Plugin JS file WhatsApp -->
-    <script src="{% static '/plugin/components/moment/moment.min.js'%}"></script>
-    <script src="{% static '/plugin/components/moment/moment-timezone-with-data.min.js'%}"></script> <!-- spanish language (es) -->
-    <script src="{% static '/plugin/whatsapp-chat-support.js'%}"></script>
+    <script src="{% static 'plugin/components/moment/moment.min.js'%}"></script>
+    <script src="{% static 'plugin/components/moment/moment-timezone-with-data.min.js'%}"></script> <!-- spanish language (es) -->
+    <script src="{% static 'plugin/whatsapp-chat-support.js'%}"></script>
     <script>
       $('#button-w').whatsappChatSupport({
           defaultMsg : '',

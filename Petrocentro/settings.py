@@ -23,8 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -173,9 +172,9 @@ DOMAIN_NAME= "https//petrocentro.co/"
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATIC_ROOT =   os.path.join(BASE_DIR,"staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_ROOT =   os.path.join(BASE_DIR,"media")
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = '/login_view/'
 

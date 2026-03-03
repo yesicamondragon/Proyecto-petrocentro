@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -167,7 +167,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ti.petrocentro@gmail.com'
 EMAIL_HOST_PASSWORD = 'pprh yjun noio kewl'
 
-DOMAIN_NAME= "https//petrocentro.co/"
+DOMAIN_NAME= "https://petrocentro.co/"
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'

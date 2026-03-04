@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Por defecto True para desarrollo local. En producción se debe cambiar a False.
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+
+ALLOWED_HOSTS = ['petrocentro.co', 'www.petrocentro.co', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -56,6 +58,7 @@ PASSWORD_RESET_TEMPLATES = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -96,7 +99,10 @@ SESSION_COOKIE_AGE = 1209600  # 2 semanas
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Usar solo cookies seguras para la sesión
-SESSION_COOKIE_SECURE = True
+# Se activan automáticamente solo si DEBUG es False (Producción)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_TRUSTED_ORIGINS = ['https://petrocentro.co']
 
 
 WSGI_APPLICATION = 'Petrocentro.wsgi.application'
@@ -170,10 +176,12 @@ EMAIL_HOST_PASSWORD = 'pprh yjun noio kewl'
 DOMAIN_NAME= "https://petrocentro.co/"
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = '/login_view/'

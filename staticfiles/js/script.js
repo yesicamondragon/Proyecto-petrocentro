@@ -63,11 +63,13 @@ window.onkeyup = function(event) {
 }
 
 //modales
-function showModal(titulo, contenido) {
-
+function showModal(titulo, contenido, imagenUrl) {
     // Atributos del modal
     document.getElementById("modal-titulo").innerText= titulo;
     document.getElementById("modal-contenido").innerText = contenido;
+    var modalImagen = document.getElementById("modal-imagen");
+    modalImagen.src = imagenUrl;
+    modalImagen.style.display = "block";
     document.getElementById("modal").style.display = "block";
   }
   
@@ -113,4 +115,3 @@ window.onclick = function(e){
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("active-sidebar");
 }
-

@@ -41,18 +41,17 @@ html {
 
 /* contenido completo*/
 .menu-content {
-  font-family: 'Helevetica';
+  font-family: 'Helvetica';
   font-style: normal;
   position: relative;
   width: 100%;
   height: 100%;
   margin-top: 40px;
-
-  .menu-title {
-    font-size: 20px;
-    color: var(--color-4);
-    padding-bottom: 25px;
-  }
+}
+.menu-content .menu-title {
+  font-size: 20px;
+  color: var(--color-4);
+  padding-bottom: 25px;
 }
 
 /* items del menu*/
@@ -68,21 +67,18 @@ html {
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 1px 1px 1px 1px  rgba(0, 0, 0, 0.5);
- 
-  &:hover {
-    background-color: var(--color-5);
-    border-radius: 10px;
-    color: var(--color-4);
-  }
- 
-
-  i.icons {
-    color: var(--color-1);
-    width: 30px;
-    height: 20px;
-    position: relative;
-    font-size: 25px;
-  }
+}
+.menu-content .active-side:hover {
+  background-color: var(--color-5);
+  border-radius: 10px;
+  color: var(--color-4);
+}
+.menu-content .active-side i.icons {
+  color: var(--color-1);
+  width: 30px;
+  height: 20px;
+  position: relative;
+  font-size: 25px;
 }
 
 .menu-content .item {
@@ -93,27 +89,25 @@ html {
   color: var(--color-3);
   font-size: 17px;
   cursor: pointer;
-
-  &:hover {
-    background: var(--color-5);
-    border-radius: 10px;
-    color: var(--color-4);
-  }
-  &:focus {
-    background: var(--color-5);
-    box-shadow: 0px 2px 4px 6px;
-  }
-  a:hover {
-    color: var(--color-4);
-  }
-
-  i.icons {
-    color: var(--color-1);
-    width: 30px;
-    height: 20px;
-    position: relative;
-    font-size: 25px;
-  }
+}
+.menu-content .item:hover {
+  background: var(--color-5);
+  border-radius: 10px;
+  color: var(--color-4);
+}
+.menu-content .item:focus {
+  background: var(--color-5);
+  box-shadow: 0px 2px 4px 6px;
+}
+.menu-content .item a:hover {
+  color: var(--color-4);
+}
+.menu-content .item i.icons {
+  color: var(--color-1);
+  width: 30px;
+  height: 20px;
+  position: relative;
+  font-size: 25px;
 }
 
 
@@ -171,11 +165,11 @@ html {
   position: relative;
  
   display: none;
-  a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+}
+.menu-content .item2 a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Estilos barra de navegacion superior*/
@@ -237,14 +231,12 @@ html {
   margin: auto;
   text-align: center;
   border-radius: 50%;
-
-  a {
-    color: var(--color-1);
-  }
-
-  &:hover {
-    font-size: 28px;
-  }
+}
+.notificaciones a, .settings a {
+  color: var(--color-1);
+}
+.notificaciones:hover, .settings:hover {
+  font-size: 28px;
 }
 
 .nombre {
@@ -271,45 +263,37 @@ html {
   animation-duration: 400ms;
   z-index: 99;
   top: -5px;
-
-  li {
-    list-style: none;
-  }
-  a {
-    font-family: var(--fuente);
-    padding-left: 0;
-    text-decoration: none;
-    color: var(--color-4);
-  }
-
-  .informacion-perfil h4 {
-    margin-top: 10px;
-    text-align: center;
-    margin-bottom: 0;
-  }
-  .correo-perfil p {
-    margin-top: 0;
-    text-align: center;
-  }
-
-  .perfil-cerrar {
-    display: grid;
-    grid-template-columns: repeat(2, 40% 60%);
-
-    i {
-
-      color: var(--color-1);
-      font-size: 17px;
-    }
-  }
-
-
-
-  .imagen-perfil {
-    width: 75px;
-    height: 70px;
-    margin: auto;
-  }
+}
+.lista-perfil li {
+  list-style: none;
+}
+.lista-perfil a {
+  font-family: var(--fuente);
+  padding-left: 0;
+  text-decoration: none;
+  color: var(--color-4);
+}
+.lista-perfil .informacion-perfil h4 {
+  margin-top: 10px;
+  text-align: center;
+  margin-bottom: 0;
+}
+.lista-perfil .correo-perfil p {
+  margin-top: 0;
+  text-align: center;
+}
+.lista-perfil .perfil-cerrar {
+  display: grid;
+  grid-template-columns: repeat(2, 40% 60%);
+}
+.lista-perfil .perfil-cerrar i {
+  color: var(--color-1);
+  font-size: 17px;
+}
+.lista-perfil .imagen-perfil {
+  width: 75px;
+  height: 70px;
+  margin: auto;
 }
 
 /* Clase que muestra la lista*/
@@ -338,10 +322,9 @@ html {
   border: none;
   font-size: 35px;
   transition: all 300ms ease;
-
-  &:hover {
-    font-size: 38px;
-  }
+}
+.toggle-bar:hover {
+  font-size: 38px;
 }
 
 /* RELLENO DE DASHBOARD */
@@ -351,422 +334,383 @@ html {
   position: relative;
   left: 280px;
   max-width: 79%;
-
-  .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+}
+.dash-relleno .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.dash-relleno .spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #333;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
-
-  .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #333;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Estilos de los servicios cotizados*/
-  .servicios-cotizados {
-    margin: auto;
-    width: 100%;
-
-    .card .cantidad-servicios {
-      color: #000;
-      font-family: var(--fuente);
-      height: 80%;
-      border-top: 1px solid var(--color-1);
-      text-align: center;
-      transition: all 400ms linear;
-    }
-    .titulos-servicios {
-      font-weight: 700;
-      margin: auto;
-      width: 90%;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      font-family: var(--fuente);
-    }
-    .titulos-servicios a {
-      text-align: end;
-      color: var(--color-1);
-      transition: all 300ms ease;
-      font-family: var(--fuente);
-      &:hover {
-        font-size: 17px;
-        transform: translateY(-2px);
-      }
-    }
-    .titulos-servicios p {
-      font-size: 20px;
-      font-family: var(--fuente);
-    }
-    .card {
-      background: linear-gradient(var(--color-1), #daf7b5);
-
-      color: var(--color-2);
-      border-radius: 20px;
-      min-height: 216px;
-      margin: auto;
-      width: 90%;
-      box-shadow: 2px 4px 2px 0 rgba(0, 0, 0, 0.5);
-      transition: all 400ms ease-in-out;
-
-      &:hover {
-        transform: translateY(-10px);
-      }
-
-      &:hover .cantidad-servicios {
-        font-size: 18px;
-      }
-    }
-  }
-
-  .servicios-cotizados2 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    column-gap: 25px;
-  }
-
-  .servicios {
-    padding-top: 15px;
-    margin: auto;
-    width: 90%;
-    grid-column-gap: 25px;
-    display: grid;
-    grid-template-columns: repeat(2, 70% 30%);
-  }
-
-  /* Estilos del card de las actualizaciones*/
-  .actualizaciones .card {
-    width: 90%;
-    padding-top: 16px;
-    outline: none;
-    min-height: 216px;
-    border: 2px solid var(--color-2);
-    border-radius: 15px;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-  }
-  .actualizaciones h5 {
-    font-weight: 600;
-    
-  }
-
-  .actualizacion {
-    transition: all 400ms linear;
-    margin-top: 2px;
-    font-size: 14px;
-    &:hover {
-      transform: translateX(5px);
-      background-color: var(--color-5);
-      border-radius: 15px;
-    }
-  }
-  .perfil-1 {
-    display: grid;
-    grid-template-columns: repeat(2, 20% 80%);
-    grid-column-gap: 25px;
-  }
-  .perfil-1 img {
-    border-radius: 50%;
-    width: 55px;
-    height: 50px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-  }
-
-  /* Estilo de la gráfica de barras */
-
-  .container-chart {
-    width: 90%;
-    margin: auto;
-    border-radius: 25px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-    #Mychart {
-      margin: 15px;
-      max-width: 100%;
-      max-height: 300px;
-    }
-  }
-
-  /* Estilos de campo empleados y balance de ventas*/
-  .empleados-ventas {
-    padding-top: 15px;
-    display: grid;
-    grid-template-columns: repeat(2, 50% 50%);
-    width: 90%;
-    margin: auto;
-    column-gap: 30px;
-
-    .empleados-dash {
-      width: 100%;
-    }
-    .card-wrapper {
-      width: 80%;
-    }
-
-    .slider_carousel {
-      margin-top: 35px;
-      border-radius: 25px;
-      box-shadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.5);
-      width: 100%;
-      height: 200px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .card-box {
-      width: 80%;
-    }
-    .head-text {
-      font-weight: 800;
-    }
-
-    .owl-nav {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      font-size: 25px;
-    }
-    .slider_carousel img {
-      border-radius: 50%;
-      object-fit: cover;
-      height: 150px;
-      margin: auto;
-    }
-
-    .slider_carousel .owl-prev,
-    .slider_carousel .owl-next {
-      width: 40px;
-      height: 40px;
-      background: #e4e2e2c5;
-      display: flex;
-      color: var(--color-1);
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      box-shadow: 2x 2px 2px 2px rgba(0, 0, 0, 0.5);
-    }
-    .owl-next {
-      right: -50px;
-    }
-
-    .slider_carousel .owl-prev {
-      display: none;
-    }
-
-    .balance-ventas {
-      text-align: center;
-      font-weight: 700;
-
-      canvas {
-        margin: 15px;
-        max-width: 100%;
-        max-height: 250px;
-      }
-    }
-  }
-
-  .btn-accion-empleados {
-    width: 80%;
-    margin: auto;
-    display: grid;
-    grid-template-columns: repeat(2, 50% 50%);
-
-    .agregar-empleado,
-    .descargar-pdf {
-      margin: auto;
-      width: 50%;
-      text-align: center;
-      height: 100px;
-      border-radius: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.5);
-      background-color: #ffffff;
-      outline: none;
-      border: none;
-    }
-  }
-  .container-table {
-    max-width: 1400px;
-    margin: auto;
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-    transition: all 400ms ease-in-out;
-    animation-name: YtoX;
-    animation-duration: 400ms;
-
-    animation-timing-function: ease-in-out;
-    padding: 10px 10px 10px 10px;
-
-    .table {
-      margin: auto;
-      border-radius: 25px;
-      width: 90%;
-      border-bottom: 1px solid #eee;
-      padding: 15px 15px 15px 15px;
-    }
-    .table th {
-      text-align: right;
-    }
-
-    .table td {
-      text-align: right;
-      height: 60px;
-    }
-
-    .correo {
-      font-size: 14px;
-      color: var(--color-3);
-    }
-    td.nombre {
-      width: 30%;
-      text-align: start;
-    }
-    th.nombre {
-      width: 30%;
-      text-align: start;
-    }
-
-    .imagen-table {
-      width: 60px;
-      height: 60px;
-      border-radius: 7px;
-      object-fit: cover;
-    }
-
-    .habilitado {
-      font-size: 25px;
-      color: var(--color-1);
-    }
-
-    /*Filtros multicriterio*/
-    .filtros {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      row-gap: 10px;
-      width: 90%;
-      margin: auto;
-      padding: 15px 15px 15px 15px;
-
-      .fecha-input {
-        border-radius: 7px;
-        outline: none;
-        width: 150px;
-        text-align: center;
-        border: 1px solid #e5e5e5;
-        background: #ffffff;
-        height: 40px;
-      }
-      .fecha-input:focus {
-        border: 2px solid var(--color-1);
-      }
-    }
-    .filtrar-estado {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .filtrar-estado .estado,
-    .filtrar-estado .figura {
-      border-radius: 15px;
-      outline: none;
-      width: 150px;
-      border: 1px solid #e5e5e5;
-      background: #ffffff;
-      height: 40px;
-
-      text-align: center;
-    }
-
-    /* filtrar buscar*/
-    .filtrar-buscar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .filtrar-buscar .buscar {
-      border-radius: 15px;
-      outline: none;
-      border: 1px solid #e5e5e5;
-      background: #ffffff;
-      height: 40px;
-    }
-    .filtrar-buscar button {
-      border-radius: 15px;
-      background-color: #ffffff;
-      outline: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      right: 30px;
-      height: 26px;
-    }
-
-    .filtrar-buscar .buscar:focus {
-      border: 2px solid var(--color-1);
-    }
-  }
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 25px;
-    border-radius: 40px;
-    cursor: pointer;
-    transition: all 400ms ease-in-out;
-    background-color: red;
-  }
-  .switch:after {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    background-color: white;
-    left: 3px;
-    top: 2px;
-    transition: all 400ms ease-in-out;
-  }
-
-  td input[type="checkbox"]:checked + .switch::after {
-    transform: translateX(25px);
-    background-color: var(--color-2);
-  }
-  td input[type="checkbox"]:checked + .switch {
-    background-color: var(--color-1);
-  }
-  .offscreen {
-    position: absolute;
-    left: -999999999px;
-  }
-
-  .modal .ver-mas .lista {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
+}
+/* Estilos de los servicios cotizados*/
+.dash-relleno .servicios-cotizados {
+  margin: auto;
+  width: 100%;
+}
+.dash-relleno .servicios-cotizados .card .cantidad-servicios {
+  color: #000;
+  font-family: var(--fuente);
+  height: 80%;
+  border-top: 1px solid var(--color-1);
+  text-align: center;
+  transition: all 400ms linear;
+}
+.dash-relleno .servicios-cotizados .titulos-servicios {
+  font-weight: 700;
+  margin: auto;
+  width: 90%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-family: var(--fuente);
+}
+.dash-relleno .servicios-cotizados .titulos-servicios a {
+  text-align: end;
+  color: var(--color-1);
+  transition: all 300ms ease;
+  font-family: var(--fuente);
+}
+.dash-relleno .servicios-cotizados .titulos-servicios a:hover {
+  font-size: 17px;
+  transform: translateY(-2px);
+}
+.dash-relleno .servicios-cotizados .titulos-servicios p {
+  font-size: 20px;
+  font-family: var(--fuente);
+}
+.dash-relleno .servicios-cotizados .card {
+  background: linear-gradient(var(--color-1), #daf7b5);
+  color: var(--color-2);
+  border-radius: 20px;
+  min-height: 216px;
+  margin: auto;
+  width: 90%;
+  box-shadow: 2px 4px 2px 0 rgba(0, 0, 0, 0.5);
+  transition: all 400ms ease-in-out;
+}
+.dash-relleno .servicios-cotizados .card:hover {
+  transform: translateY(-10px);
+}
+.dash-relleno .servicios-cotizados .card:hover .cantidad-servicios {
+  font-size: 18px;
+}
+.dash-relleno .servicios-cotizados2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  column-gap: 25px;
+}
+.dash-relleno .servicios {
+  padding-top: 15px;
+  margin: auto;
+  width: 90%;
+  grid-column-gap: 25px;
+  display: grid;
+  grid-template-columns: repeat(2, 70% 30%);
+}
+/* Estilos del card de las actualizaciones*/
+.dash-relleno .actualizaciones .card {
+  width: 90%;
+  padding-top: 16px;
+  outline: none;
+  min-height: 216px;
+  border: 2px solid var(--color-2);
+  border-radius: 15px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.dash-relleno .actualizaciones h5 {
+  font-weight: 600;
+}
+.dash-relleno .actualizacion {
+  transition: all 400ms linear;
+  margin-top: 2px;
+  font-size: 14px;
+}
+.dash-relleno .actualizacion:hover {
+  transform: translateX(5px);
+  background-color: var(--color-5);
+  border-radius: 15px;
+}
+.dash-relleno .perfil-1 {
+  display: grid;
+  grid-template-columns: repeat(2, 20% 80%);
+  grid-column-gap: 25px;
+}
+.dash-relleno .perfil-1 img {
+  border-radius: 50%;
+  width: 55px;
+  height: 50px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+/* Estilo de la gráfica de barras */
+.dash-relleno .container-chart {
+  width: 90%;
+  margin: auto;
+  border-radius: 25px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+.dash-relleno .container-chart #Mychart {
+  margin: 15px;
+  max-width: 100%;
+  max-height: 300px;
+}
+/* Estilos de campo empleados y balance de ventas*/
+.dash-relleno .empleados-ventas {
+  padding-top: 15px;
+  display: grid;
+  grid-template-columns: repeat(2, 50% 50%);
+  width: 90%;
+  margin: auto;
+  column-gap: 30px;
+}
+.dash-relleno .empleados-ventas .empleados-dash {
+  width: 100%;
+}
+.dash-relleno .empleados-ventas .card-wrapper {
+  width: 80%;
+}
+.dash-relleno .empleados-ventas .slider_carousel {
+  margin-top: 35px;
+  border-radius: 25px;
+  box-shadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 200px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dash-relleno .empleados-ventas .card-box {
+  width: 80%;
+}
+.dash-relleno .empleados-ventas .head-text {
+  font-weight: 800;
+}
+.dash-relleno .empleados-ventas .owl-nav {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  font-size: 25px;
+}
+.dash-relleno .empleados-ventas .slider_carousel img {
+  border-radius: 50%;
+  object-fit: cover;
+  height: 150px;
+  margin: auto;
+}
+.dash-relleno .empleados-ventas .slider_carousel .owl-prev,
+.dash-relleno .empleados-ventas .slider_carousel .owl-next {
+  width: 40px;
+  height: 40px;
+  background: #e4e2e2c5;
+  display: flex;
+  color: var(--color-1);
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  box-shadow: 2x 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+.dash-relleno .empleados-ventas .owl-next {
+  right: -50px;
+}
+.dash-relleno .empleados-ventas .slider_carousel .owl-prev {
+  display: none;
+}
+.dash-relleno .empleados-ventas .balance-ventas {
+  text-align: center;
+  font-weight: 700;
+}
+.dash-relleno .empleados-ventas .balance-ventas canvas {
+  margin: 15px;
+  max-width: 100%;
+  max-height: 250px;
+}
+.dash-relleno .btn-accion-empleados {
+  width: 80%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 50% 50%);
+}
+.dash-relleno .btn-accion-empleados .agregar-empleado,
+.dash-relleno .btn-accion-empleados .descargar-pdf {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+  height: 100px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.5);
+  background-color: #ffffff;
+  outline: none;
+  border: none;
+}
+.dash-relleno .container-table {
+  max-width: 1400px;
+  margin: auto;
+  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  transition: all 400ms ease-in-out;
+  animation-name: YtoX;
+  animation-duration: 400ms;
+  animation-timing-function: ease-in-out;
+  padding: 10px 10px 10px 10px;
+}
+.dash-relleno .container-table .table {
+  margin: auto;
+  border-radius: 25px;
+  width: 90%;
+  border-bottom: 1px solid #eee;
+  padding: 15px 15px 15px 15px;
+}
+.dash-relleno .container-table .table th {
+  text-align: right;
+}
+.dash-relleno .container-table .table td {
+  text-align: right;
+  height: 60px;
+}
+.dash-relleno .container-table .correo {
+  font-size: 14px;
+  color: var(--color-3);
+}
+.dash-relleno .container-table td.nombre {
+  width: 30%;
+  text-align: start;
+}
+.dash-relleno .container-table th.nombre {
+  width: 30%;
+  text-align: start;
+}
+.dash-relleno .container-table .imagen-table {
+  width: 60px;
+  height: 60px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+.dash-relleno .container-table .habilitado {
+  font-size: 25px;
+  color: var(--color-1);
+}
+/*Filtros multicriterio*/
+.dash-relleno .container-table .filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  row-gap: 10px;
+  width: 90%;
+  margin: auto;
+  padding: 15px 15px 15px 15px;
+}
+.dash-relleno .container-table .filtros .fecha-input {
+  border-radius: 7px;
+  outline: none;
+  width: 150px;
+  text-align: center;
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+  height: 40px;
+}
+.dash-relleno .container-table .filtros .fecha-input:focus {
+  border: 2px solid var(--color-1);
+}
+.dash-relleno .container-table .filtrar-estado {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dash-relleno .container-table .filtrar-estado .estado,
+.dash-relleno .container-table .filtrar-estado .figura {
+  border-radius: 15px;
+  outline: none;
+  width: 150px;
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+  height: 40px;
+  text-align: center;
+}
+/* filtrar buscar*/
+.dash-relleno .container-table .filtrar-buscar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dash-relleno .container-table .filtrar-buscar .buscar {
+  border-radius: 15px;
+  outline: none;
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+  height: 40px;
+}
+.dash-relleno .container-table .filtrar-buscar button {
+  border-radius: 15px;
+  background-color: #ffffff;
+  outline: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  right: 30px;
+  height: 26px;
+}
+.dash-relleno .container-table .filtrar-buscar .buscar:focus {
+  border: 2px solid var(--color-1);
+}
+.dash-relleno .switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 25px;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 400ms ease-in-out;
+  background-color: red;
+}
+.dash-relleno .switch:after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  background-color: white;
+  left: 3px;
+  top: 2px;
+  transition: all 400ms ease-in-out;
+}
+.dash-relleno td input[type="checkbox"]:checked + .switch::after {
+  transform: translateX(25px);
+  background-color: var(--color-2);
+}
+.dash-relleno td input[type="checkbox"]:checked + .switch {
+  background-color: var(--color-1);
+}
+.dash-relleno .offscreen {
+  position: absolute;
+  left: -999999999px;
+}
+.dash-relleno .modal .ver-mas .lista {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .paginacion {
@@ -794,6 +738,18 @@ html {
     width: 80%;
   }
 }
+.proyecto-insumos .adicion-insumos {
+  margin: auto;
+  width: 80%;
+}
+.proyecto-insumos .form-control,
+.proyecto-insumos .form-label {
+  width: 80%;
+}
+.proyecto-insumos .formulario-proyecto {
+  margin: auto;
+  width: 80%;
+}
 .proyecto-columnas {
   width: 100%;
   display: grid;
@@ -813,6 +769,18 @@ html {
     margin: auto;
     text-align: center;
   }
+}
+.proyecto-columnas .cantidad {
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.proyecto-columnas .cantidad .button {
+  margin: auto;
+}
+.proyecto-columnas .ver-mas {
+  margin: auto;
+  text-align: center;
 }
 #elementos-seleccionados {
   width: 80%;
@@ -1142,6 +1110,16 @@ html {
       }
     }
   }
+  .dash-relleno .btn-accion-empleados {
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 50% 50%);
+  }
+  .dash-relleno .btn-accion-empleados .agregar-empleado,
+  .dash-relleno .btn-accion-empleados .descargar-pdf {
+    width: 80%;
+  }
 }
 
 @media screen and (max-width: 1100px) {
@@ -1182,6 +1160,9 @@ html {
     }
   }
 
+  .x:hover {
+    font-size: 48px;
+  }
   .active-sidebar {
     opacity: 1;
     visibility: visible;
@@ -1224,6 +1205,16 @@ html {
       margin-top: 15px;
       font-size: 15px;
     }
+  }
+  .dash-relleno .servicios {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 65% 35%);
+    margin: auto;
+  }
+  .dash-relleno .actualizaciones {
+    margin-top: 15px;
+    font-size: 15px;
   }
 }
 
@@ -1345,6 +1336,87 @@ html {
       float: left;
     }
   }
+  .dash-relleno .servicios {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    margin: auto;
+    row-gap: 25px;
+  }
+  .dash-relleno .actualizaciones {
+    font-size: 15px;
+    width: 60%;
+    margin: auto;
+  }
+  .dash-relleno .actualizacion {
+    margin: auto;
+  }
+  .dash-relleno .perfil-1 {
+    width: 80%;
+    margin: auto;
+  }
+  .dash-relleno .empleados-ventas {
+    grid-template-columns: repeat(1, 90%);
+    justify-content: center;
+    row-gap: 25px;
+  }
+  .dash-relleno .balance-ventas {
+    padding: 0px 0px 0px -60px;
+  }
+  .dash-relleno .btn-accion-empleados {
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 50% 50%);
+  }
+  .dash-relleno .btn-accion-empleados .agregar-empleado,
+  .dash-relleno .btn-accion-empleados .descargar-pdf {
+    width: 100%;
+  }
+  .dash-relleno .container-chart {
+    width: 90%;
+    margin: auto;
+    border-radius: 25px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  }
+  .dash-relleno .container-chart #Mychart {
+    max-width: 100%;
+    max-height: 250px;
+  }
+  .dash-relleno .table {
+    border: 0px;
+  }
+  .dash-relleno .table thead {
+    display: none;
+  }
+  .dash-relleno .table tr {
+    margin-bottom: 8px;
+    border-bottom: 4px solid #eee;
+    display: block;
+  }
+  .dash-relleno .table th,
+  .dash-relleno td {
+    font-size: 12px;
+  }
+  .dash-relleno td.nombre {
+    width: 100%;
+    text-align: end;
+  }
+  .dash-relleno .table td {
+    display: block;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    text-overflow: ellipsis;
+  }
+  .dash-relleno .table td:last-child {
+    border-bottom: 0px;
+  }
+  .dash-relleno .table td:before {
+    content: attr(data-label);
+    text-transform: uppercase;
+    font-weight: 700;
+    float: left;
+  }
   .formulario-detalle {
     top: 0;
   }
@@ -1405,15 +1477,13 @@ html {
     text-align: center;
     border-radius: 50%;
   }
-  .dash-relleno {
-    .actualizaciones {
-      width: 80%;
-    }
-    .titulos-servicios {
-      display: grid;
-      grid-template-columns: repeat(2, 70% 30%);
-      text-align: center;
-    }
+  .dash-relleno .actualizaciones {
+    width: 80%;
+  }
+  .dash-relleno .titulos-servicios {
+    display: grid;
+    grid-template-columns: repeat(2, 70% 30%);
+    text-align: center;
   }
 }
 
@@ -1425,12 +1495,10 @@ html {
   .menu-content {
     margin-top: -30px;
   }
-  .dash-relleno {
-    .perfil-1 {
-      width: 100%;
-      margin: auto;
-      font-size: 15px;
-    }
+  .dash-relleno .perfil-1 {
+    width: 100%;
+    margin: auto;
+    font-size: 15px;
   }
 }
 
@@ -1459,18 +1527,16 @@ html {
   .formulario-perfil{
     grid-template-columns: repeat(1, 1fr);
   }
-  .dash-relleno {
-    .actualizaciones {
-      width: 100%;
-    }
-    .actualizacion {
-      width: 100%;
-    }
-    .perfil-1 {
-      width: 100%;
-      margin: auto;
-      font-size: 13px;
-    }
+  .dash-relleno .actualizaciones {
+    width: 100%;
+  }
+  .dash-relleno .actualizacion {
+    width: 100%;
+  }
+  .dash-relleno .perfil-1 {
+    width: 100%;
+    margin: auto;
+    font-size: 13px;
   }
 }
 
@@ -1484,11 +1550,10 @@ html {
     width: 80%;
     position: relative;
     bottom: 0;
-
-    a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  }
+  .menu-content .item2 a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

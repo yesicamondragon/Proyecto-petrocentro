@@ -1,5 +1,5 @@
 @font-face {
-    font-family: "Helvetica ";
+    font-family: "Helvetica";
     src:url('../fonts/Helvetica Light.otf') format('otf');
 
 
@@ -132,7 +132,7 @@ body{
 }
 .suscribirse-blog-informativo p{
     font-size: 20px;
-    font-weight: 5  00;
+    font-weight: 500;
 }
 
 .suscribirse-blog-informativo form{
@@ -170,69 +170,58 @@ body{
         cursor: pointer;
         height: 50px;
     }
-
-    .lista-perfil{       
-        margin:15px 15px 15px 15px;
-        opacity: 0;
-        visibility: hidden;
-        width: 260px;
-        position: relative;
-        right:250px;
-        bottom: 15px;;
-        background-color: rgb(255, 255, 255);
-        height: 0px;
-        box-shadow: 2px 4px 8px rgba(0,0,0,0.5);  
-        padding: 10px 10px 10px 10px;
-        border-radius: 8px;
-        transition: all 400ms linear;
-        animation-name: subir;
-        animation-duration: 400ms;
-        z-index: 99;
-
-        li{
-        
-            list-style: none;
-        }
-        a{
-            padding-left: 0;
-            text-decoration: none;
-            color: black;
-        }
-
-        .informacion-perfil h4{
-            font-size: 24px;
-            margin-top: 10px;
-            text-align: center;
-            margin-bottom: 0;
-
-        }
-        .correo-perfil p{
-            margin-top: 0;
-            text-align: center;
-        }
-
-    .perfil-cerrar{
-        display: grid;
-        grid-template-columns: repeat(2,50% 50%);
-        
-        i{
-            color: var(--color-1);
-            font-size: 17px;
-        }
-    }
-        
-    
-    .imagen-perfil{
-        position: relative;
-        width: 75px;
-        height: 70px;
-        left: 80px;
-        object-fit: cover;
-    }
+.lista-perfil {
+    margin: 15px 15px 15px 15px;
+    opacity: 0;
+    visibility: hidden;
+    width: 260px;
+    position: relative;
+    right: 250px;
+    bottom: 15px;
+    ;
+    background-color: rgb(255, 255, 255);
+    height: 0px;
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.5);
+    padding: 10px 10px 10px 10px;
+    border-radius: 8px;
+    transition: all 400ms linear;
+    animation-name: subir;
+    animation-duration: 400ms;
+    z-index: 99;
 }
-
-    
-        
+.lista-perfil li {
+    list-style: none;
+}
+.lista-perfil a {
+    padding-left: 0;
+    text-decoration: none;
+    color: black;
+}
+.lista-perfil .informacion-perfil h4 {
+    font-size: 24px;
+    margin-top: 10px;
+    text-align: center;
+    margin-bottom: 0;
+}
+.lista-perfil .correo-perfil p {
+    margin-top: 0;
+    text-align: center;
+}
+.lista-perfil .perfil-cerrar {
+    display: grid;
+    grid-template-columns: repeat(2, 50% 50%);
+}
+.lista-perfil .perfil-cerrar i {
+    color: var(--color-1);
+    font-size: 17px;
+}
+.lista-perfil .imagen-perfil {
+    position: relative;
+    width: 75px;
+    height: 70px;
+    left: 80px;
+    object-fit: cover;
+}
 .active-perfil{
     
     height: 200px;
@@ -1407,24 +1396,18 @@ body{
 
 .images-carousel{
     margin: auto;
-
-    .carousel-inner{
-        border-radius: 15px;
-        max-height: 700px;
-        display: flex;
-        max-height: 700px;
-        align-items: center;
-        justify-content: center;
-        
-        object-fit: cover;
-
-        img{
-            
-            object-fit: cover;
-            transition: transform 0.5s ease-in-out;
-           
-        }
-    }
+}
+.images-carousel .carousel-inner {
+    border-radius: 15px;
+    max-height: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: cover;
+}
+.images-carousel .carousel-inner img {
+    object-fit: cover;
+    transition: transform 0.5s ease-in-out;
 }
 
 /* Certificaciones */

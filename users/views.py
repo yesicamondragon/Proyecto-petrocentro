@@ -1,4 +1,3 @@
-from pyexpat.errors import messages
 from django.shortcuts import redirect, render
 from django.contrib.sessions.models import Session
 from paginaPetrocentro.models import *
@@ -105,7 +104,7 @@ def listar_empleados(request):
             return render(request,'dash/empleados.html',data)
         else:
                 print( 'No tiene permisos para acceder a esta página')
-                return redirect('empleados')
+                return redirect('index')
 
     #Obtener todos las tablas de la base de datos
 
@@ -434,5 +433,3 @@ def registrar_usuario(request):
     except Exception as e:
         messages.error(request, f'Error: {e}')
         return redirect('usuarios')              
-
-

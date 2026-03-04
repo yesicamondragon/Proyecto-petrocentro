@@ -60,6 +60,17 @@ def index(request):
     context={}
     if price_element:
         context["dolar"] = price_element.text
+    try:
+        url = "https://www.google.com/finance/quote/USD-COP"
+        response = requests.get(url, timeout=5) # Añadido timeout
+        response.raise_for_status()  # Verifica si la solicitud fue exitosa (código 200)
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        price_element = soup.find("div", {"class": "YMlKec fxKbKc"})
+        if price_element:
+            context["dolar"] = price_element.text
+    except requests.exceptions.RequestException as e:
+        print(f"No se pudo obtener el precio del dólar: {e}")
     
     usuario_logeado = request.session.get('usuario_logeado')
     if usuario_logeado:

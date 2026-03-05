@@ -8,7 +8,7 @@
 
 {% block contenido %} 
     <!-- Banner de Título -->
-    <section class="banner-servicios" style="background-image: url('{% static '/images/tuberia.webp' %}');">
+    <section class="banner-servicios" style="background-image: url('{% static 'images/tuberia.webp' %}');">
         <div class="banner-overlay"></div>
         <div class="banner-content">
             <div class="breadcrumb-container">
@@ -25,9 +25,9 @@
     <h2 class="categoria-titulo">Evaluación y Medición de Pozos</h2>
     <section class="cards">
         <!-- Tarjeta 1: Well Testing -->
-        <article class="card card--1 " onclick="mostrarModalServicio('well testing ', 'Ofrecemos un servicio de well testing para evaluar el rendimiento y las características de sus pozos de petróleo y gas. A través de pruebas avanzadas de flujo y presión, proporcionamos datos precisos que le ayudan a optimizar la producción, detectar problemas y estimar reservas de hidrocarburos. Nuestra tecnología de punta garantiza análisis fiables, permitiéndole tomar decisiones informadas y maximizar la eficiencia operativa.\n', '{% static 'images/WT.webp' %}')" >
+        <article class="card card--1 " onclick="mostrarModalServicio('well testing ', 'Ofrecemos un servicio de well testing para evaluar el rendimiento y las características de sus pozos de petróleo y gas. A través de pruebas avanzadas de flujo y presión, proporcionamos datos precisos que le ayudan a optimizar la producción, detectar problemas y estimar reservas de hidrocarburos. Nuestra tecnología de punta garantiza análisis fiables, permitiéndole tomar decisiones informadas y maximizar la eficiencia operativa.\n', '{% static 'images/WT.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/WT.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/WT.webp' %} ')">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-oil-well"></i></div>
@@ -40,7 +40,7 @@
         <!-- Tarjeta 3: Pruebas Iniciales y Extensas -->
         <article class="card card--3" onclick="mostrarModalServicio('pruebas iniciales y extensas', 'Pruebas Iniciales: Validamos la calidad y seguridad de sus sistemas y equipos desde el inicio. Nuestras pruebas iniciales aseguran que todo funcione correctamente durante la instalación o puesta en marcha, previniendo problemas futuros y optimizando el rendimiento desde el primer día. \n \n Pruebas Extensas: Ofrecemos una evaluación detallada y profunda de sus equipos en operación. Estas pruebas identifican posibles fallos, optimizan el rendimiento y extienden la vida útil de sus activos, asegurando la máxima confiabilidad y eficiencia. \n', '{% static 'images/TEA.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/TEA.webp' %} ')" >
+            <div class="card__img--hover" style="background-image: url('{% static 'images/TEA.webp' %} ');">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-vial-circle-check"></i></div>
@@ -53,7 +53,7 @@
         <!-- Tarjeta 8: Medición de fluidos -->
         <article class="card card--8" onclick="mostrarModalServicio('Medición de fluidos, separadores, tratadores térmicos', 'Proveemos servicios de medición y calibración especializados para sistemas de fluidos, separadores y tratadores térmicos en la industria petrolera. Garantizamos que sus equipos operen con precisión y eficiencia, asegurando mediciones exactas y un rendimiento óptimo. Nuestra experiencia en la calibración de estos sistemas es clave para mantener la calidad del proceso, maximizar la producción y cumplir con las normativas de la industria.\n', '{% static 'images/mediciondstt.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/mediciondstt.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/mediciondstt.webp' %} ');">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-gauge-high"></i></div>
@@ -70,8 +70,7 @@
         <!-- Tarjeta 2: Pruebas Hidrostáticas -->
         <article class="card card--2" onclick="mostrarModalServicio('pruebas hidrostáticas','Nuestro servicio de pruebas hidrostáticas garantiza la integridad y seguridad de sus tuberías, tanques y equipos bajo presión. Realizamos pruebas rigurosas utilizando agua a alta presión para detectar fugas, evaluar la resistencia y asegurar el cumplimiento de normativas. Con nuestra tecnología avanzada, ofrecemos resultados precisos que le permiten prevenir fallos críticos y asegurar la confiabilidad de sus instalaciones.\n', '{% static 'images/ph.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/ph.webp' %} ')">
-            </div>
+            <div class="card__img--hover" style="background-image: url('{% static 'images/ph.webp' %} ');"></div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-faucet-drip"></i></div>
                 <span class="card__category">PRUEBAS HIDROSTÁTICAS</span>
@@ -83,7 +82,7 @@
         <!-- Tarjeta 5: Diagnóstico y evaluación -->
         <article class="card card--5" onclick="mostrarModalServicio('Diagnóstico y evaluación del estado mecánico y de corrosión para líneas de hidrocarburos', 'Ofrecemos un servicio especializado de diagnóstico y evaluación del estado mecánico y de corrosión en líneas de hidrocarburos. Utilizamos técnicas avanzadas para identificar daños estructurales, detectar corrosión y evaluar la integridad de las tuberías. Este análisis es crucial para prevenir fallos, reducir riesgos ambientales y asegurar la continuidad operativa de sus instalaciones. \n', '{% static 'images/DEH.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover"  style="background-image: url('{% static '/images/DEH.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/DEH.webp' %} ');">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
@@ -96,7 +95,7 @@
         <!-- Tarjeta 4: Montaje y Mantenimiento de Lineas -->
         <article class="card card--4" onclick="mostrarModalServicio('MONTAJE Y MANTENIMIENTO DE LINEAS DE TUBERÍA', 'Proveemos servicios especializados en el montaje y mantenimiento de líneas de tubería diseñadas para la industria petrolera. Nuestro equipo garantiza la instalación precisa de sistemas de conducción críticos para el transporte de petróleo y gas, asegurando que cumplan con los más altos estándares de seguridad y eficiencia. Además, realizamos mantenimiento preventivo y correctivo para prolongar la vida útil de sus infraestructuras, minimizar riesgos y optimizar la continuidad operativa. \n', '{% static 'images/tuberia.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover"  style="background-image: url('{% static '/images/tuberia.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/tuberia.webp' %} ');">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-screwdriver-wrench"></i></div>
@@ -113,7 +112,7 @@
         <!-- Tarjeta 9: Montaje y operación de facilidades -->
         <article class="card card--9" onclick="mostrarModalServicio('Montaje y operación de facilidades en superficie.','Proveemos servicios integrales de montaje y operación de facilidades en superficie para la industria petrolera. Desde la instalación de infraestructura hasta la puesta en marcha y operación continua, garantizamos que sus instalaciones funcionen de manera eficiente y segura. Nuestro equipo se asegura de que todos los sistemas estén optimizados para maximizar la producción y cumplir con los estándares de la industria.\n', '{% static 'images/MO.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/MO.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/MO.webp' %} ')">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-industry"></i></div>
@@ -126,12 +125,12 @@
         <!-- Tarjeta 7: Tratamiento de crudo -->
         <article class="card card--7" onclick="mostrarModalServicio('Tratamiento de crudo en superficie.','Ofrecemos servicios especializados en el tratamiento de crudo en superficie, optimizando la calidad del petróleo antes de su transporte o procesamiento. Utilizamos tecnologías avanzadas para la separación de agua, sedimentos y otros contaminantes, asegurando que el crudo cumpla con los estándares requeridos. Nuestro enfoque eficiente y seguro garantiza la maximización del valor del crudo y la reducción de problemas operativos. \n', '{% static 'images/separador.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static '/images/separador.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/separador.webp' %} ')">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-filter"></i></div>
                 <span class="card__category">Tratamiento de crudo en superficie.</span>
-                <p class="card__description">Optimización de la calidad del petróleo mediante separación de contaminantes.</p>
+                <p class="card__description">Optimización de la calidad del petróleo mediante la separación de impurezas.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
@@ -145,7 +144,7 @@
                 <div class="icono-servicio"><i class="fa-solid fa-industry"></i></div>
                 <h3>Equipos de Producción y Well Testing</h3>
                 <p>Líderes en <strong>Well Testing Colombia</strong> y suministro de <strong>equipos de producción</strong>. Ofrecemos <strong>separadores API/ISO</strong>, <strong>Scrubbers</strong> y <strong>tanques</strong> certificados para el manejo eficiente de <strong>hidrocarburos</strong>.</p>
-                <img src="{% static '/images/separador.webp' %}" alt="Equipos de Producción" class="caso-img">
+                <img src="{% static 'images/separador.webp' %}" alt="Equipos de Producción" class="caso-img">
                 <ul class="lista-servicios-detalle">
                     <li>Separadores Trifásicos y Bifásicos</li>
                     <li>Tanques de Almacenamiento y Surge Tanks</li>
@@ -157,7 +156,7 @@
                 <div class="icono-servicio"><i class="fa-solid fa-cubes"></i></div>
                 <h3>Tubería y Conexiones Especializadas</h3>
                 <p>Disponemos de stock permanente en <strong>tubería Fig 200</strong>, uniones de golpe <strong>Fig 602</strong> y <strong>Fig 1502</strong>, así como válvulas y accesorios <strong>ANSI 300</strong> para alta presión.</p>
-                <img src="{% static '/images/tuberia.webp' %}" alt="Tubería y Conexiones" class="caso-img">
+                <img src="{% static 'images/tuberia.webp' %}" alt="Tubería y Conexiones" class="caso-img">
                 <ul class="lista-servicios-detalle">
                     <li>Tubería de Línea y Flowline</li>
                     <li>Uniones de Golpe (Hammer Unions)</li>
@@ -169,7 +168,7 @@
                 <div class="icono-servicio"><i class="fa-solid fa-user-gear"></i></div>
                 <h3>Operación y Mantenimiento</h3>
                 <p>Somos la <strong>empresa de servicios petroleros en Colombia</strong> experta en <strong>operación y mantenimiento petrolero</strong> de <strong>facilidades de producción</strong> de gas y petróleo.</p>
-                <img src="{% static '/images/MO.webp' %}" alt="Operación y Mantenimiento" class="caso-img">
+                <img src="{% static 'images/MO.webp' %}" alt="Operación y Mantenimiento" class="caso-img">
                 <ul class="lista-servicios-detalle">
                     <li>O&M de Facilidades Tempranas</li>
                     <li>Mantenimiento de Equipos Estáticos y Rotativos</li>
@@ -199,7 +198,7 @@
                     <div class="contenido-paso">
                         <h3>Diagnóstico</h3>
                         <p>Evaluación técnica de requerimientos en campo y diseño de la solución óptima.</p>
-                        <img src="{% static '/images/DEH.webp' %}" alt="Diagnóstico" class="caso-img">
+                        <img src="{% static 'images/DEH.webp' %}" alt="Diagnóstico" class="caso-img">
                     </div>
                 </div>
                 
@@ -215,7 +214,7 @@
                     <div class="contenido-paso">
                         <h3>Logística</h3>
                         <p>Movilización ágil de equipos certificados y personal calificado al sitio.</p>
-                        <img src="{% static '/images/nosotros_2.webp' %}" alt="Logística" class="caso-img">
+                        <img src="{% static 'images/nosotros_2.webp' %}" alt="Logística" class="caso-img">
                     </div>
                 </div>
 
@@ -231,7 +230,7 @@
                     <div class="contenido-paso">
                         <h3>Ejecución</h3>
                         <p>Montaje, operación y mantenimiento bajo estrictos estándares HSEQ.</p>
-                        <img src="{% static '/images/MO.webp' %}" alt="Ejecución" class="caso-img">
+                        <img src="{% static 'images/MO.webp' %}" alt="Ejecución" class="caso-img">
                     </div>
                 </div>
 
@@ -247,7 +246,7 @@
                     <div class="contenido-paso">
                         <h3>Resultados</h3>
                         <p>Entrega de informes técnicos, optimización de producción y cierre.</p>
-                        <img src="{% static '/images/mediciondstt.webp' %}" alt="Resultados" class="caso-img">
+                        <img src="{% static 'images/mediciondstt.webp' %}" alt="Resultados" class="caso-img">
                     </div>
                 </div>
             </div>
@@ -346,7 +345,7 @@
                             <strong>Resultado:</strong>
                             <p>Datos precisos con 99% de confiabilidad y reducción de tiempos operativos.</p>
                         </div>
-                        <img src="{% static '/images/WT.webp' %}" alt="Optimización Well Testing" class="caso-img">
+                        <img src="{% static 'images/WT.webp' %}" alt="Optimización Well Testing" class="caso-img">
                     </div>
                 </div>
 
@@ -369,7 +368,7 @@
                             <strong>Resultado:</strong>
                             <p>Extensión de vida útil de la línea por 5 años y cero fugas.</p>
                         </div>
-                        <img src="{% static '/images/tuberia.webp' %}" alt="Mantenimiento de Oleoducto" class="caso-img">
+                        <img src="{% static 'images/tuberia.webp' %}" alt="Mantenimiento de Oleoducto" class="caso-img">
                     </div>
                 </div>
 
@@ -392,7 +391,7 @@
                             <strong>Resultado:</strong>
                             <p>Certificación obtenida en tiempo récord cumpliendo norma API 650.</p>
                         </div>
-                        <img src="{% static '/images/ph.webp' %}" alt="Pruebas Hidrostáticas" class="caso-img">
+                        <img src="{% static 'images/ph.webp' %}" alt="Pruebas Hidrostáticas" class="caso-img">
                     </div>
                 </div>
             </div>
@@ -410,25 +409,25 @@
                     <div class="icono-norma"><i class="fa-solid fa-certificate"></i></div>
                     <h3>ISO 9001:2015</h3>
                     <p>Gestión de Calidad</p>
-                    <img src="{% static '/images/C-ACTUAL1.webp' %}" alt="Certificación ISO 9001" class="normativa-img">
+                    <img src="{% static 'images/C-ACTUAL1.webp' %}" alt="Certificación ISO 9001" class="normativa-img">
                 </div>
                 <div class="normativa-item">
                     <div class="icono-norma"><i class="fa-solid fa-shield-heart"></i></div>
                     <h3>ISO 45001:2018</h3>
                     <p>Seguridad y Salud</p>
-                    <img src="{% static '/images/C-ACTUAL2.webp' %}" alt="Certificación ISO 45001" class="normativa-img">
+                    <img src="{% static 'images/C-ACTUAL2.webp' %}" alt="Certificación ISO 45001" class="normativa-img">
                 </div>
                 <div class="normativa-item">
                     <div class="icono-norma"><i class="fa-solid fa-leaf"></i></div>
                     <h3>ISO 14001:2015</h3>
                     <p>Gestión Ambiental</p>
-                    <img src="{% static '/images/C-ACTUAL3.webp' %}" alt="Certificación ISO 14001" class="normativa-img">
+                    <img src="{% static 'images/C-ACTUAL3.webp' %}" alt="Certificación ISO 14001" class="normativa-img">
                 </div>
                 <div class="normativa-item">
                     <div class="icono-norma"><i class="fa-solid fa-book-open"></i></div>
                     <h3>Normas API / ASME</h3>
                     <p>Cumplimiento Técnico</p>
-                    <img src="{% static '/images/Collage.webp' %}" alt="Normas API ASME" class="normativa-img">
+                    <img src="{% static 'images/Collage.webp' %}" alt="Normas API ASME" class="normativa-img">
                 </div>
             </div>
         </div>
@@ -528,7 +527,7 @@
             <h2 class="modal-titulo">Ciclo de Vida del Pozo</h2>
             <div class="modal-contenido" style="text-align: justify;">
                 <p>El ciclo de vida de un pozo de hidrocarburos es un proceso integral que abarca desde la exploración inicial hasta el abandono final. En Petrocentro, nos especializamos en la etapa crítica de <strong>Evaluación y Producción</strong>.</p>
-                <img src="{% static '/images/WT.webp' %}" alt="Ciclo de Vida del Pozo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <img src="{% static 'images/WT.webp' %}" alt="Ciclo de Vida del Pozo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <p>Durante la fase de <strong>Well Testing</strong>, realizamos pruebas dinámicas para determinar la capacidad productiva del yacimiento, midiendo variables como presión, temperatura y caudales de flujo. Esta información es vital para diseñar las facilidades de superficie adecuadas y optimizar la recuperación de reservas, asegurando la viabilidad económica y técnica del proyecto a largo plazo.</p>
             </div>
         </div>
@@ -541,7 +540,7 @@
             <h2 class="modal-titulo">Tratamiento de Crudo en Superficie</h2>
             <div class="modal-contenido" style="text-align: justify;">
                 <p>El tratamiento de crudo en superficie tiene como objetivo principal acondicionar el fluido producido para cumplir con las especificaciones de transporte y venta (fiscalización). Este proceso elimina impurezas como agua, gas y sedimentos.</p>
-                <img src="{% static '/images/separador.webp' %}" alt="Tratamiento de Crudo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <img src="{% static 'images/separador.webp' %}" alt="Tratamiento de Crudo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <p>Utilizamos <strong>separadores bifásicos y trifásicos</strong> de alta eficiencia que permiten la segregación gravitacional de las fases. Posteriormente, aplicamos tecnologías de deshidratación térmica o electrostática para reducir el contenido de agua y sal (BS&W), garantizando un crudo de alta calidad listo para su refinación o exportación.</p>
             </div>
         </div>
@@ -554,7 +553,7 @@
             <h2 class="modal-titulo">Protocolos de Seguridad y HSEQ</h2>
             <div class="modal-contenido" style="text-align: justify;">
                 <p>En Petrocentro, la seguridad no es negociable. Operamos bajo un estricto Sistema de Gestión HSEQ certificado bajo la norma <strong>ISO 45001</strong>, diseñado para proteger la integridad de nuestro equipo humano, las instalaciones y el medio ambiente.</p>
-                <img src="{% static '/images/nosotros_1.webp' %}" alt="Protocolos de Seguridad" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <img src="{% static 'images/nosotros_1.webp' %}" alt="Protocolos de Seguridad" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <p>Nuestros protocolos incluyen análisis de riesgos (ATS) previos a cada maniobra, uso obligatorio de EPP certificado, y planes de contingencia robustos. Además, realizamos mantenimiento preventivo constante a nuestros equipos de alta presión para mitigar riesgos operativos y asegurar la continuidad del servicio sin incidentes.</p>
             </div>
         </div>

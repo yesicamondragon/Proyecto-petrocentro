@@ -102,7 +102,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Se activan automáticamente solo si DEBUG es False (Producción)
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
-CSRF_TRUSTED_ORIGINS = ['https://petrocentro.co']
+CSRF_TRUSTED_ORIGINS = ['https://petrocentro.co', 'https://www.petrocentro.co']
 
 
 WSGI_APPLICATION = 'Petrocentro.wsgi.application'

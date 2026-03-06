@@ -1,9 +1,3 @@
-@font-face {
-    font-family: "Helvetica";
-    src:url('../fonts/Helvetica Light.otf') format('otf');
-
-
-}
 .swal2-popup{
     width: 30%;
 }

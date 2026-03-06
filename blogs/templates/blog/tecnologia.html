@@ -40,7 +40,7 @@
                 if(data.status === 'ok' && data.items.length > 0){
                     container.innerHTML = '';
                     const items = data.items.slice(0, 3);
-                    const images = ["{% static '/images/WT.webp' %}", "{% static '/images/tuberia.webp' %}", "{% static '/images/separador.webp' %}"];
+                    const images = ["{% static 'images/WT.webp' %}", "{% static 'images/tuberia.webp' %}", "{% static 'images/separador.webp' %}"];
                     items.forEach((item, index) => {
                         const randomImg = images[index % images.length];
                         const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });

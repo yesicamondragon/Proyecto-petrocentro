@@ -1,0 +1,72 @@
+{% load static %}
+<div class="subscribe-container">
+    <div class="oil-drop"></div>
+    <div class="oil-drop"></div>
+    <div class="oil-drop"></div>
+    <h2 class="subscribe-title">Suscríbete a Nuestro Blog</h2>
+    <p class="subscribe-description">Reciba contenido técnico exclusivo sobre optimización de producción y servicios petroleros en Colombia.</p>
+    <form id="subscribeForm" class="subscribe-form">
+        <input type="email" id="emailInput" class="subscribe-input" placeholder="Tu correo electrónico" required>
+        <button type="submit" class="subscribe-button">Suscribirse</button>
+    </form>
+    <div id="messageBox" class="message" style="display: none;"></div>
+</div>
+
+<hr>
+<!-- Pie de página-->
+<footer >
+
+    <!-- Primer sección del pie de página-->
+     <section class="pie_pagina">
+    <div class="grupo1">
+        <div class="box">
+          <figure>
+            
+                  <a href="{% url 'index' %}">
+                  <img class="img-fluid" src="{% static 'images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S">
+                  </a>
+            
+              <div class="red_social  ">
+                <a href="#" > &nbsp; <i class="fa-brands fa-facebook"> &nbsp; </i></a>
+                <a href="https://www.instagram.com/petrocentrosas/" > &nbsp; <i class="fa-brands fa-instagram"> &nbsp; </i></a>
+                <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" > &nbsp; <i class="fa-brands fa-youtube"> &nbsp; </i></a>
+                <a href="https://www.linkedin.com/company/petrocentro-sas/" > &nbsp; <i class="fa-brands fa-linkedin"></i>  </a>
+              </div>
+          </figure>
+        </div>
+        <div class="box2">
+          <h3>Datos de Contacto</h3>
+          <p> <span class="telefono">TELEFONO:</span> +57 313 426 7179</p>
+          <p> <span class="email">EMAIL : </span>ti.petrocentro@gmail.com</p>
+          <p> <span class="ubicacion">UBICACIÓN :</span> Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</p>
+        
+        </div>
+        <div class="box3 " >
+        <h3>Mapa del Sitio</h3>
+        
+        <div class="mapa" >
+            
+            <div class="indice-pagina1 row" >
+                <a href="{% url 'index'%}">INICIO</a>
+                <a href="{% url 'servicios'%}">SERVICIOS</a>
+            </div>
+            <div class="indice-pagina2 row">
+                <a href="{% url 'nosotros'%}">NOSOTROS</a>
+                <a href="{% url 'contacto'%}">CONTACTO</a>
+                <a href="{% url 'pqrs'%}">PQRS</a>
+            </div>
+       
+        </div>
+    </div>
+  </section>
+    <!-- Segunda seccion del pie de pagina-->
+    <div class="grupo2">
+       
+        <small >
+          <hr>
+        &copy; 2020 <b>Petrocentro S.A.S</b> - Todos Los Derechos Reservados.
+        </small>
+    </div>
+    
+    
+</footer>

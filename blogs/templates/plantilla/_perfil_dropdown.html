@@ -1,0 +1,45 @@
+{% load static %}
+{% if user.is_authenticated %}
+    
+    <div class="buton-cerrar">
+        {% if usuario.foto_perfil %}
+            <img class="imagen-perfil" onclick="perfil()" src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}">
+        {% else %}
+        
+            <img class="imagen-perfil" onclick="perfil()"  src="{% static 'images/sin_foto.webp'%}" alt="Sin foto de perfil">
+        {% endif %}
+        <ul class="lista-perfil" id="lista-perfil">
+          <li class="imagen">
+            {% if usuario.foto_perfil %}
+            <img class="imagen-perfil" src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}">
+            {% else %}
+            
+            <img class="imagen-perfil" src="{% static 'images/sin_foto.webp'%}" alt="Sin foto de perfil">
+            {% endif %}
+        </li>
+        <li class="informacion-perfil">
+            <h4> {{ user.username }} </h4>
+            
+        </li>
+        <li class="correo-perfil">
+            <p> {{ user.email }} </p>
+        </li>
+        <div class="perfil-cerrar">
+              <a href="{% url 'perfil' %}">
+                <i class="fa-solid fa-gear icons"></i>
+                 &nbsp;Ajustes
+              </a>
+        </li>
+        <li>
+            <a href=" {% url 'logout_view' %} ">
+                <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesion
+            </a>
+        </li>
+        </div>
+    </ul>
+    </div>
+{% else %}
+    <div class="buton">
+        <button onclick="window.location.href='{% url 'login_view' %}' " type="button"><i class="fa-solid fa-right-to-bracket"></i>&nbsp;INICIAR SESION</button>
+    </div>
+{% endif %}

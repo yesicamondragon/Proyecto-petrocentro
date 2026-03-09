@@ -46,9 +46,9 @@
                     const items = data.items.slice(0, 3);
                     // Imágenes de respaldo ya que el RSS de Google News no siempre trae imágenes limpias
                     const images = [
-                        "{% static '/images/WT.webp' %}",
-                        "{% static '/images/tuberia.webp' %}",
-                        "{% static '/images/separador.webp' %}"
+                        "{% static 'images/WT.webp' %}",
+                        "{% static 'images/tuberia.webp' %}",
+                        "{% static 'images/separador.webp' %}"
                     ];
                     
                     items.forEach((item, index) => {
@@ -94,7 +94,7 @@
                 <!-- Articulo 1 -->
                 <article class="blog-card">
                     <div class="blog-imagen">
-                        <img src="{% static '/images/nosotros_1.webp' %}" alt="Innovación en Hidrocarburos">
+                        <img src="{% static 'images/nosotros_1.webp' %}" alt="Innovación en Hidrocarburos">
                     </div>
                     <div class="blog-contenido">
                         <span class="blog-fecha">Actualidad</span>
@@ -107,7 +107,7 @@
                 <!-- Articulo 2 -->
                 <article class="blog-card">
                     <div class="blog-imagen">
-                        <img src="{% static '/images/mision.webp' %}" alt="Seguridad Industrial HSEQ">
+                        <img src="{% static 'images/mision.webp' %}" alt="Seguridad Industrial HSEQ">
                     </div>
                     <div class="blog-contenido">
                         <span class="blog-fecha">Seguridad</span>
@@ -120,7 +120,7 @@
                 <!-- Articulo 3 -->
                 <article class="blog-card">
                     <div class="blog-imagen">
-                        <img src="{% static '/images/vision.webp' %}" alt="Proyectos Petrocentro">
+                        <img src="{% static 'images/vision.webp' %}" alt="Proyectos Petrocentro">
                     </div>
                     <div class="blog-contenido">
                         <span class="blog-fecha">Proyectos</span>

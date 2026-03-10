@@ -70,7 +70,9 @@ cover/
 *.mo
 
 # Django stuff:
-
+#archivos estaticos generados por el django 
+static/
+staticfiles/
 # Flask stuff:
 instance/
 .webassets-cache

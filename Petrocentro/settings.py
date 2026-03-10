@@ -1,4 +1,3 @@
-HEAD
 """
 Django settings for Petrocentro project.
 
@@ -426,4 +425,3 @@ LOGGING = {
 },
 }
 
-84b9af3 (mantine configuracion de produccion en setings.py)

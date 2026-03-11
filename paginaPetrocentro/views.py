@@ -50,16 +50,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 def index(request):
     #todo: Obtener el usuario logeado
     
-    url = "https://www.google.com/finance/quote/USD-COP"
-    response = requests.get(url)
-    response.raise_for_status()  # Verifica si la solicitud fue exitosa (código 200)
-    
-    soup = BeautifulSoup(response.text, 'html.parser')
-    price_element = soup.find("div", {"class": "YMlKec fxKbKc"})
-    
     context={}
-    if price_element:
-        context["dolar"] = price_element.text
     try:
         url = "https://www.google.com/finance/quote/USD-COP"
         response = requests.get(url, timeout=5) # Añadido timeout
@@ -268,14 +259,10 @@ def login_view(request):
         
         #validar si la respuesta obtenida por la variable user es verdadera
         if user:
-            
-            usuario1 = User.objects.get(username=username)
-            
-            validacion = usuario1.id
             try:    
-                usuario = Usuario.objects.get(user_id= validacion)
+                usuario = Usuario.objects.get(user_id=user)
                 
-            except :
+            except Usuario.DoesNotExist:
                 messages.error(request, 'No se encontró al usuario')
                 return redirect('login_view')
 

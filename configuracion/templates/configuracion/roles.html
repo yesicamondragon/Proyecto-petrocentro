@@ -65,8 +65,17 @@
       <div class="card roles" style="width: 18rem;">
         <img src="{% static 'images/rol.avif' %}" class="card-img-top" alt="...">
         <div class="card-body">
-          <h5 class="card-title"> {{ rol.nombre }}</h5>
-          <p class="card-text"> Permisos del rol  {{ rol.nombre }} </p>
+          <h5 class="card-title"> 
+            {% if rol.nombre == "Administrador" %}
+                <i class="fa-solid fa-user-shield"></i>
+            {% elif "Empleado" in rol.nombre or "Empalado" in rol.nombre %}
+                <i class="fa-solid fa-helmet-safety"></i>
+            {% else %}
+                <i class="fa-solid fa-user-tag"></i>
+            {% endif %}
+            {% if "Empalado" in rol.nombre %}Empleado{% else %}{{ rol.nombre }}{% endif %}
+          </h5>
+          <p class="card-text"> Permisos del rol  {% if 'Empalado' in rol.nombre %}Empleado{% else %}{{ rol.nombre }}{% endif %} </p>
         </div>
         <ul>
                 {% for permisos in rol_permisos  %}
@@ -76,12 +85,18 @@
                 {% endif %}
                 {% endfor %}
         </ul>
-        <div class="card-body">
+        <div class="card-body" style="display: flex; justify-content: space-between; gap: 5px;">
                 {% if editar == 1%}
-                <button type="button"class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal_editar{{rol.nombre}}" onclick="filtrarPermisos('{{ rol.id_rol }}' ,'{{ rol.nombre }}')">Editar</button>
+                <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modal_editar{{rol.nombre}}" onclick="filtrarPermisos('{{ rol.id_rol }}' ,'{{ rol.nombre }}')">Editar</button>
                 {% else %}
                 <button type="button" class="btn btn-secondary" disabled>Editar</button>
 
+                {% endif %}
+
+                {% if eliminar == 1 %}
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal_eliminar{{rol.id_rol}}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
                 {% endif %}
         </div>
       </div>
@@ -97,7 +112,7 @@
                     {% csrf_token %}
                 <div class="mb-3">
                         <label for="id_rol">Nombre Rol</label>
-                        <input type="text"  class="form-control" id="id_rol" name="id_rol" value="{{ rol.nombre }}" disabled>
+                        <input type="text"  class="form-control" id="id_rol" name="id_rol" value="{% if 'Empalado' in rol.nombre %}Empleado{% else %}{{ rol.nombre }}{% endif %}" disabled>
 
                         
                 </div>
@@ -132,6 +147,29 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Eliminar -->
+      <div class="modal fade" id="modal_eliminar{{rol.id_rol}}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title">Eliminar Rol</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro que deseas eliminar el rol <strong>{% if 'Empalado' in rol.nombre %}Empleado{% else %}{{ rol.nombre }}{% endif %}</strong>?</p>
+                <p class="small text-muted">Esta acción no se puede deshacer. Los empleados con este rol quedarán sin permisos asignados.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <form action="{% url 'eliminar-rol' rol.id_rol %}" method="POST">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+              </form>
             </div>
           </div>
         </div>

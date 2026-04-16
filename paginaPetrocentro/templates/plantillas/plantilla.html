@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo%} {%endblock%}</title>
+
     <!--Links css-->
     <link rel="stylesheet" href="{% static 'css/Style.css' %}">
     <link rel="stylesheet" href="{% static 'css/men.css' %}">
@@ -103,18 +104,23 @@
             <div class="perfil-cerrar">
            
                   
-
-                  <a href="{% url 'perfil' %}">
-                    <i class="fa-solid fa-gear icons"></i>
-                     &nbsp;Ajustes
-               
-                
-            </li>
-            <li>
-                <a href=" {% url 'logout_view' %} ">
-                    <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesion
-                </a>
-            </li>
+                  <li>
+                    <a href="{% url 'perfil' %}">
+                        <i class="fa-solid fa-gear icons"></i>
+                        &nbsp;Ajustes
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% if user.is_superuser or empleado.id_rol.nombre == 'Administrador' %}{% url 'perfil_admin' %}{% else %}{% url 'perfil_empleado' %}{% endif %}">
+                        <i class="fa-solid fa-table-columns"></i>
+                        &nbsp;Volver al Menú
+                    </a>
+                  </li>
+                  <li>
+                    <a href=" {% url 'logout_view' %} ">
+                        <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesion
+                    </a>
+                  </li>
             </div>
             <li>
             
@@ -173,8 +179,9 @@
       <div class="oil-drop"></div>
       <h2 class="subscribe-title">Suscríbete a Nuestro Blog</h2>
       <p class="subscribe-description">Reciba contenido técnico exclusivo sobre optimización de producción y servicios petroleros en Colombia.</p>
-      <form id="subscribeForm" class="subscribe-form">
-          <input type="email" id="emailInput" class="subscribe-input" placeholder="Tu correo electrónico" required>
+      <form id="subscribeForm" class="subscribe-form" action="{% url 'suscribirse' %}" method="POST">
+          {% csrf_token %}
+          <input type="email" id="emailInput" name="correo" class="subscribe-input" placeholder="Tu correo electrónico" required>
           <button type="submit" class="subscribe-button">Suscribirse</button>
       </form>
       <div id="messageBox" class="message" style="display: none;"></div>
@@ -206,7 +213,7 @@
             <div class="box2">
               <h3>Datos de Contacto</h3>
               <p> <span class="telefono">TELEFONO:</span> +57 313 426 7179</p>
-              <p> <span class="email">EMAIL : </span>ti.petrocentro@gmail.com</p>
+              <p> <span class="email">EMAIL : </span>gerenciaoperaciones@petrocentro.co</p>
               <p> <span class="ubicacion">UBICACIÓN :</span> Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</p>
             
             </div>
@@ -262,7 +269,7 @@
           </div>  
           <div class="wcs_popup_input" 
               data-number="3134267179"
-              data-availability='{ "monday":"08:30-17:30", "tuesday":"08:30-17:30", "wednesday":"08:30-17:30", "thursday":"08:30-17:30", "friday":"08:30-17:30", "saturday":"09:00-18:30"}'>
+              data-availability='{ "monday":"08:30-17:30", "tuesday":"08:30-17:30", "wednesday":"08:30-17:30", "thursday":"08:30-17:30", "friday":"08:30-17:30" }'>
               <input type="text" placeholder="Escribir pregunta!" />
               <i class="fa fa-play"></i>
           </div>
@@ -296,6 +303,12 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+          // OPTIMIZACIÓN: Ocultar pantalla de carga inmediatamente
+          document.addEventListener('DOMContentLoaded', function() {
+              var loader = document.getElementById('loadingOverlay');
+              if (loader) loader.style.display = 'none';
+          });
 
           {% if messages %}
           // Recorrer los mensajes que llegan de las vistas 
@@ -376,6 +389,228 @@
     }
     </script>
     <!-- Script bootstrap -->
+
+    <!-- CHAT BOX SNIPPET -->
+    <style>
+        /* Botón flotante */
+        .chat-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 10000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+            background-color: #28a745 !important;
+            color: white !important;
+            border: none;
+        }
+        .chat-btn:hover { transform: scale(1.1); }
+
+        /* Contenedor del Chat */
+        .chat-box-container {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            width: 320px;
+            height: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10001;
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .chat-header {
+            background-color: #28a745; /* Color verde */
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-input-area {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 5px;
+            background-color: white;
+        }
+        .msg-bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .msg-received {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        .msg-sent {
+            background-color: #28a745;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .msg-info {
+            font-size: 0.7em;
+            color: #6c757d;
+            margin-left: 12px;
+            margin-bottom: 2px;
+            align-self: flex-start;
+        }
+        /* Media Query para Móviles */
+        @media (max-width: 480px) {
+            .chat-box-container {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+                height: 65vh; /* Ocupa el 65% de la altura en móviles */
+            }
+        }
+    </style>
+
+    <!-- Botón activador -->
+    <button class="btn chat-btn" onclick="toggleChat()">
+        <i class="fa-solid fa-comments"></i>
+    </button>
+
+    <!-- Ventana del Chat -->
+    <div class="chat-box-container" id="chatBox">
+        <div class="chat-header">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-headset me-2"></i>
+                <span>Soporte <small id="chatStatus" class="badge bg-danger" style="font-size: 0.6em;">Desconectado</small></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" onclick="toggleChat()"></button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg-bubble msg-received">¡Hola! Bienvenido a Petrocentro. ¿En qué podemos asesorarte?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Escribe un mensaje..." onkeyup="if(event.key === 'Enter') sendMessage()">
+            <button class="btn btn-success btn-sm" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica del Chat Box
+        function toggleChat() {
+            const box = document.getElementById('chatBox');
+            box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'flex' : 'none';
+        }
+
+        // Conexión WebSocket
+        let chatSocket = null;
+        let messageQueue = [];
+
+        function connectChat() {
+            // Evitar múltiples conexiones
+            if (chatSocket && (chatSocket.readyState === WebSocket.OPEN || chatSocket.readyState === WebSocket.CONNECTING)) {
+                return;
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            chatSocket = new WebSocket(protocol + window.location.host + '/ws/chat/');
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                if (data.message) {
+                    const messages = document.getElementById('chatMessages');
+                    
+                    if (!data.is_me) {
+                        const info = document.createElement('div');
+                        info.classList.add('msg-info');
+                        info.innerText = data.name;
+                        messages.appendChild(info);
+                    }
+
+                    const bubble = document.createElement('div');
+                    bubble.classList.add('msg-bubble');
+                    
+                    if (data.is_me) {
+                        bubble.classList.add('msg-sent');
+                    } else {
+                        bubble.classList.add('msg-received');
+                    }
+
+                    bubble.innerHTML = data.message; // Permitir HTML para botones y enlaces
+                    messages.appendChild(bubble);
+                    messages.scrollTop = messages.scrollHeight; 
+                }
+            };
+
+            chatSocket.onopen = function(e) {
+                console.log("Chat conectado correctamente");
+                const statusElem = document.getElementById('chatStatus');
+                statusElem.textContent = "En línea";
+                statusElem.className = "badge bg-success";
+                
+                // Enviar mensajes pendientes en la cola
+                while (messageQueue.length > 0) {
+                    chatSocket.send(JSON.stringify({ 'message': messageQueue.shift() }));
+                }
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket cerrado. Reintentando en 3s...');
+                const statusElem = document.getElementById('chatStatus');
+                statusElem.textContent = "Desconectado";
+                statusElem.className = "badge bg-danger";
+                chatSocket = null;
+                setTimeout(connectChat, 3000);
+            };
+        }
+        
+        connectChat();
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (message === "") return;
+
+            input.value = ''; // Limpiar input inmediatamente para mejor UX
+
+            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({ 'message': message }));
+            } else {
+                // Feedback visual si está desconectado
+                const messages = document.getElementById('chatMessages');
+                const info = document.createElement('div');
+                info.classList.add('msg-info');
+                info.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando... tu mensaje se enviará pronto.';
+                messages.appendChild(info);
+                messages.scrollTop = messages.scrollHeight;
+
+                messageQueue.push(message); // Guardar en cola
+                connectChat(); // Intentar reconectar
+            }
+        }
+    </script>
+    <!-- FIN CHAT BOX SNIPPET -->
 
 </body>
 </html>

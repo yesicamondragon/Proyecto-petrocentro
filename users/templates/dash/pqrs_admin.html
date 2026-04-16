@@ -1,0 +1,96 @@
+{% extends "plantillas/dashboard.html" %}
+
+{% block nombre_pagina %}Gestión de PQRS{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #0b6838;"><i class="fa-solid fa-headset me-2"></i>Gestión de PQRS</h2>
+        <form method="GET" class="d-flex">
+            <select name="estado" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                {% for val, label in estados %}
+                    <option value="{{ val }}" {% if request.GET.estado == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Radicado</th>
+                            <th>Fecha</th>
+                            <th>Solicitante</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pqr in pqrs_list %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">{{ pqr.radicado }}</td>
+                            <td>{{ pqr.fecha_creacion|date:"d/m/Y" }}</td>
+                            <td>{{ pqr.nombre }}<br><small class="text-muted">{{ pqr.correo }}</small></td>
+                            <td><span class="badge border text-dark">{{ pqr.get_tipo_display }}</span></td>
+                            <td>
+                                <span class="badge {% if pqr.estado == 'Pendiente' %}bg-warning{% elif pqr.estado == 'En Proceso' %}bg-info{% else %}bg-success{% endif %}">
+                                    {{ pqr.get_estado_display }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-success border-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalPqr{{ pqr.id }}">GESTIONAR</button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Respuesta -->
+                        <div class="modal fade" id="modalPqr{{ pqr.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <form method="POST" action="{% url 'responder_pqrs' pqr.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title">Atender Radicado: {{ pqr.radicado }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="fw-bold">Mensaje del Usuario:</label>
+                                                <div class="p-3 bg-light border rounded">{{ pqr.mensaje }}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label fw-bold">Cambiar Estado:</label>
+                                                    <select name="estado" class="form-select">
+                                                        {% for val, label in estados %}
+                                                            <option value="{{ val }}" {% if pqr.estado == val %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Respuesta a enviar al correo:</label>
+                                                <textarea name="respuesta" class="form-control" rows="5" required>{{ pqr.respuesta|default_if_none:"" }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success px-4">Guardar y Notificar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center py-4">No hay solicitudes pendientes.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

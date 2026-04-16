@@ -1,0 +1,89 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Gestión de Cursos{% endblock %}
+{% block nombre_pagina %}Gestión de Cursos y Cumplimiento{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Columna para Crear y Listar Cursos -->
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Crear o Editar Curso</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'gestion_cursos' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nombre_curso" class="form-label">Nombre del Curso</label>
+                            <input type="text" name="nombre_curso" class="form-control" placeholder="Ej: Curso ARL Nivel Avanzado" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion_curso" class="form-label">Descripción</label>
+                            <textarea name="descripcion_curso" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Obligatorio para los Cargos:</label>
+                            <select name="cargos_obligatorios" class="form-select" multiple size="5">
+                                {% for cargo in cargos %}
+                                    <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Mantén presionada la tecla Ctrl para seleccionar varios.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save me-2"></i>Guardar Curso</button>
+                    </form>
+                </div>
+            </div>
+
+            <h5><i class="fa-solid fa-graduation-cap me-2"></i>Cursos Existentes</h5>
+            <div class="list-group">
+                {% for curso in cursos %}
+                    <div class="list-group-item">
+                        <h6 class="mb-1">{{ curso.nombre }}</h6>
+                        <small class="text-muted">Obligatorio para: 
+                            {% for cargo in curso.obligatorio_para.all %}
+                                <span class="badge bg-secondary">{{ cargo.nombre }}</span>
+                            {% empty %}
+                                Ninguno
+                            {% endfor %}
+                        </small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Columna para Validar Certificados -->
+        <div class="col-md-7">
+            <h4><i class="fa-solid fa-user-check me-2"></i>Certificados Pendientes de Validación</h4>
+            <hr>
+            {% if certificados_pendientes %}
+                {% for cert in certificados_pendientes %}
+                <div class="card mb-3 border-info">
+                    <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ cert.empleado.nombre }} - {{ cert.curso.nombre }}</h6>
+                        <a href="{{ cert.certificado.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-eye me-1"></i> Ver Certificado
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'validar_certificado' cert.id_empleado_curso %}" method="POST">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" name="comentarios" class="form-control" placeholder="Motivo del rechazo (opcional)...">
+                                <button type="submit" name="accion" value="rechazar" class="btn btn-danger"><i class="fa-solid fa-times me-1"></i> Rechazar</button>
+                                <button type="submit" name="accion" value="aprobar" class="btn btn-success"><i class="fa-solid fa-check me-1"></i> Aprobar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-light text-center">No hay certificados pendientes de validación.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

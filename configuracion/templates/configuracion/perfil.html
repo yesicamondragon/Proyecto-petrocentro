@@ -1,4 +1,4 @@
-{% extends "plantillas/plant_configuracion.html" %}
+{% extends "plantillas/dashboard.html" %}
 
 {% load static %}
 {% block titulo %}
@@ -23,13 +23,13 @@
                 {% if  usuario.foto_perfil  %}
                 <img src="{{ usuario.foto_perfil.url }}" alt="" class="foto-perfil">
                 <button class="btn " type="button" style="position:absolute;" onclick="deletePhoto('{{ usuario.foto_perfil.name }}')">  <i class="fa-solid fa-trash btn text-danger"></i></button>
-                <input type="file" name="foto" id="foto" class="form-control" value="{{ usuario.foto_perfil }}"  style="display:none"  disabled >
+                <input type="file" name="foto" id="foto" class="form-control" style="display:none"  disabled >
 
                 <hr>
                 {% else %}
                 <img src="{% static 'images/sin_foto.webp' %}" alt="" class="foto-perfil">
                 <hr>
-                <input type="file" name="foto" id="foto" class="form-control" value="{{ usuario.foto_perfil }}" accept= ".avif, .webp, .png, .jpg" disabled >
+                <input type="file" name="foto" id="foto" class="form-control" accept= ".avif, .webp, .png, .jpg" disabled >
            
                 {% endif %}
             </div>
@@ -170,6 +170,7 @@
         if (foto.disabled == true){
 
             foto.disabled = false;
+            foto.style.display = 'block';
         }
         document.getElementById('editar').innerText = 'Cancelar';
         document.getElementById('editar').style.background = 'red';
@@ -217,6 +218,7 @@
         if (foto.disabled == true){
 
             foto.disabled = false;
+            foto.style.display = 'block';
         }
         document.getElementById('editar').innerText = 'Cancelar';
         document.getElementById('editar').style.background = 'red';

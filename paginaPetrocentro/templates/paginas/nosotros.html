@@ -28,7 +28,7 @@
                 <span class="breadcrumb-current">Nosotros</span>
             </div>
             <h1>SOBRE NOSOTROS</h1>
-            <p style="text-align: center; width: 80%; margin: 20px auto; font-family: 'Helvetica'; font-size: 22px; color: #FFFFFF; line-height: 1.5; font-weight: 400;">Petrocentro S.A.S: Ingeniería, Operación y Soluciones Integrales para el Sector Oil & Gas</p>
+            <p class="intro-nosotros">Ingeniería, Operación y Soluciones Integrales para el Sector Oil & Gas</p>
         </div>
     </section>
 
@@ -45,7 +45,7 @@
         <div class="texto1" data-aos="fade-down">
             <h1>¿QUIÉNES SOMOS?</h1>
             <p> Somos una Compañía de Servicios integrales para la fabricación, montaje, operación, y mantenimiento de facilidades de producción en superficie para gas y/o Petróleo y Well Testing.
-                Contamos con un grupo interdisciplinario de profesionales con gran trayectoria en el sector petrolero que han unido sus esfuerzos y experiencias para la prestación de servicios, brindando a sus clientes la  calidad y seguridad en el cumplimiento de los compromisos adquiridos.</p>
+                Contamos con un grupo interdisciplinario de profesionales con gran trayectoria en el sector petrolero que han unido sus esfuerzos y experiencias para la prestación de servicios, brindando a sus clientes la  calidad y seguridad en el cumplimiento de los compromisos adquiridos, con un firme enfoque en la sostenibilidad y el desarrollo de nuestro entorno.</p>
         </div>
 
     </div>
@@ -105,7 +105,7 @@
     <!-- Vision -->
     <div class="mision">
         <div class="parrafo-mision" data-aos="fade-down">
-            <h1>VISION</h1>
+            <h1>VISIÓN</h1>
             <p>  Petrocentro S.A.S. será reconocida en el 2030 a nivel nacional e internacional en el sector de hidrocarburos  por su  competitividad, eficiencia, innovación, confiabilidad, responsabilidad y  compromiso  socio-ambiental, aportando soluciones integrales  en el desarrollo de la productividad petrolera. .</p>
         </div>
         <div class="imagen-mision" data-aos="fade-up">
@@ -117,7 +117,7 @@
     <!-- Politicas -->
     <div class="politicas" >
         <div class="politicas-titulo " data-aos="fade-up">
-            <h1>POLITICAS CORPORATIVAS</h1>
+            <h1>POLÍTICAS CORPORATIVAS</h1>
         </div>
         <div class="politicas-cuerpo">
             <div class="politicas-imagen" data-aos="fade-up">
@@ -157,7 +157,7 @@
 <br><br>
 
     <!-- Certificaciones-->
-    <h1 class="certificaciones-titulo" data-aos="fade-down"> Certificaciones</h1>
+    <h1 id="certificaciones" class="certificaciones-titulo" data-aos="fade-down"> Certificaciones</h1>
     <div class="certificaciones">
         
         <div class="certificacion" data-aos="fade-up">
@@ -183,153 +183,23 @@
             <img class="img-fluid" src="{% static 'images/C-ACTUAL3.webp'%}" alt=""></div>
     </div>
 
-    <!-- Casos de Éxito y Testimonios -->
-    <section class="testimonios-section" data-aos="fade-up">
-        <div class="contenedor-testimonios">
-            <h2 class="titulo-testimonios">CASOS DE ÉXITO Y TESTIMONIOS</h2>
-            <p class="subtitulo-testimonios">La confianza de nuestros clientes es nuestro mayor aval. Conoce algunas de nuestras experiencias exitosas en el sector de hidrocarburos.</p>
-            
-            <div class="grid-testimonios">
-                <!-- Testimonio 1 -->
-                <div class="testimonio-card">
-                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                    <p class="texto-testimonio">"Petrocentro ha sido un aliado estratégico fundamental en nuestras operaciones de Well Testing en el Meta. Su capacidad de respuesta y la calidad de sus equipos nos han permitido optimizar tiempos y reducir costos significativamente."</p>
-                    <div class="autor-testimonio">
-                        <div class="info-autor">
-                            <h4>Ing. Carlos Rodríguez</h4>
-                            <span>Gerente de Operaciones - Petrolera del Llano</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/WT.webp' %}" alt="Operaciones Well Testing" class="caso-img">
-                </div>
-
-                <!-- Testimonio 2 -->
-                <div class="testimonio-card">
-                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                    <p class="texto-testimonio">"Destacamos el compromiso de Petrocentro con la seguridad y el medio ambiente. Durante el proyecto de facilidades tempranas en Putumayo, demostraron un cumplimiento riguroso de la normativa y una ejecución impecable."</p>
-                    <div class="autor-testimonio">
-                        <div class="info-autor">
-                            <h4>Lic. María Fernanda López</h4>
-                            <span>Directora HSEQ - Energy Corp</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/arboles.webp' %}" alt="Compromiso Ambiental" class="caso-img">
-                </div>
-
-                <!-- Testimonio 3 -->
-                <div class="testimonio-card">
-                    <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                    <p class="texto-testimonio">"La disponibilidad de stock en tubería y accesorios de alta presión nos salvó en una parada crítica. Su servicio al cliente es excelente y siempre están dispuestos a brindar soluciones técnicas a la medida."</p>
-                    <div class="autor-testimonio">
-                        <div class="info-autor">
-                            <h4>Ing. Juan Pablo Martínez</h4>
-                            <span>Superintendente de Campo - Servicios Petroleros S.A.</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/tuberia.webp' %}" alt="Stock Tubería" class="caso-img">
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Innovación y Tecnología -->
-    <section class="innovacion-section" data-aos="fade-up">
-        <div class="contenedor-innovacion">
-            <h2 class="titulo-innovacion">INNOVACIÓN Y TECNOLOGÍA</h2>
-            <p class="subtitulo-innovacion">Integramos soluciones tecnológicas avanzadas para optimizar la eficiencia, seguridad y sostenibilidad en la industria de hidrocarburos.</p>
-            
-            <div class="grid-innovacion">
-                <div class="innovacion-item">
-                    <div class="icono-tech"><i class="fa-solid fa-microchip"></i></div>
-                    <h3>Automatización de Procesos</h3>
-                    <p>Implementación de sistemas de control automático en facilidades de superficie para reducir riesgos y mejorar la precisión operativa.</p>
-                    <div class="tech-visual">
-                        <img src="{% static 'images/separador.webp' %}" alt="Automatización">
-                    </div>
-                </div>
-                <div class="innovacion-item">
-                    <div class="icono-tech"><i class="fa-solid fa-satellite-dish"></i></div>
-                    <h3>Telemetría y Monitoreo</h3>
-                    <p>Supervisión remota de variables críticas en tiempo real, permitiendo una toma de decisiones ágil y basada en datos.</p>
-                    <div class="tech-visual telemetry-container">
-                        <div class="live-indicator"><span class="blink">●</span> LIVE DATA</div>
-                        <div class="telemetry-chart">
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="innovacion-item">
-                    <div class="icono-tech"><i class="fa-solid fa-flask"></i></div>
-                    <h3>Laboratorios Móviles</h3>
-                    <p>Unidades portátiles equipadas con tecnología de punta para análisis de fluidos en sitio con resultados inmediatos.</p>
-                    <div class="tech-visual">
-                        <img src="{% static 'images/WT.webp' %}" alt="Laboratorios Móviles">
-                    </div>
-                </div>
-                <div class="innovacion-item">
-                    <div class="icono-tech"><i class="fa-solid fa-leaf"></i></div>
-                    <h3>Tecnologías Limpias</h3>
-                    <p>Desarrollo de equipos de Well Testing diseñados para minimizar emisiones y maximizar la eficiencia energética.</p>
-                    <div class="tech-visual">
-                        <img src="{% static 'images/costayaco_PTARI.webp' %}" alt="Tecnologías Limpias">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+   
 
     <!-- Galeria de fotos-->
      <br><br><br>
     <div class="images-carousel w-75" data-aos="fade-up"     >
         <br>
         <div id="theCarousel" class="carousel slide" data-ride="carousel">
-          <!-- Indicadores -->
-          <ol class="carousel-indicators">
-            <li data-target="#theCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#theCarousel" data-slide-to="1"></li>
-            <li data-target="#theCarousel" data-slide-to="2"></li>
-            <li data-target="#theCarousel" data-slide-to="3"></li>
-      
-            
-          </ol>
       
           <div class="carousel-inner" role="listbox">
             <div class="item active">
                 <img src="{% static "images/NOSOTROS.webp" %}" alt="Ilustracion" > 
                 <div class="carousel-caption d-none d-md-block">
-                        <h3> Equipo </h3>
-                        <p>PETROCENTRO S.A.S</p>
+                        <h3>Equipo Petrocentro S.A.S</h3>
                     </div>
             </div>
-            {% if nosotros %}
-                {% for nosotros in nosotros  %}
-                    {% if nosotros.foto != "" %}
-                        <div class="item">
-                            <img src="{{ nosotros.foto.url }}" alt="fotografia"> 
-                            <div class="carousel-caption d-none d-md-block">
-                                <h3> {{ nosotros.descripcion }}</h3>
-                                <p>PETROCENTRO S.A.S</p>
-                            </div>
-                        </div>
-                
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            
-      
-            <a class="left carousel-control" href="#theCarousel" role="button" data-slide="prev">
-                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                <span class="sr-only">anterior</span>
-            </a>
-            <a class="right carousel-control" href="#theCarousel" role="button" data-slide="next">
-                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                <span class="sr-only">siguiente</span>
-            </a>
+            {# Se eliminan los demás ítems del carrusel y los controles de navegación #}
         </div>
         
 
@@ -388,9 +258,9 @@
         </div>
 
         <!-- Botones que indican en el mapa superior en donde estamos ubicados-->
-        <div class="ciudades">
+        <div class="ciudades-container-nosotros">
             <button onmouseover="cambiarColor('sibate-path', '#936fe9', 'sibate-h1')" onmouseout="restaurarColor('sibate-path', 'sibate-h1')" id="sibate">Sibate</button>
-            <button onmouseover="cambiarColor('sibate-path', '#03fff2', 'bogota-h1')" onmouseout="restaurarColor('sibate-path', 'bogota-h1')" id="bogota">Bogotà</button>
+            <button onmouseover="cambiarColor('sibate-path', '#03fff2', 'bogota-h1')" onmouseout="restaurarColor('sibate-path', 'bogota-h1')" id="bogota">Bogotá</button>
             <button onmouseover="cambiarColor('meta-path', 'rgba(214, 18, 18, 0.767)','meta-h1')" onmouseout="restaurarColor('meta-path', 'meta-h1')" id="meta">Chichimene (Meta)</button>
             <button onmouseover="cambiarColor('putumayo-path' ,'#dbc607cc', 'putumayo-h1')" onmouseout="restaurarColor('putumayo-path', 'putumayo-h1')" id="putumayo">Mocoa (Putumayo)</button>
             
@@ -399,81 +269,43 @@
         </div>
     </div>
 
-    <!-- Preguntas Frecuentes (FAQ) -->
-    <section class="faq-section" data-aos="fade-up">
-        <div class="contenedor-faq">
-            <h2 class="titulo-faq">PREGUNTAS FRECUENTES</h2>
-            <p class="subtitulo-faq">Resolvemos las dudas más comunes sobre nuestra empresa y operaciones.</p>
-            
-            <div class="faq-container">
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Son confiables?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Sí, somos una empresa con más de 14 años de experiencia en el sector Oil & Gas, reconocidos por nuestra excelencia operativa, cumplimiento de normativas y compromiso con la seguridad y el medio ambiente. Nuestros clientes y socios comerciales avalan nuestra trayectoria.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Cuánto tiempo llevan?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Fundados en abril de 2012, contamos con más de una década de experiencia ininterrumpida prestando servicios integrales en la industria de hidrocarburos en Colombia.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Dónde operan?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Nuestra sede principal se encuentra en Bogotá, y contamos con bases operativas estratégicas en Chichimene (Meta) y Mocoa (Putumayo), lo que nos permite una cobertura eficiente en las principales cuencas petroleras del país.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Son grandes o pequeños?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Somos una empresa en crecimiento sostenido, lo suficientemente ágil para ofrecer atención personalizada y lo suficientemente robusta para manejar proyectos de gran envergadura con equipos propios y personal altamente calificado.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Tienen certificaciones?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Sí, contamos con un Sistema de Gestión Integral certificado bajo las normas ISO 9001:2015 (Calidad), ISO 14001:2015 (Gestión Ambiental) e ISO 45001:2018 (Seguridad y Salud en el Trabajo), garantizando los más altos estándares en nuestras operaciones.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <script>
-      // Script para el Acordeón de FAQ
-      var acc = document.getElementsByClassName("faq-question");
-      var i;
-
-      for (i = 0; i < acc.length; i++) {
-        acc[i].addEventListener("click", function() {
-          this.classList.toggle("active");
-          var panel = this.nextElementSibling;
-          var icon = this.querySelector("i");
-          if (panel.style.maxHeight) {
-            panel.style.maxHeight = null;
-            icon.style.transform = "rotate(0deg)";
-          } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
-            icon.style.transform = "rotate(180deg)";
-          } 
-        });
-      }
-    </script>
     <!-- Footer (pie de página)-->
+    <style>
+        .intro-nosotros {
+            text-align: center; 
+            width: 85%; 
+            margin: 20px auto; 
+            font-family: 'Helvetica'; 
+            font-size: clamp(1rem, 4vw, 1.4rem); 
+            color: #FFFFFF; 
+            line-height: 1.5;
+        }
+        .ciudades-container-nosotros {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .letras1 {
+                margin-top: 0 !important; /* Elimina cualquier margen negativo que cause traslape */
+                padding: 40px 15px !important;
+                text-align: center;
+            }
+            .letras1 h1 { font-size: 1.8rem !important; margin-top: 15px; margin-bottom: 15px; }
+            .intro-nosotros { width: 100% !important; font-size: 1.1rem !important; margin: 10px auto !important; }
+            .breadcrumb-container { justify-content: center !important; }
+            .quien { flex-direction: column; text-align: center; }
+            .valores { flex-direction: column; }
+            .mision { flex-direction: column !important; text-align: center; }
+            .grid-innovacion {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px;
+            }
+            .certificaciones { flex-direction: column; align-items: center; }
+        }
+    </style>
 {% endblock %}
+{% block sucribirse_blog %}{% endblock sucribirse_blog %}

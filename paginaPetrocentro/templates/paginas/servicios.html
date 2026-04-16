@@ -9,426 +9,261 @@
 {% block contenido %} 
     <!-- Banner de Título -->
     <section class="banner-servicios" style="background-image: url('{% static 'images/tuberia.webp' %}');">
-        <div class="banner-overlay"></div>
         <div class="banner-content">
             <div class="breadcrumb-container">
                 <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
                 <span class="breadcrumb-separator">&gt;</span>
                 <span class="breadcrumb-current">Servicios</span>
             </div>
-            <h1 class="servicios-titulo-banner">SERVICIOS DE LA COMPAÑÍA</h1>
-            <p class="servicios-subtitulo-banner">Soluciones Integrales para Operaciones en Hidrocarburos: Servicios técnicos especializados en well testing, integridad de líneas y tratamiento de crudo bajo estándares internacionales.</p>
+           
         </div>
     </section>
 
+
+     <!--Oferta de servicios-->
+    <section class="servicios">
+        <div class="let" style="width: 100%; margin: 0; padding: 0; text-align: left;">
+            <h1 style="margin-bottom: 15px;">Oferta de Servicios</h1>
+            <p style="text-align: justify; line-height: 1.6; color: #444;">En Petrocentro S.A.S. ofrecemos servicios de ingeniería, well testing, pruebas de producción, venta de equipos de superficie, así como operación y mantenimiento de campos petroleros. Nuestro equipo altamente capacitado garantiza resultados superiores con soluciones personalizadas que maximizan la productividad y la seguridad en cada proyecto.</p>
+        </div>   
     <!-- Categoría: Evaluación y Medición de Pozos -->
-    <h2 class="categoria-titulo">Evaluación y Medición de Pozos</h2>
-    <section class="cards">
-        <!-- Tarjeta 1: Well Testing -->
-        <article class="card card--1 " onclick="mostrarModalServicio('well testing ', 'Ofrecemos un servicio de well testing para evaluar el rendimiento y las características de sus pozos de petróleo y gas. A través de pruebas avanzadas de flujo y presión, proporcionamos datos precisos que le ayudan a optimizar la producción, detectar problemas y estimar reservas de hidrocarburos. Nuestra tecnología de punta garantiza análisis fiables, permitiéndole tomar decisiones informadas y maximizar la eficiencia operativa.\n', '{% static 'images/WT.webp' %}')">
+    
+    <div class="text-center mb-3">
+        <div class="rating-display text-warning" style="font-weight: bold;">
+            {% if stats_valoraciones.generales.total > 0 %}
+                <i class="fa-solid fa-star"></i> {{ stats_valoraciones.generales.promedio }}/5 
+                <small class="text-muted">({{ stats_valoraciones.generales.total }} valoraciones)</small>
+            {% else %}
+                <small class="text-muted">Sin valoraciones aún</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="slider-wrapper mb-3">
+        <button type="button" class="slider-control prev" onclick="scrollSlider('slider-servicios', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <section class="cards slider-container" id="slider-servicios">
+            <!-- Tarjeta Unificada: Well Testing y Pruebas de Producción -->
+        <article class="card card--1" onclick="mostrarModalServicio('Well Testing y Pruebas de Producción (Iniciales y Extensas)', 'Servicio integral para evaluar el rendimiento y caracterización de pozos. \n\nPruebas Iniciales: Validamos la seguridad y funcionalidad durante la puesta en marcha.\n\nPruebas Extensas: Evaluación detallada en operación para identificar fallos y optimizar el rendimiento. Proporcionamos datos precisos de flujo y presión para estimación de reservas y optimización operativa.\n', '{% static 'images/WT.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/WT.webp' %} ')">
-            </div>
+            <div class="card__img--hover"></div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-oil-well"></i></div>
-                <span class="card__category">well testing</span> 
-                <p class="card__description">Evaluación del rendimiento y características de pozos de petróleo y gas mediante pruebas de flujo.</p>
-                <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
-            </div>
-        </article>
-
-        <!-- Tarjeta 3: Pruebas Iniciales y Extensas -->
-        <article class="card card--3" onclick="mostrarModalServicio('pruebas iniciales y extensas', 'Pruebas Iniciales: Validamos la calidad y seguridad de sus sistemas y equipos desde el inicio. Nuestras pruebas iniciales aseguran que todo funcione correctamente durante la instalación o puesta en marcha, previniendo problemas futuros y optimizando el rendimiento desde el primer día. \n \n Pruebas Extensas: Ofrecemos una evaluación detallada y profunda de sus equipos en operación. Estas pruebas identifican posibles fallos, optimizan el rendimiento y extienden la vida útil de sus activos, asegurando la máxima confiabilidad y eficiencia. \n', '{% static 'images/TEA.webp' %}')">
-            <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/TEA.webp' %} ');">
-            </div>
-            <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-vial-circle-check"></i></div>
-                <span class="card__category">PRUEBAS INICIALES Y EXTENSAS</span>
-                <p class="card__description">Validación de equipos desde la instalación hasta la operación continua.</p>
+                <span class="card__category">Well Testing y Pruebas de Producción</span> 
+                <p class="card__description">Evaluación dinámica de yacimientos mediante pruebas de flujo y caracterización completa en etapas iniciales y avanzadas.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
 
         <!-- Tarjeta 8: Medición de fluidos -->
-        <article class="card card--8" onclick="mostrarModalServicio('Medición de fluidos, separadores, tratadores térmicos', 'Proveemos servicios de medición y calibración especializados para sistemas de fluidos, separadores y tratadores térmicos en la industria petrolera. Garantizamos que sus equipos operen con precisión y eficiencia, asegurando mediciones exactas y un rendimiento óptimo. Nuestra experiencia en la calibración de estos sistemas es clave para mantener la calidad del proceso, maximizar la producción y cumplir con las normativas de la industria.\n', '{% static 'images/mediciondstt.webp' %}')">
+        <article class="card card--8" onclick="mostrarModalServicio('Otros Servicios Especializados', '1. Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios.\n\n2. Fabricación de equipos para manejo y tratamiento de agua industrial.', '{% static 'images/suministrodepersonalespecializado.jpeg' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/mediciondstt.webp' %} ');">
-            </div>
+            <div class="card__img--hover"></div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-gauge-high"></i></div>
-                <span class="card__category">Medición de fluidos, separadores, tratadores térmicos</span>
-                <p class="card__description">Garantizamos mediciones confiables que optimizan la producción y reducen incertidumbre operativa.</p>
-                <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
-            </div>
-        </article>
-    </section>
-
-    <!-- Categoría: Integridad y Seguridad de Infraestructura -->
-    <h2 class="categoria-titulo">Integridad y Seguridad de Infraestructura</h2>
-    <section class="cards">
-        <!-- Tarjeta 2: Pruebas Hidrostáticas -->
-        <article class="card card--2" onclick="mostrarModalServicio('pruebas hidrostáticas','Nuestro servicio de pruebas hidrostáticas garantiza la integridad y seguridad de sus tuberías, tanques y equipos bajo presión. Realizamos pruebas rigurosas utilizando agua a alta presión para detectar fugas, evaluar la resistencia y asegurar el cumplimiento de normativas. Con nuestra tecnología avanzada, ofrecemos resultados precisos que le permiten prevenir fallos críticos y asegurar la confiabilidad de sus instalaciones.\n', '{% static 'images/ph.webp' %}')">
-            <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/ph.webp' %} ');"></div>
-            <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-faucet-drip"></i></div>
-                <span class="card__category">PRUEBAS HIDROSTÁTICAS</span>
-                <p class="card__description">Garantizamos la integridad de tuberías y tanques mediante pruebas de alta presión.</p>
+                <span class="card__category">Otros servicios</span>
+                <p class="card__description card8-dynamic-text"></p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
 
-        <!-- Tarjeta 5: Diagnóstico y evaluación -->
-        <article class="card card--5" onclick="mostrarModalServicio('Diagnóstico y evaluación del estado mecánico y de corrosión para líneas de hidrocarburos', 'Ofrecemos un servicio especializado de diagnóstico y evaluación del estado mecánico y de corrosión en líneas de hidrocarburos. Utilizamos técnicas avanzadas para identificar daños estructurales, detectar corrosión y evaluar la integridad de las tuberías. Este análisis es crucial para prevenir fallos, reducir riesgos ambientales y asegurar la continuidad operativa de sus instalaciones. \n', '{% static 'images/DEH.webp' %}')">
+
+        <!-- Tarjeta 12: Adquisición de Datos -->
+        <article class="card card--12" onclick="mostrarModalServicio('Adquisición de Datos y Monitoreo en Tiempo Real', 'Implementamos sistemas avanzados de telemetría para la captura de variables críticas (presión, temperatura y caudal) en tiempo real. Este servicio permite un análisis dinámico del comportamiento del pozo durante las pruebas, facilitando ajustes operativos inmediatos y garantizando la integridad de la información para la certificación de reservas.\n', '{% static 'images/adquisiciondedatosymonitoreo.webp' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/DEH.webp' %} ');">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/adquisiciondedatosymonitoreo.webp' %} ')">
             </div>
             <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
-                <span class="card__category">Diagnóstico y evaluación del estado mecánico y de corrosión para líneas de hidrocarburos</span>
-                <p class="card__description">Evaluación del estado mecánico y corrosión en líneas de hidrocarburos.</p>
+                <div class="icono-servicio-card"><i class="fa-solid fa-satellite-dish"></i></div>
+                <span class="card__category">Adquisición de Datos y Monitoreo</span>
+                <p class="card__description">Captura y análisis de variables críticas en tiempo real para optimizar la productividad.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
 
-        <!-- Tarjeta 4: Montaje y Mantenimiento de Lineas -->
-        <article class="card card--4" onclick="mostrarModalServicio('MONTAJE Y MANTENIMIENTO DE LINEAS DE TUBERÍA', 'Proveemos servicios especializados en el montaje y mantenimiento de líneas de tubería diseñadas para la industria petrolera. Nuestro equipo garantiza la instalación precisa de sistemas de conducción críticos para el transporte de petróleo y gas, asegurando que cumplan con los más altos estándares de seguridad y eficiencia. Además, realizamos mantenimiento preventivo y correctivo para prolongar la vida útil de sus infraestructuras, minimizar riesgos y optimizar la continuidad operativa. \n', '{% static 'images/tuberia.webp' %}')">
+        <!-- Nueva Tarjeta: Operación y mantenimiento de campos -->
+        <article class="card card--9" onclick="mostrarModalServicio('Operación y mantenimiento de campos o instalaciones', 'Gestión integral de activos petroleros en superficie. Nuestro servicio abarca la administración operativa de campos maduros o en desarrollo, asegurando la continuidad del flujo y el mantenimiento preventivo/correctivo de equipos mecánicos, eléctricos e instrumentación para minimizar la producción diferida.\n', '{% static 'images/montajeyoperacionenmontajesuperficie.jpg' %}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/tuberia.webp' %} ');">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/montajeyoperacionenmontajesuperficie.jpg' %} ')">
             </div>
             <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                <span class="card__category">MONTAJE Y MANTENIMIENTO DE LINEAS DE TUBERÍA</span>
-                <p class="card__description">Montaje y mantenimiento de líneas de conducción para transporte de hidrocarburos.</p>
+                <div class="icono-servicio-card"><i class="fa-solid fa-helmet-safety"></i></div>
+                <span class="card__category">Operación y mantenimiento de campos</span>
+                <p class="card__description">Gestión operativa y mantenimiento especializado para asegurar la integridad y continuidad en campo.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
-    </section>
 
-    <!-- Categoría: Operación en Superficie -->
-    <h2 class="categoria-titulo">Operación en Superficie</h2>
-    <section class="cards">
-        <!-- Tarjeta 9: Montaje y operación de facilidades -->
-        <article class="card card--9" onclick="mostrarModalServicio('Montaje y operación de facilidades en superficie.','Proveemos servicios integrales de montaje y operación de facilidades en superficie para la industria petrolera. Desde la instalación de infraestructura hasta la puesta en marcha y operación continua, garantizamos que sus instalaciones funcionen de manera eficiente y segura. Nuestro equipo se asegura de que todos los sistemas estén optimizados para maximizar la producción y cumplir con los estándares de la industria.\n', '{% static 'images/MO.webp' %}')">
+       
+
+        <!-- Tarjeta 7: Tratamiento de crudo -->
+        <article class="card card--7" onclick="mostrarModalServicio('Tratamiento de crudo en superficie.','Ofrecemos servicios especializados en el tratamiento de crudo en superficie, optimizando la calidad del petróleo antes de su transporte o procesamiento. Utilizamos tecnologías avanzadas para la separación de agua, sedimentos y otros contaminantes, asegurando que el crudo cumpla con los estándares requeridos. Nuestro enfoque eficiente y seguro garantiza la maximización del valor del crudo y la reducción de problemas operativos. \n', '{% static 'images/trataminetocrudosuperficie.webp'%}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/MO.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/diseñoplanta.png' %} ')">
             </div>
             <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-industry"></i></div>
-                <span class="card__category">Montaje y operación de facilidades en superficie.</span>
-                <p class="card__description">Montaje y operación integral de infraestructura en superficie.</p>
+                <div class="icono-servicio-card"><i class="fa-solid fa-filter"></i></div>
+                <span class="card__category">Diseño y fabricacion de equipos y facilidades de produccion.</span>
+                <p class="card__description">Optimización de la calidad del petróleo mediante la separación de impurezas.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
 
         <!-- Tarjeta 7: Tratamiento de crudo -->
-        <article class="card card--7" onclick="mostrarModalServicio('Tratamiento de crudo en superficie.','Ofrecemos servicios especializados en el tratamiento de crudo en superficie, optimizando la calidad del petróleo antes de su transporte o procesamiento. Utilizamos tecnologías avanzadas para la separación de agua, sedimentos y otros contaminantes, asegurando que el crudo cumpla con los estándares requeridos. Nuestro enfoque eficiente y seguro garantiza la maximización del valor del crudo y la reducción de problemas operativos. \n', '{% static 'images/separador.webp' %}')">
+        <article class="card card--7" onclick="mostrarModalServicio('Tratamiento de crudo en superficie.','Ofrecemos servicios especializados en el tratamiento de crudo en superficie, optimizando la calidad del petróleo antes de su transporte o procesamiento. Utilizamos tecnologías avanzadas para la separación de agua, sedimentos y otros contaminantes, asegurando que el crudo cumpla con los estándares requeridos. Nuestro enfoque eficiente y seguro garantiza la maximización del valor del crudo y la reducción de problemas operativos. \n', '{% static 'images/trataminetocrudosuperficie.webp'%}')">
             <div class="card__img"></div>
-            <div class="card__img--hover" style="background-image: url('{% static 'images/separador.webp' %} ')">
+            <div class="card__img--hover" style="background-image: url('{% static 'images/WhatsApp Image 2026-04-16 at 11.19.43 AM.jpeg' %} ')">
             </div>
             <div class="card__info">
                 <div class="icono-servicio-card"><i class="fa-solid fa-filter"></i></div>
-                <span class="card__category">Tratamiento de crudo en superficie.</span>
-                <p class="card__description">Optimización de la calidad del petróleo mediante la separación de impurezas.</p>
+                <span class="card__category">Venta y Renta de Equipos</span>
+                <p class="card__description">En Petrocentro rentamos y vendemos soluciones técnicas integrales para superficie. Garantizamos trazabilidad y eficiencia absoluta en nuestro proceso de servicios para el sector Oil & Gas.</p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
-    </section>
+
+        </section>
+        <button type="button" class="slider-control next" onclick="scrollSlider('slider-servicios', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <div class="text-center mb-3">
+        <button class="btn btn-sm btn-outline-success rounded-pill px-4 shadow-sm" onclick="openRatingModal('Servicios Generales')">
+            <i class="fa-solid fa-star me-2"></i>Calificar nuestros servicios
+        </button>
+    </div>
+
+    <!-- Categoría: Integridad y Seguridad de Infraestructura -->
+   
+  
     
+
+    <!-- Botón Solicitar Cotización -->
+    <div class="text-center mb-0">
+        <button type="button" class="btn-cta primario" style="display: inline-block; border: none; cursor: pointer;" onclick="openQuotationModal()">SOLICITAR COTIZACIÓN</button>
+    </div>
+
     <!-- Soluciones y Equipos Petroleros (Movido de nosotros.html) -->
-    <div class="tendencias-section" data-aos="fade-up">
-        <h1 class="tendencias-titulo">SOLUCIONES Y EQUIPOS PETROLEROS</h1>
-        <div class="tendencias-grid">
-            <div class="tendencia-card">
-                <div class="icono-servicio"><i class="fa-solid fa-industry"></i></div>
-                <h3>Equipos de Producción y Well Testing</h3>
-                <p>Líderes en <strong>Well Testing Colombia</strong> y suministro de <strong>equipos de producción</strong>. Ofrecemos <strong>separadores API/ISO</strong>, <strong>Scrubbers</strong> y <strong>tanques</strong> certificados para el manejo eficiente de <strong>hidrocarburos</strong>.</p>
-                <img src="{% static 'images/separador.webp' %}" alt="Equipos de Producción" class="caso-img">
-                <ul class="lista-servicios-detalle">
-                    <li>Separadores Trifásicos y Bifásicos</li>
-                    <li>Tanques de Almacenamiento y Surge Tanks</li>
-                    <li>Scrubbers y Manifolds de Producción</li>
-                    <li>Laboratorios de Calidad de Crudo</li>
-                </ul>
-            </div>
-            <div class="tendencia-card">
-                <div class="icono-servicio"><i class="fa-solid fa-cubes"></i></div>
-                <h3>Tubería y Conexiones Especializadas</h3>
-                <p>Disponemos de stock permanente en <strong>tubería Fig 200</strong>, uniones de golpe <strong>Fig 602</strong> y <strong>Fig 1502</strong>, así como válvulas y accesorios <strong>ANSI 300</strong> para alta presión.</p>
-                <img src="{% static 'images/tuberia.webp' %}" alt="Tubería y Conexiones" class="caso-img">
-                <ul class="lista-servicios-detalle">
-                    <li>Tubería de Línea y Flowline</li>
-                    <li>Uniones de Golpe (Hammer Unions)</li>
-                    <li>Válvulas de Compuerta, Globo y Cheque</li>
-                    <li>Bridas, Codos y Tees Especiales</li>
-                </ul>
-            </div>
-            <div class="tendencia-card">
-                <div class="icono-servicio"><i class="fa-solid fa-user-gear"></i></div>
-                <h3>Operación y Mantenimiento</h3>
-                <p>Somos la <strong>empresa de servicios petroleros en Colombia</strong> experta en <strong>operación y mantenimiento petrolero</strong> de <strong>facilidades de producción</strong> de gas y petróleo.</p>
-                <img src="{% static 'images/MO.webp' %}" alt="Operación y Mantenimiento" class="caso-img">
-                <ul class="lista-servicios-detalle">
-                    <li>O&M de Facilidades Tempranas</li>
-                    <li>Mantenimiento de Equipos Estáticos y Rotativos</li>
-                    <li>Gestión de Integridad de Activos</li>
-                    <li>Soporte Técnico en Campo 24/7</li>
-                </ul>
-            </div>
+   
         </div>
-        <div style="margin-top: 30px; text-align: center;">
-            <p style="font-size: 18px; color: #555; font-family: 'Helvetica';">Consolidándonos como referente entre las <strong>empresas de gas y petróleo en Colombia</strong>.</p>
+        <div style="margin-top: 0; text-align: center;">
+            <p style="font-size: 18px; color: #616060; font-family: 'Helvetica';"></strong></p>
         </div>
     </div>
 
     <!-- Esquema Visual de Servicios (Movido de nosotros.html) -->
-    <section class="esquema-servicios" data-aos="fade-up">
-        <div class="contenedor-esquema">
-            <h2 class="titulo-esquema">NUESTRO PROCESO DE SERVICIO</h2>
-            <p class="subtitulo-esquema">Un flujo de trabajo integral diseñado para garantizar la excelencia operativa en cada proyecto de hidrocarburos.</p>
-            
-            <div class="timeline-servicios">
-                <!-- Paso 1 -->
-                <div class="paso-servicio">
-                    <div class="icono-paso">
-                        <i class="fa-solid fa-clipboard-check"></i>
-                        <div class="numero-paso">1</div>
-                    </div>
-                    <div class="contenido-paso">
-                        <h3>Diagnóstico</h3>
-                        <p>Evaluación técnica de requerimientos en campo y diseño de la solución óptima.</p>
-                        <img src="{% static 'images/DEH.webp' %}" alt="Diagnóstico" class="caso-img">
-                    </div>
-                </div>
-                
-                <!-- Conector -->
-                <div class="conector-paso"><i class="fa-solid fa-arrow-right"></i></div>
+   
+    </section>
 
-                <!-- Paso 2 -->
-                <div class="paso-servicio">
-                    <div class="icono-paso">
-                        <i class="fa-solid fa-truck-fast"></i>
-                        <div class="numero-paso">2</div>
-                    </div>
-                    <div class="contenido-paso">
-                        <h3>Logística</h3>
-                        <p>Movilización ágil de equipos certificados y personal calificado al sitio.</p>
-                        <img src="{% static 'images/nosotros_2.webp' %}" alt="Logística" class="caso-img">
-                    </div>
-                </div>
 
-                <!-- Conector -->
-                <div class="conector-paso"><i class="fa-solid fa-arrow-right"></i></div>
+    
+    <!-- Sección de Testimonios Avanzada -->
+    <section class="testimonios-filtrables py-4" style="margin-top: 0; padding-top: 80px; border-top: 1px solid #ddd; background: #f2f2f2 !important; background-image: none !important; position: relative; z-index: 1; overflow: hidden; --color-1: transparent !important; --color-2: transparent !important; --color-3: transparent !important;">
+       
+            <div class="card border-0 shadow-lg rounded-4 p-3 bg-white">
+                <h2 class="titulo-testimonios text-center mb-2" style="color: #333; font-weight: 800;">RESEÑAS DE NUESTROS CLIENTES</h2>
+                <p class="text-center text-muted mb-2" style="color: #666;">Validamos nuestra excelencia operativa a través de la voz de quienes confían en nosotros.</p>
 
-                <!-- Paso 3 -->
-                <div class="paso-servicio">
-                    <div class="icono-paso">
-                        <i class="fa-solid fa-gears"></i>
-                        <div class="numero-paso">3</div>
-                    </div>
-                    <div class="contenido-paso">
-                        <h3>Ejecución</h3>
-                        <p>Montaje, operación y mantenimiento bajo estrictos estándares HSEQ.</p>
-                        <img src="{% static 'images/MO.webp' %}" alt="Ejecución" class="caso-img">
-                    </div>
-                </div>
-
-                <!-- Conector -->
-                <div class="conector-paso"><i class="fa-solid fa-arrow-right"></i></div>
-
-                <!-- Paso 4 -->
-                <div class="paso-servicio">
-                    <div class="icono-paso">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <div class="numero-paso">4</div>
-                    </div>
-                    <div class="contenido-paso">
-                        <h3>Resultados</h3>
-                        <p>Entrega de informes técnicos, optimización de producción y cierre.</p>
-                        <img src="{% static 'images/mediciondstt.webp' %}" alt="Resultados" class="caso-img">
-                    </div>
+                <!-- Botón para abrir el listado de reseñas -->
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow" onclick="openReviewsModal()" style="background-color: #198754; border: none;">
+                        VER RESEÑAS &nbsp;<i class="fa-solid fa-comments"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonios en Carrusel -->
-    <section class="testimonios-carrusel-section">
-        <div class="container-carrusel">
-            <h2 class="titulo-testimonios-carrusel">LO QUE DICEN NUESTROS CLIENTES</h2>
-            
-            <div id="carouselTestimonios" class="carousel slide" data-ride="carousel">
-                <!-- Indicadores -->
-                <ol class="carousel-indicators">
-                    <li data-target="#carouselTestimonios" data-slide-to="0" class="active"></li>
-                    <li data-target="#carouselTestimonios" data-slide-to="1"></li>
-                    <li data-target="#carouselTestimonios" data-slide-to="2"></li>
-                </ol>
-
-                <!-- Wrapper for slides -->
-                <div class="carousel-inner" role="listbox">
-                    <div class="item active">
-                        <div class="testimonio-card">
-                            <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                            <p class="texto-testimonio">"El servicio de Well Testing superó nuestras expectativas. La precisión de los datos y la rapidez del equipo fueron clave para nuestro proyecto."</p>
-                            <div class="autor-testimonio">
-                                <div class="info-autor">
-                                    <h4>Ing. Roberto Gómez</h4>
-                                    <span>Gerente de Operaciones - Petrolera Andina</span>
+    <!-- Modal para Ver Reseñas -->
+    <div id="reviews-modal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; width: 95%;">
+            <span class="close" onclick="closeReviewsModal()">&times;</span>
+            <h2 class="modal-titulo text-center mb-4">RESEÑAS DE NUESTROS CLIENTES</h2>
+            <div class="modal-contenido">
+                <div class="row g-4 mb-5" id="contenedor-resenas-modal">
+                    {% if resenas_reales %}
+                        {% for resena in resenas_reales %}
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="fw-bold mb-0">{% if resena.nombre_cliente and resena.nombre_cliente != "Anónimo" %}{{ resena.nombre_cliente }}{% else %}Usuario Verificado{% endif %}</h5>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= resena.puntuacion %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-white text-muted border mb-3">{{ resena.servicio }}</span>
+                                    <p class="card-text text-muted fst-italic">"{{ resena.comentario_texto }}"</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="item">
-                        <div class="testimonio-card">
-                            <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                            <p class="texto-testimonio">"Excelente respuesta en el mantenimiento de nuestras facilidades. Petrocentro demuestra compromiso con la seguridad y la calidad."</p>
-                            <div class="autor-testimonio">
-                                <div class="info-autor">
-                                    <h4>Lic. Ana María Torres</h4>
-                                    <span>Directora HSEQ - Energy Solutions</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="testimonio-card">
-                            <div class="comillas"><i class="fa-solid fa-quote-left"></i></div>
-                            <p class="texto-testimonio">"Confiabilidad total en el suministro de tubería y accesorios. Siempre tienen el stock que necesitamos para evitar paradas."</p>
-                            <div class="autor-testimonio">
-                                <div class="info-autor">
-                                    <h4>Ing. Carlos Ruiz</h4>
-                                    <span>Superintendente de Campo - Oil Services Co.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted col-12">Aún no hay reseñas publicadas.</p>
+                    {% endif %}
                 </div>
 
-                <!-- Controls -->
-                <a class="left carousel-control" href="#carouselTestimonios" role="button" data-slide="prev">
-                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                    <span class="sr-only">Anterior</span>
-                </a>
-                <a class="right carousel-control" href="#carouselTestimonios" role="button" data-slide="next">
-                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                    <span class="sr-only">Siguiente</span>
-                </a>
+                <!-- CTAs dentro del modal para mantener la limpieza exterior -->
+                <div class="text-center mt-4 pt-4 border-top">
+                    <a href="https://www.google.com/search?q=Petrocentro+S.A.S#lrd=0x8e3f8535456f7c8f:0x924437162d13870e,3" target="_blank" class="btn btn-success px-4 py-2 fw-bold shadow-sm mb-2 me-md-3" style="background-color: #29714d; border-radius: 50px;">
+                        <i class="fa-brands fa-google me-2"></i>CALIFÍCANOS EN GOOGLE
+                    </a>
+                    <button class="btn btn-outline-success px-4 py-2 fw-bold shadow-sm mb-2" style="border-radius: 50px;" onclick="openInternalReviewModal()">
+                        <i class="fa-solid fa-comment me-2"></i>DEJAR RESEÑA INTERNA
+                    </button>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Modal para Reseña Interna -->
+    <div id="internal-review-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeInternalReviewModal()">&times;</span>
+            <h2 class="modal-titulo">Deja tu Comentario</h2>
+            <div class="modal-contenido text-center">
+                <p>Tu opinión es valiosa para nosotros.</p>
+                <div class="mb-3">
+                    <input type="text" id="reviewer-name" class="form-control" placeholder="Tu nombre o empresa (Opcional)">
+                </div>
+                <div class="mb-3">
+                    <select id="review-service" class="form-control" required>
+                        <option value="" disabled selected>Selecciona el servicio calificado</option>
+                        <option value="Servicios Generales">Servicios Generales</option>
+                        <option value="Evaluación y Medición de Pozos">Evaluación y Medición de Pozos</option>
+                        <option value="Integridad y Seguridad de Infraestructura">Integridad y Seguridad de Infraestructura</option>
+                        <option value="Operación y Mantenimiento de Activos">Operación y Mantenimiento de Activos</option>
+                        <option value="Ingeniería, Diseño y Fabricación">Ingeniería, Diseño y Fabricación</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <textarea id="review-comment" class="form-control" rows="4" placeholder="Escribe tu reseña aquí..." required></textarea>
+                </div>
+                <div class="internal-star-rating mb-4" style="font-size: 2rem; cursor: pointer;" id="internal-review-stars">
+                    <i class="fa-solid fa-star text-muted" data-val="1"></i>
+                    <i class="fa-solid fa-star text-muted" data-val="2"></i>
+                    <i class="fa-solid fa-star text-muted" data-val="3"></i>
+                    <i class="fa-solid fa-star text-muted" data-val="4"></i>
+                    <i class="fa-solid fa-star text-muted" data-val="5"></i>
+                </div>
+                <button class="btn btn-success px-4 py-2 rounded-pill" style="background-color: #18683f;" onclick="submitInternalReview()">Enviar Reseña</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Casos de Éxito y Ejemplos Prácticos -->
-    <section class="casos-exito-section">
-        <div class="contenedor-casos">
-            <h2 class="titulo-casos">CASOS DE ÉXITO EN SERVICIOS</h2>
-            <p class="subtitulo-casos">Resultados comprobados en campo que demuestran nuestra excelencia operativa y técnica.</p>
-            
-            <div class="grid-casos">
-                <!-- Caso 1 -->
-                <div class="caso-card">
-                    <div class="caso-header">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <h3>Optimización Well Testing</h3>
-                    </div>
-                    <div class="caso-body">
-                        <div class="caso-detalle">
-                            <strong>Reto:</strong>
-                            <p>Medición inestable en pozo de alta presión con presencia de gas.</p>
-                        </div>
-                        <div class="caso-detalle">
-                            <strong>Solución:</strong>
-                            <p>Implementación de separador trifásico de alta eficiencia y monitoreo en tiempo real.</p>
-                        </div>
-                        <div class="caso-detalle resultado">
-                            <strong>Resultado:</strong>
-                            <p>Datos precisos con 99% de confiabilidad y reducción de tiempos operativos.</p>
-                        </div>
-                        <img src="{% static 'images/WT.webp' %}" alt="Optimización Well Testing" class="caso-img">
-                    </div>
-                </div>
-
-                <!-- Caso 2 -->
-                <div class="caso-card">
-                    <div class="caso-header">
-                        <i class="fa-solid fa-wrench"></i>
-                        <h3>Mantenimiento de Oleoducto</h3>
-                    </div>
-                    <div class="caso-body">
-                        <div class="caso-detalle">
-                            <strong>Reto:</strong>
-                            <p>Corrosión acelerada en tramo crítico de línea de flujo.</p>
-                        </div>
-                        <div class="caso-detalle">
-                            <strong>Solución:</strong>
-                            <p>Diagnóstico con ultrasonido y reemplazo programado sin parada de planta.</p>
-                        </div>
-                        <div class="caso-detalle resultado">
-                            <strong>Resultado:</strong>
-                            <p>Extensión de vida útil de la línea por 5 años y cero fugas.</p>
-                        </div>
-                        <img src="{% static 'images/tuberia.webp' %}" alt="Mantenimiento de Oleoducto" class="caso-img">
-                    </div>
-                </div>
-
-                <!-- Caso 3 -->
-                <div class="caso-card">
-                    <div class="caso-header">
-                        <i class="fa-solid fa-check-double"></i>
-                        <h3>Pruebas Hidrostáticas</h3>
-                    </div>
-                    <div class="caso-body">
-                        <div class="caso-detalle">
-                            <strong>Reto:</strong>
-                            <p>Certificación urgente de tanques de almacenamiento nuevos.</p>
-                        </div>
-                        <div class="caso-detalle">
-                            <strong>Solución:</strong>
-                            <p>Despliegue rápido de equipo de bombeo y registro digital de presión.</p>
-                        </div>
-                        <div class="caso-detalle resultado">
-                            <strong>Resultado:</strong>
-                            <p>Certificación obtenida en tiempo récord cumpliendo norma API 650.</p>
-                        </div>
-                        <img src="{% static 'images/ph.webp' %}" alt="Pruebas Hidrostáticas" class="caso-img">
-                    </div>
+    
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Certificaciones y Normativas -->
-    <section class="normativas-section">
-        <div class="contenedor-normativas">
-            <h2 class="titulo-normativas">CERTIFICACIONES Y NORMATIVAS</h2>
-            <p class="subtitulo-normativas">Operamos bajo estrictos estándares internacionales para garantizar la calidad, seguridad y protección ambiental.</p>
-            
-            <div class="grid-normativas">
-                <div class="normativa-item">
-                    <div class="icono-norma"><i class="fa-solid fa-certificate"></i></div>
-                    <h3>ISO 9001:2015</h3>
-                    <p>Gestión de Calidad</p>
-                    <img src="{% static 'images/C-ACTUAL1.webp' %}" alt="Certificación ISO 9001" class="normativa-img">
-                </div>
-                <div class="normativa-item">
-                    <div class="icono-norma"><i class="fa-solid fa-shield-heart"></i></div>
-                    <h3>ISO 45001:2018</h3>
-                    <p>Seguridad y Salud</p>
-                    <img src="{% static 'images/C-ACTUAL2.webp' %}" alt="Certificación ISO 45001" class="normativa-img">
-                </div>
-                <div class="normativa-item">
-                    <div class="icono-norma"><i class="fa-solid fa-leaf"></i></div>
-                    <h3>ISO 14001:2015</h3>
-                    <p>Gestión Ambiental</p>
-                    <img src="{% static 'images/C-ACTUAL3.webp' %}" alt="Certificación ISO 14001" class="normativa-img">
-                </div>
-                <div class="normativa-item">
-                    <div class="icono-norma"><i class="fa-solid fa-book-open"></i></div>
-                    <h3>Normas API / ASME</h3>
-                    <p>Cumplimiento Técnico</p>
-                    <img src="{% static 'images/Collage.webp' %}" alt="Normas API ASME" class="normativa-img">
-                </div>
+    
             </div>
         </div>
     </section>
@@ -462,53 +297,6 @@
         </div>
     </section>
 
-    <!-- Preguntas Frecuentes (FAQ) -->
-    <section class="faq-section">
-        <div class="contenedor-faq">
-            <h2 class="titulo-faq">PREGUNTAS FRECUENTES</h2>
-            <p class="subtitulo-faq">Resolvemos sus dudas sobre nuestros servicios y procesos operativos.</p>
-            
-            <div class="faq-container">
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Qué normas técnicas aplican en sus pruebas hidrostáticas?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Nos regimos estrictamente bajo normas internacionales como ASME B31.3, ASME B31.4, ASME B31.8 y API 1104, garantizando la integridad y seguridad de sus equipos.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Ofrecen servicios de well testing en locaciones remotas?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Sí, contamos con equipos portátiles de última tecnología y personal altamente capacitado para operar en cualquier locación del país, asegurando la toma de datos precisa sin importar la ubicación.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Cómo garantizan la seguridad en el tratamiento de crudo?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Seguimos estrictos protocolos HSEQ y cumplimos con la normativa ISO 45001. Nuestro personal utiliza EPP certificado y realizamos análisis de riesgos antes de cada operación de tratamiento.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">
-                        ¿Cuál es el tiempo de respuesta para emergencias en líneas de flujo?
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <p>Disponemos de cuadrillas de reacción inmediata disponibles 24/7 para atender contingencias, minimizando el impacto ambiental y operativo en sus líneas de flujo.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Modal de Tarjetas-->
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -516,6 +304,50 @@
             <h2 id="modal-titulo" class="modal-titulo"></h2>
             <img id="modal-imagen" class="modal-imagen" src="" alt="Imagen del Servicio">
             <p id="modal-contenido" class="modal-contenido" style="text-align: justify;"></p>
+        </div>
+    </div>
+
+    <!-- Modal para Solicitar Cotización -->
+    <div id="quotation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQuotationModal()">&times;</span>
+            <h2 class="modal-titulo">Solicitar Cotización</h2>
+            <div class="modal-contenido">
+                <form id="quotation-form">
+                    <div class="mb-3">
+                        <input type="text" id="q-name" class="form-control" placeholder="Nombre completo*" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="q-company" class="form-control" placeholder="Empresa (Opcional)">
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" id="q-email" class="form-control" placeholder="Correo electrónico*" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="tel" id="q-phone" class="form-control" placeholder="Teléfono de contacto*" required>
+                    </div>
+                    <div class="mb-3">
+                        <select id="q-service" class="form-control" required>
+                            <option value="" disabled selected>Servicio de interés*</option>
+                            <option value="Evaluación y Medición de Pozos">Evaluación y Medición de Pozos</option>
+                            <option value="Integridad y Seguridad de Infraestructura">Integridad y Seguridad de Infraestructura</option>
+                            <option value="Operación y Mantenimiento de Activos">Operación y Mantenimiento de Activos</option>
+                            <option value="Ingeniería, Diseño y Fabricación">Ingeniería, Diseño y Fabricación</option>
+                            <option value="Alquiler/Venta de Equipos">Alquiler/Venta de Equipos</option>
+                            <option value="Otros">Otros servicios</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="other-service-container" style="display: none;">
+                        <input type="text" id="q-other-service" class="form-control" placeholder="¿Qué servicio técnico requiere?*">
+                    </div>
+                    <div class="mb-3">
+                        <textarea id="q-message" class="form-control" rows="4" placeholder="Detalles de su requerimiento técnico..." required></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-success px-5 py-2 rounded-pill fw-bold" style="background-color: #18683f;" onclick="sendQuotation()">ENVIAR SOLICITUD</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -559,7 +391,404 @@
         </div>
     </div>
 
+    <!-- Nuevo Modal para Calificación de Servicio -->
+    <div id="rating-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRatingModal()">&times;</span>
+            <h2 class="modal-titulo">Calificar Servicio: <span id="rating-service-name"></span></h2>
+            <div class="modal-contenido text-center">
+                <p>Por favor, califica este servicio con estrellas:</p>
+                <div class="star-rating mb-4" style="font-size: 2rem; cursor: pointer;">
+                    <i class="fa-solid fa-star text-muted" data-rating="1"></i>
+                    <i class="fa-solid fa-star text-muted" data-rating="2"></i>
+                    <i class="fa-solid fa-star text-muted" data-rating="3"></i>
+                    <i class="fa-solid fa-star text-muted" data-rating="4"></i>
+                    <i class="fa-solid fa-star text-muted" data-rating="5"></i>
+                </div>
+                <button class="btn btn-success px-4 py-2 rounded-pill" style="background-color: #195f3a;" onclick="submitRating()">Enviar Calificación</button>
+                <p class="text-muted small mt-3">Tu calificación nos ayuda a mejorar.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+    // CSS para el efecto hover de las tarjetas de reseña
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            width: 55%; /* Reducimos el ancho para que la tarjeta se vea más pequeña */
+            margin: 0 auto;
+            padding: 0 50px;
+        }
+
+        
+        .slider-container {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            gap: 0;
+            padding: 10px 0 !important;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            text-align: left;
+        }
+        .slider-container::-webkit-scrollbar {
+            display: none;
+        }
+        .slider-container .card {
+            flex: 0 0 100%; /* Una sola tarjeta a la vez */
+            height: 450px;
+            height: 480px; /* Reducimos la altura total */
+            scroll-snap-align: start;
+            margin: 0 !important;
+            display: block !important;
+        }
+        .slider-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #198754;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: none !important; /* Desactivado para manejo automático */
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .slider-control:hover {
+            background: #146c43;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .slider-control.prev { left: 0; }
+        .slider-control.next { right: 0; }
+
+        /* Animación de rotación para la primera tarjeta de servicios */
+        .card--1 .card__img, 
+        .card--1 .card__img--hover {
+            animation: rotateImagesCard1 24s ease infinite !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        @keyframes rotateImagesCard1 {
+            0%, 20% { background-image: url('{% static "images/WT.webp" %}'); }
+            25%, 45% { background-image: url('{% static "images/tuberia.webp" %}'); }
+            50%, 70% { background-image: url('{% static "images/separador.webp" %}'); }
+            75%, 95% { background-image: url('{% static "images/mediciondstt.webp" %}'); }
+            100% { background-image: url('{% static "images/WT.webp" %}'); }
+        }
+
+        /* Animación de rotación para la tarjeta Otros Servicios (Card 8) */
+        .card--8 .card__img, 
+        .card--8 .card__img--hover {
+            animation: rotateImagesCard8 16s ease infinite !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        @keyframes rotateImagesCard8 {
+            0%, 45% { background-image: url('{% static "images/suministrodepersonalespecializado.jpeg" %}'); }
+            50%, 95% { background-image: url('{% static "images/agua-residual-indus-industrias-proton.jpg" %}'); }
+            100% { background-image: url('{% static "images/suministrodepersonalespecializado.jpeg" %}'); }
+        }
+
+        .card8-dynamic-text::after {
+            content: "Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios.";
+            animation: rotateTextCard8 16s steps(1) infinite;
+        }
+
+        @keyframes rotateTextCard8 {
+            0%, 49% { content: "Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios."; }
+            50%, 99% { content: "Fabricación de equipos para manejo y tratamiento de agua industrial."; }
+            100% { content: "Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios."; }
+        }
+
+        .testimonios-filtrables::before, 
+        .testimonios-filtrables::after,
+        .testimonios-filtrables .container::before,
+        .testimonios-filtrables .container::after {
+            display: none !important;
+            content: none !important;
+        }
+        .resena-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .resena-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Ajustes para optimización móvil */
+        @media (max-width: 768px) {
+            .slider-wrapper { padding: 0 35px; }
+            .slider-wrapper { padding: 0 35px; width: 95% !important; } /* En móvil volvemos al ancho completo */
+            .slider-container { gap: 0; }
+            .slider-container .card { flex: 0 0 100%; }
+            .slider-control { 
+                display: flex;
+                width: 35px;
+                height: 35px;
+                font-size: 0.8rem;
+            }
+
+            .timeline-servicios {
+                flex-direction: column !important;
+                align-items: center;
+            }
+            .conector-paso {
+                transform: rotate(90deg); /* Las flechas apuntan hacia abajo en móvil */
+                margin: 15px 0;
+            }
+            .servicios-titulo-banner {
+                font-size: 1.8rem !important;
+            }
+            .categoria-titulo {
+                font-size: 1.4rem !important;
+                padding: 0 10px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+
+    // Global variable to store the selected rating and service category
+    let currentRating = 0;
+    let currentServiceCategory = '';
+
+    function openRatingModal(serviceCategory) {
+        currentServiceCategory = serviceCategory;
+        document.getElementById('rating-service-name').innerText = serviceCategory;
+        document.getElementById('rating-modal').style.display = 'block';
+        // Reset stars when opening modal
+        resetStars();
+    }
+
+    function closeRatingModal() {
+        document.getElementById('rating-modal').style.display = 'none';
+        currentRating = 0;
+        currentServiceCategory = '';
+    }
+
+    function resetStars() {
+        const stars = document.querySelectorAll('#rating-modal .star-rating .fa-star');
+        stars.forEach(star => {
+            star.classList.remove('text-warning'); // Remove filled color
+            star.classList.add('text-muted'); // Add muted color
+        });
+    }
+
+    // Add event listeners for stars
+    document.addEventListener('DOMContentLoaded', () => {
+        const starsContainer = document.querySelector('#rating-modal .star-rating');
+        if (starsContainer) {
+            starsContainer.addEventListener('click', (event) => {
+                const clickedStar = event.target.closest('.fa-star');
+                if (clickedStar) {
+                    const rating = parseInt(clickedStar.getAttribute('data-rating'));
+                    setRating(rating);
+                }
+            });
+
+            starsContainer.addEventListener('mouseover', (event) => {
+                const hoveredStar = event.target.closest('.fa-star');
+                if (hoveredStar) {
+                    const rating = parseInt(hoveredStar.getAttribute('data-rating'));
+                    highlightStars(rating);
+                }
+            });
+
+            starsContainer.addEventListener('mouseout', () => {
+                highlightStars(currentRating); // Revert to current selected rating
+            });
+        }
+
+        // Lógica para mostrar/ocultar campo "Otro" en el formulario de cotización
+        const qServiceSelect = document.getElementById('q-service');
+        const otherContainer = document.getElementById('other-service-container');
+        if (qServiceSelect && otherContainer) {
+            qServiceSelect.addEventListener('change', function() {
+                otherContainer.style.display = (this.value === 'Otros') ? 'block' : 'none';
+            });
+        }
+    });
+
+    // --- Lógica del Modal de Reseña Interna ---
+    let internalReviewRating = 0;
+
+    function openInternalReviewModal() {
+        document.getElementById('internal-review-modal').style.display = 'block';
+        internalReviewRating = 0;
+        resetInternalStars();
+    }
+
+    function closeInternalReviewModal() {
+        document.getElementById('internal-review-modal').style.display = 'none';
+    }
+
+    function resetInternalStars() {
+        const stars = document.querySelectorAll('.internal-star-rating .fa-star');
+        stars.forEach(s => {
+            s.classList.remove('text-warning');
+            s.classList.add('text-muted');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('.internal-star-rating .fa-star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                internalReviewRating = star.getAttribute('data-val');
+                updateStarsUI(internalReviewRating);
+            });
+            star.addEventListener('mouseover', () => {
+                updateStarsUI(star.getAttribute('data-val'));
+            });
+            star.addEventListener('mouseout', () => {
+                updateStarsUI(internalReviewRating);
+            });
+        });
+    });
+
+    function updateStarsUI(val) {
+        const stars = document.querySelectorAll('.internal-star-rating .fa-star');
+        stars.forEach(s => {
+            if (s.getAttribute('data-val') <= val) {
+                s.classList.add('text-warning');
+                s.classList.remove('text-muted');
+            } else {
+                s.classList.remove('text-warning');
+                s.classList.add('text-muted');
+            }
+        });
+    }
+
+    function submitInternalReview() {
+        const name = document.getElementById('reviewer-name').value;
+        const comment = document.getElementById('review-comment').value;
+        const service = document.getElementById('review-service').value;
+
+        if (!comment || internalReviewRating === 0 || !service) {
+            Swal.fire({
+                title: 'Campos incompletos',
+                text: 'Por favor selecciona el servicio, escribe un comentario y selecciona una calificación.',
+                icon: 'warning'
+            });
+            return;
+        }
+
+        fetch('/guardar-reseña-interna/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                reviewer_name: name,
+                review_comment: comment,
+                rating: internalReviewRating,
+                service_category: service
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: '¡Gracias!',
+                    text: 'Tu reseña ha sido guardada correctamente.',
+                    icon: 'success'
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message,
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({title: 'Error', text: 'No se pudo enviar la reseña.', icon: 'error'});
+        });
+    }
+
+    function highlightStars(rating) {
+        const stars = document.querySelectorAll('#rating-modal .star-rating .fa-star');
+        stars.forEach(star => {
+            const starRating = parseInt(star.getAttribute('data-rating'));
+            star.classList.toggle('text-warning', starRating <= rating);
+            star.classList.toggle('text-muted', starRating > rating);
+        });
+    }
+
+    function setRating(rating) {
+        currentRating = rating;
+        highlightStars(rating);
+    }
+
+    function submitRating() {
+        if (currentRating === 0) {
+            alert('Por favor, selecciona una calificación antes de enviar.');
+            Swal.fire({
+                title: 'Atención',
+                text: 'Por favor, selecciona una calificación antes de enviar.',
+                icon: 'warning',
+                confirmButtonColor: '#ffc107' // Color amarillo para advertencia
+            });
+            return;
+        }
+        
+        fetch('/guardar-valoracion/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                service_category: currentServiceCategory,
+                rating: currentRating
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: '¡Gracias!',
+                    text: `Has calificado "${currentServiceCategory}" con ${currentRating} estrellas correctamente.`,
+                    icon: 'success',
+                    confirmButtonColor: '#206743'
+                }).then(() => {
+                    location.reload(); // Recarga para mostrar el nuevo promedio
+                });
+                closeRatingModal();
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'Hubo un problema al procesar tu calificación.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545' // Color rojo para error
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error de Conexión',
+                text: 'No se pudo conectar con el servidor. Por favor, inténtalo de nuevo más tarde.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+            });
+        });
+    }
+
     // Funciones para los modales de servicios (existentes)
     function mostrarModalServicio(titulo, contenido, imagenUrl) {
         document.getElementById("modal-titulo").innerText = titulo;
@@ -582,40 +811,118 @@
         document.getElementById(id).style.display = "none";
     }
 
-    // Cierre de modales al hacer clic fuera o presionar ESC
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = "none";
+    // Funciones para manejar el Modal de Reseñas
+    function openReviewsModal() {
+        document.getElementById('reviews-modal').style.display = 'block';
+    }
+
+    function closeReviewsModal() {
+        document.getElementById('reviews-modal').style.display = 'none';
+    }
+
+    // Función para desplazar los carruseles (Sliders)
+    function scrollSlider(id, direction) {
+        const container = document.getElementById(id);
+        if (container) {
+            const scrollAmount = container.clientWidth;
+            container.scrollLeft += direction * scrollAmount;
         }
-      }
-      
-      window.onkeyup = function(event) {
-        if (event.key === "Escape") {
-            var modals = document.getElementsByClassName("modal");
-            for (var i = 0; i < modals.length; i++) {
-                modals[i].style.display = "none";
+    }
+
+    // Función para auto-desplazamiento en servicios cada 6 segundos
+    function startAutoSlide(id) {
+        setInterval(() => {
+            const container = document.getElementById(id);
+            if (container) {
+                const maxScroll = container.scrollWidth - container.clientWidth;
+                if (container.scrollLeft >= maxScroll - 20) {
+                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    scrollSlider(id, 1);
+                }
             }
+        }, 6000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        startAutoSlide('slider-servicios');
+    });
+
+    // --- Lógica del Modal de Cotización ---
+    function openQuotationModal() {
+        document.getElementById('quotation-modal').style.display = 'block';
+    }
+
+    function closeQuotationModal() {
+        document.getElementById('quotation-modal').style.display = 'none';
+    }
+
+    function sendQuotation() {
+        const name = document.getElementById('q-name').value;
+        const company = document.getElementById('q-company').value || 'No especificada';
+        const email = document.getElementById('q-email').value;
+        const phone = document.getElementById('q-phone').value;
+        let service = document.getElementById('q-service').value;
+        const otherService = document.getElementById('q-other-service').value;
+        const message = document.getElementById('q-message').value;
+
+        // Si seleccionó "Otros", validamos que haya escrito algo y usamos ese valor
+        if (service === 'Otros') {
+            if (!otherService) {
+                Swal.fire({ title: 'Atención', text: 'Por favor especifique el servicio que necesita.', icon: 'warning' });
+                return;
+            }
+            service = "Otro: " + otherService;
         }
-      }
 
-      // Script para el Acordeón de FAQ
-      var acc = document.getElementsByClassName("faq-question");
-      var i;
+        if (!name || !email || !phone || !service || !message) {
+            Swal.fire({
+                title: 'Atención',
+                text: 'Por favor complete todos los campos obligatorios (*).',
+                icon: 'warning'
+            });
+            return;
+        }
 
-      for (i = 0; i < acc.length; i++) {
-        acc[i].addEventListener("click", function() {
-          this.classList.toggle("active");
-          var panel = this.nextElementSibling;
-          var icon = this.querySelector("i");
-          if (panel.style.maxHeight) {
-            panel.style.maxHeight = null;
-            icon.style.transform = "rotate(0deg)";
-          } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
-            icon.style.transform = "rotate(180deg)";
-          } 
+        // Notificar al administrador vía AJAX (Email/Base de datos)
+        fetch('/solicitar-cotizacion/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ nombre: name, empresa: company, email: email, telefono: phone, servicio: service, mensaje: message })
         });
-      }
-      
+
+        // Redirigir a WhatsApp
+        const whatsappNumber = "573134267179";
+        const text = `*NUEVA SOLICITUD DE COTIZACIÓN*%0A` +
+                     `*Nombre:* ${name}%0A` +
+                     `*Empresa:* ${company}%0A` +
+                     `*Email:* ${email}%0A` +
+                     `*Teléfono:* ${phone}%0A` +
+                     `*Servicio:* ${service}%0A` +
+                     `*Mensaje:* ${message}`;
+        
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${text}`;
+        
+        Swal.fire({
+            title: 'Solicitud Procesada',
+            text: 'Se abrirá WhatsApp para enviar los detalles al asesor de turno.',
+            icon: 'success',
+            confirmButtonColor: '#18683f'
+        }).then(() => {
+            window.open(whatsappUrl, '_blank');
+            closeQuotationModal();
+            document.getElementById('quotation-form').reset();
+            document.getElementById('other-service-container').style.display = 'none';
+        });
+    }
+
+    // Cierre de modales al hacer clic fuera o presionar ESC
+    window.addEventListener('click', function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    });
+
     </script>
 {% endblock %}
+{% block sucribirse_blog %}{% endblock sucribirse_blog %}

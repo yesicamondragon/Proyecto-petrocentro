@@ -19,6 +19,8 @@ urlpatterns = [
         path('filtrar-permisos/', views.filtrar_permisos,name="filtrar-permisos"),
         path('aignar-permisos/<str:id>', views.agregar_permisos, name="asignar-permisos"),
         path('crear-rol/', views.crear_rol, name="crear-rol"),
+        path('asignar-usuarios-rol/<int:id>', views.asignar_usuarios_rol, name="asignar-usuarios-rol"),
+        path('eliminar-rol/<int:id>', views.eliminar_rol, name="eliminar-rol"),
         
         #url crear Post
         path('crear_post_view/', views.crear_post_view, name="crear_post_view"),

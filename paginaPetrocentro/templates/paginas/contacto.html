@@ -16,55 +16,94 @@
 {% block contenido %} 
 
     <!-- Contacto, formulario, mapa y demás-->
-    <div class="container">
-        <div class="contacto">
+    
+<style>
+    .contact-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
 
-            <!-- Formulario de contacto de la empresa-->
+    .formulario.color {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 40px;
+    }
+
+    .horario2 { display: none; } /* Oculto en escritorio */
+
+    @media (max-width: 768px) {
+        .contact-wrapper { padding: 20px 10px; }
+        .formulario.color { padding: 25px 15px; }
+        .con { display: none; } /* Oculta lista de escritorio */
+        .horario2 { display: block; } /* Muestra acordeón en móvil */
+        .breadcrumb-container { justify-content: center !important; }
+        .formulario h1 { font-size: 1.8rem; text-align: center; }
+        .comentario { text-align: center; font-size: 0.95rem; }
+        
+        .qr-grid { gap: 20px !important; }
+        .qr-item { width: 100% !important; max-width: 300px; margin: 0 auto; }
+        
+        .mapa-container iframe { height: 300px !important; }
+        
+        .whatsapp { bottom: 20px !important; right: 20px !important; }
+        .whatsapp button { font-size: 0.9rem !important; padding: 10px 15px !important; }
+
+        .info-sedes {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 15px;
+            padding: 10px;
+        }
+    }
+</style>
+
+<div class="contact-wrapper">
             <div class="formulario color">
-                <div class="breadcrumb-container dark-mode" style="justify-content: flex-start; margin-bottom: 10px;">
+                <div class="breadcrumb-container dark-mode" style="justify-content: flex-start; margin-bottom: 20px;">
                     <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
                     <span class="breadcrumb-separator">&gt;</span>
                     <span class="breadcrumb-current">Contacto</span>
                 </div>
+                
                 <h1>CONTÁCTANOS</h1>
-                <p class="comentario">Nos encanta recibir a nuestros clientes, así que ven o escríbenos en cualquier momento durante las horas de oficina.</p>
-                <p class="comentario" style="height: auto;">Estamos listos para atender tu operación.<br>
+                <p class="comentario" style="height: auto; margin-bottom: 25px;">Estamos listos para atender tu operación.<br>
                 Nuestro equipo técnico y administrativo responderá tu solicitud en el menor tiempo posible.</p>
                 
-                <!-- Formulario de contactanos-->
-                <form action="{% url 'contacto_correo' %}" method="post" id="contactForm">
+                <form action="{% url 'contacto_mensaje' %}" method="post" id="contactForm">
                     {% csrf_token %}
-                    <input class="input" type="text" placeholder="Nombre*" name="nombre" required>
-                    <br>
-                    <br>
-                    <input  class="input" type="email" placeholder="Email*" name="correo" required> 
-                    <br><br>
-                    <input class="input" type="number" placeholder="Teléfono(opc)" name="numero" >
-                    <br>
-                    <br>
-                    <input class="input" type="text" placeholder="Que podremos hacer por ti?" name="mensaje" required>
-                    <br>
-                    <br>
-                    <input class="button" type="submit" name="enviar" value="Enviar">
+                    <div class="mb-3">
+                        <input class="input w-100" type="text" placeholder="Nombre*" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <input class="input w-100" type="email" placeholder="Email*" name="correo" required>
+                    </div>
+                    <div class="mb-3">
+                        <input class="input w-100" type="number" placeholder="Teléfono (opcional)" name="numero">
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="input w-100" placeholder="¿Cómo podemos ayudarte?" name="mensaje" rows="4" required style="height: auto; border-radius: 5px; border: 1px solid #ccc; padding: 10px;"></textarea>
+                    </div>
+                    <input class="button w-100" type="submit" name="enviar" value="Enviar Mensaje">
                 </form>
-                <!-- Informacion de contacto de la empresa-->
-                <div class="con">
-                    <p class="telefono"><i class="fa-solid fa-envelope"></i> &nbsp; EMAIL: <span class="bold">ti.petrocentro@gmail.com</span>
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Enviar</a>
+
+                <div class="con mt-4">
+                    <p class="telefono"><i class="fa-solid fa-envelope me-2"></i> EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span>
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=gerenciaoperaciones@petrocentro.co" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Enviar</a>
                     </p>
-                    <p class="telefono"> <i class="fa-solid fa-phone"></i> &nbsp;TELEFONO:<span class="bold">+57&nbsp;313&nbsp;4267179</span> 
+                    <p class="telefono"> <i class="fa-solid fa-phone me-2"></i> TELEFONO: <span class="bold">+57 313 4267179</span> 
                         <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Chatear</a>
                     </p>
-                    <p class="telefono" > <i class="fa-solid fa-location-dot"> &nbsp; </i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span>
+                    <p class="telefono" > <i class="fa-solid fa-location-dot me-2"></i> UBICACIÓN: <span class="bold">Pirámide Siete II, Av. Calle 127 #13-96, Bogotá</span>
                         <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Ver Mapa</a>
                     </p>
-               
-
-                    
                 </div>
 
-                <!-- Informacion de contacto para dipositivos mobiles-->
-                <div class="accordion accordion-flush horario2 " id="accordionFlushExample" >
+                <div class="accordion accordion-flush horario2 mt-4" id="accordionFlushExample" >
                     <div class="accordion-item ">
                       <h2 class="accordion-header">
                         <button class="accordion-button collapsed button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -73,10 +112,10 @@
                       </h2>
                       <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                         <div class="accordion-body">
-                            <p class="telefono"> <i class="fa-solid fa-envelope"></i> EMAIL: <span class="bold">ti.petrocentro@gmail.com</span>
-                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Enviar</a>
+                            <p class="telefono"> <i class="fa-solid fa-envelope"></i> EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span>
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=gerenciaoperaciones@petrocentro.co" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Enviar</a>
                             </p>
-                            <p class="telefono"> <i class="fa-solid fa-phone"></i> TELEFONO:<span class="bold">+57&nbsp;313&nbsp;4267179</span> 
+                            <p class="telefono"> <i class="fa-solid fa-phone"></i> TELEFONO: <span class="bold">+57 313 4267179</span> 
                                 <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Chatear</a>
                             </p>
                         </div>
@@ -90,7 +129,7 @@
                       </h2>
                       <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                         <div class="accordion-body">
-                            <p class="telefono" > <i class="fa-solid fa-location-dot"></i> UBICACIÓN:<span class="bold">Pirámide Siete II, Avenida Calle 127 #13-96, Bogotá, Colombia</span>
+                            <p class="telefono" > <i class="fa-solid fa-location-dot"></i> UBICACIÓN:<br><span class="bold">Pirámide Siete II, Av. Calle 127 #13-96, Bogotá</span>
                                 <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Ver Mapa</a>
                             </p>
                             
@@ -105,75 +144,45 @@
                       </h2>
                       <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                         <div class="accordion-body">
-                            <ul>
-                            <li> Lunes
-                                <ul>
-                                    <li>08:30 a. m. – 05:30 p. m. </li>
-                                </ul>
-                            </li>   
-                            <li> Martes
-                                <ul>
-                                    <li>08:30 a. m. – 05:30 p. m. </li>
-                                </ul>
-                            </li>
-                            <li> Miercoles
-                                <ul>
-                                    <li>08:30 a. m. – 05:30 p. m. </li>
-                                </ul>
-                            </li>
-                            <li> Jueves
-                                <ul>
-                                    <li>08:30 a. m. – 05:30 p. m. </li>
-                                </ul>
-                            </li>
-                            <li> Viernes
-                                <ul>
-                                    <li>08:30 a. m. – 05:30 p. m. </li>
-                                </ul>
-                            </li>
-                        </ul></div>
+                            <p class="mb-0">Lunes a viernes: 08:30 a. m. – 05:30 p. m.</p>
+                        </div>
                     </div>
                   </div>
             </div>
         </div>
-            
-            <!-- Mapa de como llegar a la empresa-->
-        <div class="mapa color ">
-            <iframe class="mapa1" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco" width="600" height="450" style="border:0;" allowfullscreen="True" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            <!-- Horario de atencion de la empresa-->
-            <div class="horario">
-                <h1>Horario</h1>
-                <ul>
-                    <li> Lunes
-                        <ul>
-                            <li>08:30 a. m. – 05:30 p. m. </li>
-                        </ul>
-                    </li>
-                    <li> Martes
-                        <ul>
-                            <li>08:30 a. m. – 05:30 p. m. </li>
-                        </ul>
-                    </li>
-                    <li> Miercoles
-                        <ul>
-                            <li>08:30 a. m. – 05:30 p. m. </li>
-                        </ul>
-                    </li>
-                    <li> Jueves
-                        <ul>
-                            <li>08:30 a. m. – 05:30 p. m. </li>
-                        </ul>
-                    </li>
-                    <li> Viernes
-                        <ul>
-                            <li>08:30 a. m. – 05:30 p. m. </li>
-                        </ul>
-                    </li>
-                </ul>
+    </div>
+</div>
+
+<!-- Sección de Códigos QR para contacto rápido -->
+<section class="qr-contact-section" data-aos="fade-up" style="padding: 60px 20px; background-color: #f8f9fa; text-align: center;">
+    
+        <h2 style="font-weight: 800; color: #1a1a1a; margin-bottom: 10px; font-family: 'Montserrat', sans-serif;">¡ESCÁNÉANOS Y CONTÁCTANOS!</h2>
+        <p style="color: #666; margin-bottom: 40px; font-family: 'Open Sans', sans-serif;">Utiliza tu cámara para acceder rápidamente a nuestros canales de atención directa.</p>
+        
+        <div class="qr-grid" style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+            <!-- QR WhatsApp -->
+            <div class="qr-item" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s ease;">
+                <div style="background: #e8f5e9; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 30px; color: #25D366;"></i>
+                </div>
+                <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">WhatsApp</h4>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wa.me/573134267179" alt="QR WhatsApp Petrocentro" style="width: 160px; height: 160px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
+                <p style="font-size: 0.9rem; color: #777; margin-top: 15px; font-family: 'Open Sans', sans-serif;">Chatea con nosotros al instante</p>
+            </div>
+
+            <!-- QR Gmail -->
+            <div class="qr-item" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s ease;">
+                <div style="background: #fbe9e7; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fa-solid fa-envelope" style="font-size: 26px; color: #D44638;"></i>
+                </div>
+                <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">Gmail</h4>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=mailto:gerenciaoperaciones@petrocentro.co" alt="QR Gmail Petrocentro" style="width: 160px; height: 160px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
+                <p style="font-size: 0.9rem; color: #777; margin-top: 15px; font-family: 'Open Sans', sans-serif;">Envíanos un correo corporativo</p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
     <!-- Redes Sociales -->
     <section class="redes-sociales-section" data-aos="fade-up">
         <div class="contenedor-redes">
@@ -195,6 +204,10 @@
                     <i class="fa-brands fa-tiktok"></i>
                     <span>TikTok</span>
                 </a>
+                <a href="https://www.linkedin.com/in/petrocentro-petrocentro-2a93243b8/" target="_blank" class="red-item">
+                    <i class="fa-brands fa-linkedin"></i>
+                    <span>linkedin</span>
+                </a>
             </div>
         </div>
     </section>
@@ -206,7 +219,12 @@
                 <p class="subtitulo-mapa">Nuestras bases operativas están situadas estratégicamente para garantizar una respuesta rápida en todo el territorio nacional.</p>
                 
                 <div class="mapa-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="mapa-acciones" style="text-align: center; margin-top: 20px;">
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="background-color: #198754; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block;">
+                        Abrir en Maps <i class="fa-solid fa-map-location-dot"></i>
+                    </a>
                 </div>
                 
                 <div class="info-sedes">
@@ -217,8 +235,8 @@
                     </div>
                     <div class="sede-item">
                         <i class="fa-solid fa-industry"></i>
-                        <h4>Base Operativa - Meta</h4>
-                        <p>Infraestructura especializada en Chichimene para soporte en campo.</p>
+                        <h4>Planta de Fabricación Sibaté</h4>
+                        <p>Fabricación de equipos, ubicación Sibaté.</p>
                     </div>
                     <div class="sede-item">
                         <i class="fa-solid fa-oil-well"></i>
@@ -256,3 +274,4 @@
         });
 </script>
 {% endblock  %}
+{% block sucribirse_blog %}{% endblock sucribirse_blog %}

@@ -7,11 +7,6 @@
 
 
 {% block contenido %} 
-    <!-- fondo -->
-   
-        <section class="fondo-pqrs"  >  
-        </section> 
-
         <!-- Letras e imagen -->       
         <div class="letras-pqrs">
                 <div class="l-pqrs">
@@ -20,13 +15,13 @@
                         <span class="breadcrumb-separator">&gt;</span>
                         <span class="breadcrumb-current">PQRS</span>
                     </div>
-                    <h1 class="politica-atencion">POLITICA DE ATENCION</h1>
+                    <h1 class="politica-atencion">PROCEDIMIENTO DE ATENCION</h1>
                     
                     <h1>PETICIONES, QUEJAS, RECLAMOS Y SUGERENCIAS</h1>
                 </div>
                 <div class="imagen-pqrs">
 
-                    <img src="{% static 'images/pqrs_2.webp' %}" alt="Imagen PQRS">
+                    <img src="{% static 'images/' %}" alt="Imagen PQRS" style="opacity: 0.5; filter: blur(2px);">
                 </div>
                 <div class="bola-derecha"></div>
         </div>
@@ -34,7 +29,7 @@
         <!-- Texto introduccion -->
         <div class="texto-principal">
             <div class="txt-pr">
-                <p>En Petrocentro S.A.S. valoramos la opinión de nuestros clientes, colaboradores y grupos de interés. A través de este canal puede presentar Peticiones, Quejas, Reclamos o Sugerencias.</p>
+                <p>En Petrocentro S.A.S. valoramos la opinión de nuestros clientes, colaboradores y grupos de interés. A través de este canal puede presentar Peticiones, Quejas, Reclamos o Sugerencias; se le dara respuesta o atencion a su solicitud en un tiempo no mayor a quince (15) dias habiles.</p>
                 <p>Los requerimientos pueden ser recibidos a través de un documento en físico firmado por parte de los grupos de interés, en los sitios establecidos en campo para tal fin, únicamente en horarios de oficina (las únicas personas autorizadas de recibir este documento son el Administrador, Advisor, Coordinador o Supervisor HSEQ), documento en digital firmado a través del correo corporativo, llamando vía telefónica a nuestra línea corporativa, en horario de oficina, o través de nuestra página web diligenciando el siguiente formulario:</p>
                 
                 <div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
@@ -46,7 +41,8 @@
                         </li>
                         <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                             <span><i class="fa-solid fa-envelope" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Correo corporativo</span>
-                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ti.petrocentro@gmail.com" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Enviar Email</a>
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=recursoshumanos@petrocentro.co
+" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Enviar Email</a>
                         </li>
                         <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                             <span><i class="fa-brands fa-whatsapp" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Línea WhatsApp</span>
@@ -54,7 +50,7 @@
                         </li>
                         <li style="margin-bottom: 15px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                             <span><i class="fa-solid fa-globe" style="color: #0b6838; margin-right: 10px; width: 25px; text-align: center;"></i> Formulario web</span>
-                            <a href="https://forms.gle/u7EWkYi93BwfLpdG6" target="_blank" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Ir al Formulario</a>
+                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalPqrs" style="background-color: #0b6838; color: white; padding: 8px 20px; border-radius: 50px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Radicar Ahora</a>
                         </li>
                     </ul>
                 </div>
@@ -120,7 +116,7 @@
         </div>
 
         <!-- Pasos (Línea de tiempo horizontal) -->
-        <div class="timeline-pqrs-container">
+        <div class="timeline-pqrs-container" style="margin-bottom: 0; padding-bottom: 0;">
             <div class="timeline-pqrs">
                 <div class="timeline-step">
                     <div class="step-icon">1</div>
@@ -153,6 +149,11 @@
             </div>
         </div>
 
+        <!-- Contenedor para Mensajes de Django -->
+        {% if messages %}
+            <div class="container">{% include 'plantillas/mensajes.html' %}</div>
+        {% endif %}
+
         <!-- Consulta de Estado -->
         <div class="consulta-estado-pqrs">
             <div class="estado-box">
@@ -166,62 +167,202 @@
         </div>
 
         <!-- Compromiso -->
-        <section class="compromiso-section">
-            <h2 class="titulo-compromiso">NUESTRO COMPROMISO</h2>
-            <div class="grid-compromiso">
-                <div class="item-compromiso">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <h3>Confidencialidad</h3>
-                    <p>Garantizamos el manejo seguro, ético y privado de toda la información suministrada en su solicitud, cumpliendo con la normativa de protección de datos.</p>
-                    <img src="{% static 'images/politicas.webp' %}" alt="Confidencialidad" class="compromiso-img">
-                </div>
-                <div class="item-compromiso">
-                    <i class="fa-solid fa-clock"></i>
-                    <h3>Respuesta Oportuna</h3>
-                    <p>Nos comprometemos a gestionar y dar respuesta a su requerimiento dentro de los tiempos establecidos (máximo 15 días hábiles).</p>
-                    <img src="{% static 'images/nosotros_2.webp' %}" alt="Respuesta Oportuna" class="compromiso-img">
-                </div>
-                <div class="item-compromiso">
-                    <i class="fa-solid fa-magnifying-glass-location"></i>
-                    <h3>Seguimiento y Trazabilidad</h3>
-                    <p>Realizamos un monitoreo detallado de cada caso desde su recepción hasta el cierre formal, asegurando transparencia en el proceso.</p>
-                    <img src="{% static 'images/DEH.webp' %}" alt="Seguimiento" class="compromiso-img">
-                </div>
-                <div class="item-compromiso">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <h3>Mejora Continua</h3>
-                    <p>Valoramos sus aportes como una oportunidad fundamental para optimizar nuestros procesos y elevar la calidad de nuestro servicio.</p>
-                    <img src="{% static 'images/C-ACTUAL1.webp' %}" alt="Mejora Continua" class="compromiso-img">
+       
+
+        <!-- Modal de Radicación PQRS (Ventana Flotante) -->
+        <div class="modal fade" id="modalPqrs" tabindex="-1" aria-labelledby="modalPqrsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white" style="background-color: #0b6838;">
+                        <h5 class="modal-title" id="modalPqrsLabel"><i class="fa-solid fa-paper-plane me-2"></i>Nueva Solicitud PQRS</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{% url 'pqrs_form_view' %}">
+                        {% csrf_token %}
+                        <div class="modal-body p-4">
+                            <p class="text-muted small mb-4">Complete los campos obligatorios (*) para radicar su requerimiento.</p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Nombre Completo *</label>
+                                    <input type="text" name="nombre" class="form-control" placeholder="Escriba su nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Correo Electrónico *</label>
+                                    <input type="email" name="correo" class="form-control" placeholder="ejemplo@correo.com" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Teléfono de Contacto</label>
+                                    <input type="text" name="telefono" class="form-control" placeholder="Número de celular">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Tipo de Solicitud *</label>
+                                    <select name="tipo" class="form-select" required>
+                                        <option value="" disabled selected>Seleccione una opción</option>
+                                        <option value="Peticion">Petición</option>
+                                        <option value="Queja">Queja</option>
+                                        <option value="Reclamo">Reclamo</option>
+                                        <option value="Sugerencia">Sugerencia</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Descripción del Requerimiento *</label>
+                                <textarea name="mensaje" class="form-control" rows="5" placeholder="Detalle su solicitud aquí..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success px-4" style="background-color: #0b6838;">
+                                <i class="fa-solid fa-paper-plane me-2"></i>RADICAR SOLICITUD
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </section>
+        </div>
+
+        <!-- Modal de Resultado de Consulta (Ventana Flotante) -->
+        <div class="modal fade" id="modalConsultaResult" tabindex="-1" aria-labelledby="modalConsultaResultLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white" style="background-color: #198754;">
+                        <h5 class="modal-title" id="modalConsultaResultLabel"><i class="fa-solid fa-magnifying-glass me-2"></i>Estado de tu Solicitud</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Historial del Proceso (Radicado: <span id="res-radicado" class="text-primary fw-bold"></span>)</h5>
+                            <span id="res-estado" class="badge"></span>
+                        </div>
+                        <hr>
+                        
+                        <!-- Parte 1: Solicitud del Usuario -->
+                        <div class="mb-4">
+                            <span class="badge bg-primary">Solicitud de: <span id="res-nombre"></span></span>
+                            <div class="mt-2 p-3 border-start border-3 border-primary bg-white shadow-sm rounded">
+                                <strong><span id="res-tipo"></span> enviada:</strong>
+                                <p class="mb-1 mt-2" id="res-mensaje"></p>
+                                <small class="text-muted"><i class="fa-solid fa-clock"></i> Fecha: <span id="res-fecha"></span></small>
+                            </div>
+                        </div>
+                        
+                        <!-- Parte 2: Respuesta de la Empresa -->
+                        <div id="res-respuesta-container" style="display: none;">
+                            <div class="mt-3 p-3 bg-white border-start border-4 border-success shadow-sm rounded">
+                                <span class="badge bg-success">Respuesta Oficial de Petrocentro S.A.S</span>
+                                <p class="mt-2 mb-0" id="res-respuesta"></p>
+                            </div>
+                        </div>
+                        <div id="res-pendiente-msg" style="display: none;">
+                            <p class="text-muted italic small"><i class="fa fa-clock"></i> Su solicitud está siendo revisada por nuestro equipo técnico.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 {% endblock %}
 {% block sucribirse_blog %}{% endblock sucribirse_blog %}
 
 {% block script %}
 <script>
+    /* Centrar títulos y breadcrumb en la cabecera de PQRS */
+    .letras-pqrs {
+        text-align: center;
+    }
+    .l-pqrs {
+        width: 100% !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .l-pqrs .breadcrumb-container { justify-content: center; }
+</style>
+<script>
     function consultarEstado() {
         var radicado = document.getElementById('radicado-input').value;
         if(radicado) {
-            Swal.fire({
-                title: 'Consultando...',
-                text: 'Verificando el estado del radicado ' + radicado,
-                icon: 'info',
-                timer: 1500,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading()
+            fetch("{% url 'consultar_pqrs' %}?radicado=" + encodeURIComponent(radicado), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-            }).then(() => {
-                Swal.fire({
-                    title: 'Información',
-                    text: 'Para conocer el estado detallado del radicado ' + radicado + ', por favor revise su correo electrónico o comuníquese con nuestra línea de atención.',
-                    icon: 'success',
-                    confirmButtonColor: '#0b6838'
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const pqr = data.pqr;
+                    document.getElementById('res-radicado').innerText = pqr.radicado;
+                    document.getElementById('res-nombre').innerText = pqr.nombre;
+                    document.getElementById('res-tipo').innerText = pqr.tipo;
+                    document.getElementById('res-fecha').innerText = pqr.fecha;
+                    document.getElementById('res-mensaje').innerText = pqr.mensaje;
+                    
+                    const estadoBadge = document.getElementById('res-estado');
+                    estadoBadge.innerText = pqr.estado;
+                    estadoBadge.className = 'badge';
+                    if (pqr.estado_raw === 'Pendiente') estadoBadge.classList.add('bg-warning', 'text-dark');
+                    else if (pqr.estado_raw === 'En Proceso') estadoBadge.classList.add('bg-info');
+                    else estadoBadge.classList.add('bg-success');
+
+                    if (pqr.respuesta) {
+                        document.getElementById('res-respuesta-container').style.display = 'block';
+                        document.getElementById('res-respuesta').innerText = pqr.respuesta;
+                        document.getElementById('res-pendiente-msg').style.display = 'none';
+                    } else {
+                        document.getElementById('res-respuesta-container').style.display = 'none';
+                        document.getElementById('res-pendiente-msg').style.display = 'block';
+                    }
+
+                    var myModal = new bootstrap.Modal(document.getElementById('modalConsultaResult'));
+                    myModal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No encontrado',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Ocurrió un error al consultar el radicado.', 'error');
             });
         }
     }
 </script>
+<style>
+    @media (max-width: 768px) {
+        .letras-pqrs {
+            margin-top: 0 !important;
+            padding: 80px 20px 20px !important; /* Añade espacio superior para que no choque con el menú */
+            height: auto !important;
+            min-height: auto !important;
+            text-align: center;
+        }
+        .l-pqrs {
+            width: 100% !important;
+            padding: 0 !important;
+        }
+        .l-pqrs h1 { font-size: 1.4rem !important; line-height: 1.2 !important; margin-top: 10px !important; }
+        .politica-atencion { font-size: 1rem !important; margin-bottom: 5px !important; }
+        .imagen-pqrs { display: none; } /* Ocultamos la imagen decorativa en móvil para evitar que se encime con el texto */
+        .texto-principal {
+            padding: 30px 20px !important; /* Espaciado interno para que el párrafo no toque los bordes */
+        }
+        .timeline-pqrs {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding-left: 20px;
+        }
+        .timeline-step {
+            margin-bottom: 30px;
+            width: 100%;
+        }
+    }
+</style>
 {% endblock %}

@@ -1,4 +1,4 @@
-from pyexpat.errors import messages
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
 from blogs.models import *
@@ -11,6 +11,7 @@ from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
+from paginaPetrocentro.views import obtener_noticias_rss
 
 # Create your views here.
 
@@ -18,7 +19,6 @@ from django.core.paginator import Paginator
 def blog_view(request):
     usuario_logeado = request.session.get('usuario_logeado')
     busqueda = request.GET.get('busqueda')
-    
 
     post = Post.objects.filter(estado=True)
     
@@ -44,6 +44,7 @@ def blog_view(request):
     
     # Ordenar y paginar
     post = post.order_by('-fecha_creacion')
+
     paginator = Paginator(post, 50)
     page = request.GET.get('page')
     post = paginator.get_page(page)
@@ -164,7 +165,6 @@ def tecnologia(request):
         context= {
                 'posts': post,
         }
-        usuario_logeado = request.session.get('usuario_logeado')
         if usuario_logeado:
                 usuario = Usuario.objects.get(id=usuario_logeado)
                 context['usuario'] = usuario
@@ -174,17 +174,12 @@ def tecnologia(request):
                         post = paginacion(request,post)
                         context['empleado'] = empleado
                         context['posts'] = post  
-                        
-                # Si es empleado, mostrar todos los posts
                 except:
-                # Si no es empleado, filtrar los posts
                      pass
-                
         return render(request, 'blog/tecnologia.html', context)
         
 def medio_ambiente(request):
         busqueda = request.GET.get('busqueda')
-        
         post = obtener_post(busqueda,'Medio_ambiente',False)
         post = paginacion(request, post)
         
@@ -201,24 +196,19 @@ def medio_ambiente(request):
                         post = paginacion(request,post)
                         context['posts'] = post  
                         context['empleado'] = empleado
-                        
                 except:
                         pass
-     
         return render(request,'blog/medio_ambiente.html',context)
 
 def economia(request):
         busqueda = request.GET.get('busqueda')
-        
         post = obtener_post(busqueda,'economia',False)
         post = paginacion(request, post)
         
         context={
                 'posts': post,
         }
-        
         usuario_logeado = request.session.get('usuario_logeado')
-        
         if usuario_logeado:
                 usuario = Usuario.objects.get(id = usuario_logeado)
                 context['usuario'] = usuario
@@ -230,21 +220,17 @@ def economia(request):
                         context['empleado'] = empleado
                 except:
                         pass
-        
         return render(request,'blog/economia.html',context)
 
 def politica(request):
         busqueda = request.GET.get('busqueda')
-        
         post = obtener_post(busqueda,'politica',False)
         post = paginacion(request, post)
         
         context= {
                 'posts': post,
         }
-        
         usuario_logeado = request.session.get('usuario_logeado')
-        
         if usuario_logeado:
                 usuario = Usuario.objects.get(id = usuario_logeado)
                 context['usuario'] = usuario
@@ -260,16 +246,13 @@ def politica(request):
 
 def hidrocarburos(request):
         busqueda = request.GET.get('busqueda')        
-       
         post = obtener_post(busqueda,'Hidrocarburos',False )
         post = paginacion(request, post)
         
         context= {
                 'posts': post,
         }
-        
         usuario_logeado = request.session.get('usuario_logeado')
-        
         if usuario_logeado:
                 usuario = Usuario.objects.get(id = usuario_logeado)
                 context['usuario'] = usuario
@@ -281,24 +264,7 @@ def hidrocarburos(request):
                         context['empleado'] = empleado
                 except:
                         pass
-        
         return render(request,'blog/hidrocarburos.html',context)
-
-def suscribir(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        try:
-            if Suscriptores.objects.filter(correo=email).exists():
-                return JsonResponse({'success': False, 'error': 'Este email ya está suscrito.'})
-            else:
-                suscripcion = Suscriptores(correo=email)
-                suscripcion.save()
-                return JsonResponse({'success': True})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
-                
-        
 
          
         

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Helvetica, sans-serif; color: #333; }
+        h1 { text-align: center; color: #0056b3; }
+        .fecha { text-align: right; font-size: 12px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #0056b3; color: white; padding: 8px; text-align: left; font-size: 12px; }
+        td { border-bottom: 1px solid #ddd; padding: 8px; font-size: 11px; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #777; }
+    </style>
+</head>
+<body>
+    <h1>{{ titulo }}</h1>
+    <div class="fecha">Generado el: {{ fecha|date:"d/M/Y H:i" }}</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Identificación</th>
+                <th>Cargo</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in empleados %}
+            <tr>
+                <td>{{ emp.nombre }}</td>
+                <td>{{ emp.identificacion }}</td>
+                <td>{{ emp.id_cargo.nombre }}</td>
+                <td>{{ emp.telefono }}</td>
+                <td>{% if emp.estado.id == 1 %}Activo{% else %}Inactivo{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">Petrocentro S.A.S - Reporte generado automáticamente</div>
+</body>
+</html>

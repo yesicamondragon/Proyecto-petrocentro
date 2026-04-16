@@ -1,0 +1,138 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Mi Agenda{% endblock %}
+{% block nombre_pagina %}Mi Agenda Personal{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Columna de Tareas Operativas -->
+        <div class="col-md-6">
+            <h4><i class="fa-solid fa-list-check me-2"></i>Tareas Operativas</h4>
+            <hr>
+            {% if tareas %}
+                {% for tarea in tareas %}
+                {% with is_overdue=not tarea.completada and tarea.fecha_limite < today %}
+                <div class="card mb-3 
+                    {% if tarea.completada %}border-success
+                    {% elif is_overdue %}border-danger border-2
+                    {% else %}border-warning{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center 
+                        {% if tarea.completada %}bg-success-subtle
+                        {% elif is_overdue %}bg-danger-subtle
+                        {% else %}bg-warning-subtle{% endif %}">
+                        <h6 class="mb-0">{{ tarea.titulo }}</h6>
+                        <div>
+                            {% if is_overdue %}
+                                <span class="badge bg-danger">Vencida</span>
+                            {% elif tarea.completada %}
+                                <span class="badge bg-success">Completada</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted">{{ tarea.descripcion|default:"Sin descripción." }}</p>
+                        {% if tarea.archivo_adjunto %}
+                            <p class="mb-0"><i class="fa-solid fa-paperclip text-primary"></i> <a href="{{ tarea.archivo_adjunto.url }}" target="_blank">Ver Reporte</a></p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-muted d-flex justify-content-between">
+                        <small><i class="fa-solid fa-calendar-days me-1"></i> Límite: {{ tarea.fecha_limite|date:"d/M/Y" }}</small>
+                        {% if not tarea.completada %}
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#completarModal-{{ tarea.id_tarea }}">
+                            <i class="fa-solid fa-check"></i> Completar
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-light text-center">No tienes tareas operativas asignadas.</div>
+            {% endif %}
+        </div>
+
+        <!-- Columna de Cursos y Formación -->
+        <div class="col-md-6">
+            <h4><i class="fa-solid fa-graduation-cap me-2"></i>Cursos y Formación</h4>
+            <hr>
+            {% if cursos %}
+                {% for curso_asig in cursos %}
+                <div class="card mb-3 
+                    {% if curso_asig.estado == 'APROBADO' %}border-success
+                    {% elif curso_asig.estado == 'EN_REVISION' %}border-info
+                    {% elif curso_asig.estado == 'RECHAZADO' %}border-danger
+                    {% else %}border-warning{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center
+                        {% if curso_asig.estado == 'APROBADO' %}bg-success-subtle
+                        {% elif curso_asig.estado == 'EN_REVISION' %}bg-info-subtle
+                        {% elif curso_asig.estado == 'RECHAZADO' %}bg-danger-subtle
+                        {% else %}bg-warning-subtle{% endif %}">
+                        <h6 class="mb-0">{{ curso_asig.curso.nombre }}</h6>
+                        <span class="badge 
+                            {% if curso_asig.estado == 'APROBADO' %}bg-success
+                            {% elif curso_asig.estado == 'EN_REVISION' %}bg-info
+                            {% elif curso_asig.estado == 'RECHAZADO' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}">{{ curso_asig.get_estado_display }}</span>
+                    </div>
+                    <div class="card-body">
+                        {% if curso_asig.estado == 'RECHAZADO' and curso_asig.comentarios_revision %}
+                            <div class="alert alert-danger py-2">
+                                <strong>Motivo del rechazo:</strong> {{ curso_asig.comentarios_revision }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if curso_asig.certificado %}
+                            <p><i class="fa-solid fa-paperclip text-primary"></i> <a href="{{ curso_asig.certificado.url }}" target="_blank">Ver Certificado Subido</a></p>
+                        {% endif %}
+
+                        <form action="{% url 'subir_certificado' curso_asig.id_empleado_curso %}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="file" name="certificado" class="form-control form-control-sm" required>
+                            <button type="submit" class="btn btn-sm btn-primary ms-2" title="Subir o reemplazar certificado">
+                                <i class="fa-solid fa-upload"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% if curso_asig.fecha_vencimiento %}
+                    <div class="card-footer text-muted">
+                        <small><i class="fa-solid fa-calendar-times me-1"></i> Vence: {{ curso_asig.fecha_vencimiento|date:"d/M/Y" }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-light text-center">No tienes cursos obligatorios asignados.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modales de Tareas (ya existen en tareas.html, los copio) -->
+{% for tarea in tareas %}
+<div class="modal fade" id="completarModal-{{ tarea.id_tarea }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Completar: {{ tarea.titulo }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'completar_tarea' tarea.id_tarea %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Si lo requiere, puede adjuntar un archivo como evidencia (reporte, foto, etc.).</p>
+                    <input type="file" name="archivo_adjunto" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="fa-solid fa-check"></i> Marcar como Completada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

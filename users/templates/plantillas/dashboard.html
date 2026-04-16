@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{%block titulo%} {% endblock %} </title>
 
+    <!-- PWA / App Móvil Meta Tags -->
+    <meta name="theme-color" content="#198754">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <!-- Links css-->
     <!-- Link del css de toda la página-->
     <link rel="stylesheet" href="{% static 'css/dash.css' %}">
@@ -23,6 +28,59 @@
 
     <!-- Font awesome-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.css" integrity="sha512-U9Y1sGB3sLIpZm3ePcrKbXVhXlnQNcuwGQJ2WjPjnp6XHqVTdgIlbaDzJXJIAuCTp3y22t+nhI4B88F/5ldjFA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* Hace que la barra lateral se quede fija */
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Estilo para el botón del menú activo */
+        .menu-items .item.active {
+            background-color: #146c43 !important; /* Verde oscuro corporativo */
+            border-left: 5px solid #0a3622; /* Borde verde muy oscuro */
+            color: white !important;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        .menu-items .item.active a {
+            color: #ffffff !important; /* Texto blanco */
+            font-weight: 800;
+        }
+        .menu-items .item.active i {
+            color: #ffffff !important; /* Iconos blancos */
+        }
+
+        /* Responsividad: Menú colapsable en móviles */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px; /* Oculto por defecto */
+                transition: left 0.3s ease;
+                width: 250px;
+            }
+            .sidebar.active-sidebar {
+                left: 0; /* Mostrar al activar */
+            }
+            .dash-relleno {
+                padding: 10px; /* Menos padding en móviles */
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -36,79 +94,113 @@
         <div class="menu-content">
 
             <ul class="menu-items">
-                <div class="menu-title">
-                    Menu
-                </div>
-                
-                <!-- Dashboard principal-->
-      
-                
-                
-                <li class="item bloque" id="bloque" >
-                    <div class="submenu-item" id="item-desplegable" >
-                        {% if  usuarios == 1%}
-                        <i class="fa-solid fa-user icons"></i>
-                        <span class="span">  &nbsp;Usuarios &nbsp;  &nbsp; &nbsp; </span>
-                        
-                        <i class="fa-solid fa-chevron-down flecha-abajo" id="abajo"></i>
-                                </div>
-                                <!-- Submenu de acciones-->
-                                
-                                <ul class="menu-item submenu" id="usuarios1">
-                                    
-                                    <!-- Empleados -->
-                                    {% if   request.resolver_match.url_name == 'empleados'  %}
-                                        <li class="active-side">
-                                            <i class="fa-solid fa-helmet-safety icons"></i>
-                                            <a href="{% url 'empleados' %}">  &nbsp;Empleados</a>
-                                            
-                                        </li>
-                                    {% else %}
-                                        <li class="item">
-                                            <i class="fa-solid fa-helmet-safety icons"></i>
-                                            <a href="{% url 'empleados' %}">  &nbsp;Empleados</a>
-                                            
-                                        </li>
-                                    {% endif %}
-                                    {% if request.resolver_match.url_name == 'usuarios'  %}
-                                        <li class="active-side">
-                                            <i class="fa-solid fa-users icons"></i>
-                                            <a href="{% url 'usuarios' %}"> &nbsp;Usuarios</a>
-                                        </li>
+                <li class="menu-title">
+                    <span>Menu</span>
+                </li>
 
-                                    {% else %}
-                                        <li class="item">
-                                            <i class="fa-solid fa-users icons"></i>
-                                            <a href="{% url 'usuarios' %}"> &nbsp;Usuarios</a>
-                                        </li>
-                                    
-                                    {% endif %}
-                                    
-                                </ul>
-                                {% endif %}
-                        </li>
-                        
-         
-                        
-                           
-                          
-                            
-                        </ul>
+                <!-- INICIO -->
+                <li class="item">
+                    <i class="fa-solid fa-house icons"></i>
+                    <a href="{% url 'index' %}"> &nbsp;Inicio</a>
+                </li>
 
-                    
-                    </li>
-           
-                
-                <li class="item settings1">
-
-                    {% if  nombre_rol == 'Empleado'  %}
-                    <i class="fa-solid fa-gear icons"></i>
-                    <a href="{% url 'perfil' %}">&nbsp; Ajustes </a>    
+                <!-- INICIO / AGENDA -->
+                <li class="item {% if request.resolver_match.url_name == 'perfil_admin' or request.resolver_match.url_name == 'perfil_empleado' or request.resolver_match.url_name == 'agenda_personal' %}active{% endif %}">
+                    {% if nombre_rol == "Administrador" %}
+                        <i class="fa-solid fa-chart-pie icons"></i>
+                        <a href="{% url 'perfil_admin' %}"> &nbsp;Dashboard</a>
                     {% else %}
-                    <i class="fa-solid fa-gear icons"></i></i>
-                     <a href="{% url 'nosotros_conf' %}">&nbsp; Ajustes </a>    
+                        <i class="fa-solid fa-calendar-days icons"></i>
+                        <a href="{% url 'perfil_empleado' %}"> &nbsp;Agenda y Cursos
+                            <!-- Notificación visual en el menú -->
+                            {% if total_notificaciones > 0 %}
+                                <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7em;">{{ total_notificaciones }}</span>
+                            {% endif %}
+                        </a>
                     {% endif %}
+                </li>
+
+                <!-- GESTIÓN PARA ADMIN -->
+                {% if usuarios == 1 %}
+                    <li class="item {% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}">
+                        <i class="fa-solid fa-users icons"></i>
+                        <a href="{% url 'usuarios' %}"> &nbsp;Usuarios</a>
+                    </li>
+                {% endif %}
+
+                {% if usuarios == 1 or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
+                    <li class="item {% if request.resolver_match.url_name == 'empleados' or request.resolver_match.url_name == 'ver_agenda_empleado' %}active{% endif %}">
+                        <i class="fa-solid fa-helmet-safety icons"></i>
+                        <a href="{% url 'empleados' %}"> &nbsp;Empleados</a>
+                    </li>
+                {% endif %}
+
+                {% if usuarios == 1 %}
+                    <li class="item {% if request.resolver_match.url_name == 'asignar_roles' %}active{% endif %}">
+                        <i class="fa-solid fa-user-shield icons"></i>
+                        <a href="{% url 'asignar_roles' %}"> &nbsp;Roles</a>
+                    </li>
+                {% endif %}
+
+                <!-- TAREAS (Admin y Empleados) -->
+                {% if nombre_rol == "Administrador" or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
+                <li class="item {% if request.resolver_match.url_name == 'gestion_tareas' %}active{% endif %}">
+                    <i class="fa-solid fa-list-check icons"></i>
+                    <a href="{% url 'gestion_tareas' %}"> &nbsp;Tareas</a>
+                </li>
+                {% endif %}
+
+                <!-- Gestión de Cursos (SOLO ADMIN O USUARIOS CON PERMISOS) -->
+                {% if usuarios == 1 or nombre_rol == "Administrador" %}
+                    <li class="item {% if request.resolver_match.url_name == 'gestion_cursos' or request.resolver_match.url_name == 'editar_curso' %}active{% endif %}">
+                        <i class="fa-solid fa-graduation-cap icons"></i>
+                        <a href="{% url 'gestion_cursos' %}"> &nbsp;Gestión de Cursos Obligatorios</a>
+                    </li>
+                {% endif %}
+
+                <!-- Publicaciones (Admin y Empleados) -->
+                {% if nombre_rol == "Administrador" or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
+                    <li class="item {% if request.resolver_match.url_name == 'crear_post_view' or request.resolver_match.url_name == 'crear_post' or request.resolver_match.url_name == 'editar_post_view' or 'post' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-newspaper icons"></i>
+                        <a href="{% url 'crear_post_view' %}"> &nbsp;Publicaciones</a>
+                    </li>
+                    {% if usuarios == 1 %}
+                    <!-- SECCIÓN DE CONTROL Y AUDITORÍA -->
+                    <li class="item {% if request.resolver_match.url_name == 'panel_auditoria' %}active{% endif %}">
+                        <i class="fa-solid fa-file-shield icons"></i>
+                        <a href="{% url 'panel_auditoria' %}"> &nbsp;Auditoría</a>
+                    </li>
+                    <li class="item {% if request.resolver_match.url_name == 'reporte_rrhh' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line icons"></i>
+                        <a href="{% url 'reporte_rrhh' %}"> &nbsp;Reportes RRHH</a>
+                    </li>
+                    <!-- FIN SECCIÓN CONTROL -->
+
+                    <li class="item {% if request.resolver_match.url_name == 'gestion_pqrs' %}active{% endif %}">
+                        <i class="fa-solid fa-headset icons"></i>
+                        <a href="{% url 'gestion_pqrs' %}"> &nbsp;Gestión PQRS</a>
+                    </li>
+
+                    <li class="item {% if request.resolver_match.url_name == 'gestion_cotizaciones' %}active{% endif %}">
+                        <i class="fa-solid fa-file-invoice-dollar icons text-success"></i>
+                        <a href="{% url 'gestion_cotizaciones' %}"> &nbsp;Gestión Cotizaciones
+                            {% if total_cotizaciones > 0 %}
+                                <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7em;">{{ total_cotizaciones }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
                     
+                    <li class="item {% if request.resolver_match.url_name == 'nosotros_conf' %}active{% endif %}">
+                        <i class="fa-solid fa-images icons"></i>
+                        <a href="{% url 'nosotros_conf' %}"> &nbsp;Pág. Nosotros</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+           
+                <!-- PERFIL (para todos) -->
+                <li class="item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                    <i class="fa-solid fa-user-cog icons"></i>
+                    <a href="{% url 'perfil' %}">&nbsp; Mi Perfil</a>
                 </li>
                 <li class="item2">
                     <a href="{% url 'logout_view' %} ">&nbsp;Cerrar Sesion</a>
@@ -129,6 +221,7 @@
         </div>
     </nav>
 
+    <div class="main-content">
     <!-- Barra de navegación superior -->
     <nav class="navbar">
         
@@ -147,7 +240,14 @@
                     <a href="{% url 'perfil' %}"><i class="fa-solid fa-gear"></i></a>
                 </div>
                 <div class="notificaciones">
-                    <a href=""><i class="fa-regular fa-bell"></i></a>
+                    <a href="{% if nombre_rol == 'Administrador' %}{% url 'gestion_cursos' %}{% else %}{% url 'perfil_empleado' %}{% endif %}" class="position-relative">
+                        <i class="fa-regular fa-bell"></i>
+                        {% if total_notificaciones > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                <span class="visually-hidden">Alertas</span>
+                            </span>
+                        {% endif %}
+                    </a>
 
                 </div>
                 <div class="perfil " id="perfil"  >
@@ -212,6 +312,7 @@
 
         {% endblock  %}
     </div>
+    </div>
         <!-- Link de script bootstrap-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <!-- Link de sweetAlert-->
@@ -265,7 +366,6 @@
         {% endif %}
 
         //funcion para preguntar si esta seguro de editar
-      
        //Funcion para desplegar el menu de opciones del perfil
        function perfil(){
         document.getElementById("lista-perfil").classList.toggle("active-perfil");
@@ -273,25 +373,6 @@
         //Funcioon para desplegar la barra lateral 
         function toggleSidebar(){
             document.getElementById("sidebar").classList.toggle("active-sidebar");
-        }
-    
-        function toggle(){
-            document.getElementById("abajo").classList.toggle("abajo");
-        }
-        function toggle1(){
-            document.getElementById("abajo1").classList.toggle("abajo");
-        }
-
-        
-        //Funcion para desplegar los usuarios   
-        function añadir(){
-            document.getElementById("bloque").classList.toggle("activo1");
-        }
-        
-        document.getElementById("item-desplegable").onclick = function(){
-            añadir();
-            toggle();
-        
         }
         
         // Al presionar el boton de desplegar, va a poner en funcionamiento las funciones declaradas anteriormente
@@ -303,6 +384,209 @@
 
     </script>
 
+    <!-- CHAT BOX SNIPPET -->
+    <style>
+        /* Botón flotante */
+        .chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+        .chat-btn:hover { transform: scale(1.1); }
+
+        /* Contenedor del Chat */
+        .chat-box-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 320px;
+            height: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10001;
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .chat-header {
+            background-color: #28a745; /* Color verde */
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-input-area {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 5px;
+            background-color: white;
+        }
+        .msg-bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .msg-received {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        .msg-sent {
+            background-color: #28a745; /* Verde corporativo */
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .msg-info {
+            font-size: 0.7em;
+            color: #6c757d;
+            margin-left: 12px;
+            margin-bottom: 2px;
+            align-self: flex-start;
+        }
+        /* Media Query para Móviles */
+        @media (max-width: 480px) {
+            .chat-box-container {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+                height: 60vh;
+            }
+        }
+    </style>
+
+    <!-- Botón activador -->
+    <button class="btn btn-success chat-btn" onclick="toggleChat()">
+        <i class="fa-solid fa-comments"></i>
+    </button>
+
+    <!-- Ventana del Chat -->
+    <div class="chat-box-container" id="chatBox">
+        <div class="chat-header">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-headset me-2"></i>
+                <span>Soporte <small id="chatStatusDashboard" class="badge bg-danger" style="font-size: 0.6em;">Desconectado</small></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" onclick="toggleChat()"></button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg-bubble msg-received">¡Hola! Sistema de soporte interno activo.</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Escribe un mensaje..." onkeyup="if(event.key === 'Enter') sendMessage()">
+            <button class="btn btn-success btn-sm" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica del Chat Box
+        let chatInterval = null;
+
+        function toggleChat() {
+            const box = document.getElementById('chatBox');
+            const isHidden = (box.style.display === 'none' || box.style.display === '');
+            box.style.display = isHidden ? 'flex' : 'none';
+            
+            if (isHidden) {
+                loadMessages();
+                chatInterval = setInterval(loadMessages, 3000); // Polling cada 3 segundos
+                document.getElementById('chatStatusDashboard').textContent = "En línea";
+                document.getElementById('chatStatusDashboard').className = "badge bg-success";
+            } else {
+                clearInterval(chatInterval);
+                document.getElementById('chatStatusDashboard').textContent = "Ausente";
+                document.getElementById('chatStatusDashboard').className = "badge bg-warning";
+            }
+        }
+        
+        function loadMessages() {
+            fetch("{% url 'chat_api' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('chatMessages');
+                    container.innerHTML = ''; // Limpiar y repintar (simple)
+                    
+                    data.mensajes.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `msg-bubble ${msg.is_me ? 'msg-sent' : 'msg-received'}`;
+                        div.innerHTML = `<strong>${msg.user}</strong>: ${msg.text} <br><small style='font-size:0.7em; opacity:0.8'>${msg.time}</small>`;
+                        container.appendChild(div);
+                    });
+                });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (message === "") return;
+            
+            const formData = new FormData();
+            formData.append('mensaje', message);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch("{% url 'chat_api' %}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la red o servidor');
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'ok') {
+                    input.value = ''; // Limpiar solo si se envió bien
+                    loadMessages();
+                }
+            })
+            .catch(error => console.error('Error enviando mensaje:', error));
+        }
+
+        // --- MANTENER POSICIÓN DEL MENÚ LATERAL ---
+        // Esto hace que al dar clic y recargar, el menú no salte al inicio
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                const scrollPos = localStorage.getItem('sidebarScrollPos');
+                if (scrollPos) sidebar.scrollTop = scrollPos;
+                
+                sidebar.addEventListener('scroll', function() {
+                    localStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
+                });
+            }
+        });
+    </script>
+    <!-- FIN CHAT BOX SNIPPET -->
 
   
 </body>

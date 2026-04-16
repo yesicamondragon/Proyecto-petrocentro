@@ -8,9 +8,52 @@ urlpatterns = [
         #Urls para los empleados,  registrar, editar y listar
         path('empleados/', views.listar_empleados, name='empleados'),
         path('editar_empleados/<str:id>/',views.editar_empleados,name="editar_empleados"),
-        path('accounts/', include('django.contrib.auth.urls')),
         path('registrar_empleados/', views.registrar_empleados, name="registrar_empleados"),
         path('cambiar_estado/<int:id>', views.cambiar_estado, name="cambiar_estado"),
 
-    
+        #Urls para la gestión de tareas
+        path('tareas/', views.gestion_tareas, name='gestion_tareas'),
+        path('completar_tarea/<int:id_tarea>/', views.completar_tarea, name='completar_tarea'),
+        path('reactivar_tarea/<int:id_tarea>/', views.reactivar_tarea, name='reactivar_tarea'),
+        path('eliminar_tarea/<int:id_tarea>/', views.eliminar_tarea, name='eliminar_tarea'),
+
+        #Urls para la agenda y gestión de cursos
+        path('agenda/', views.agenda_personal, name='agenda_personal'),
+        path('subir_certificado/<int:id_empleado_curso>/', views.subir_certificado, name='subir_certificado'),
+        path('eliminar_certificado/<int:id_empleado_curso>/', views.eliminar_certificado, name='eliminar_certificado'),
+        path('gestion_cursos/', views.gestion_cursos, name='gestion_cursos'),
+        path('validar_certificado/<int:id_empleado_curso>/', views.validar_certificado, name='validar_certificado'),
+        path('soporte_empleado/', views.soporte_empleado, name='soporte_empleado'),
+
+        path('editar_curso/<int:id_curso>/', views.editar_curso, name='editar_curso'),
+        path('eliminar_curso/<int:id_curso>/', views.eliminar_curso, name='eliminar_curso'),
+        #Urls de perfiles por rol
+        path('perfil_empleado/', views.perfil_empleado, name='perfil_empleado'),
+        path('perfil_admin/', views.perfil_admin, name='perfil_admin'),
+        # URLs de Supervisión y Reportes para Admin
+        path('ver_agenda/<int:empleado_id>/', views.ver_agenda_empleado, name='ver_agenda_empleado'),
+        path('exportar_matriz/', views.exportar_matriz_excel, name='exportar_matriz_excel'),
+        
+        # URLs para descarga de PDFs
+        path('descargar_pdf_empleados/', views.descargar_pdf_empleados, name='descargar_pdf_empleados'),
+        path('descargar_pdf_usuarios/', views.descargar_pdf_usuarios, name='descargar_pdf_usuarios'),
+        path('descargar_pdf_cumplimiento/', views.descargar_pdf_cumplimiento, name='descargar_pdf_cumplimiento'),
+
+        # Nuevas funcionalidades de gestión de usuarios
+        path('cambiar_estado_usuario/<int:id>/', views.cambiar_estado_usuario, name='cambiar_estado_usuario'),
+        path('editar_usuario_rapido/<int:id>/', views.editar_usuario_rapido, name='editar_usuario_rapido'),
+        path('reset_password_usuario/<int:id>/', views.reset_password_usuario, name='reset_password_usuario'),
+        path('exportar_usuarios/', views.exportar_usuarios_excel, name='exportar_usuarios_excel'),
+
+        # Nuevas funcionalidades de gestión de empleados
+        path('exportar_empleados/', views.exportar_empleados_excel, name='exportar_empleados_excel'),
+        path('asignar_curso_empleado/<int:id_empleado>/', views.asignar_curso_empleado, name='asignar_curso_empleado'),
+        path('enviar_notificacion_empleado/<int:id_empleado>/', views.enviar_notificacion_empleado, name='enviar_notificacion_empleado'),
+        path('crear_tarea_rapida_empleado/<int:id_empleado>/', views.crear_tarea_rapida_empleado, name='crear_tarea_rapida_empleado'),
+        path('notificar_vencimiento_masivo/', views.notificar_vencimiento_masivo, name='notificar_vencimiento_masivo'),
+        
+        # Nuevas Integraciones
+        path('api/chat/', views.chat_api, name='chat_api'),
+        path('auditoria/', views.panel_auditoria, name='panel_auditoria'),
+        path('reporte_rrhh/', views.reporte_rrhh, name='reporte_rrhh'),
     ]

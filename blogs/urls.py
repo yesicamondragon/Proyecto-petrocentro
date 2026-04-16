@@ -11,7 +11,6 @@ urlpatterns = [
         path('blog/economia', views.economia,name="economia"),
         path('blog/hidrocarburos', views.hidrocarburos,name="hidrocarburos"),
 
-        path('suscribirse/', views.suscribir, name="suscribirse"),
         path('blog/<slug:slug>', views.post_detail_view,name="detail-post"),
         
 

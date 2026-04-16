@@ -11,50 +11,5 @@
 {% endblock titulo %}
 
 {% block content %}
-    <!-- Sección de Noticias Automáticas (API Externa) -->
-    <section class="blog-section" style="padding-bottom: 0; background-color: #fff;">
-        <div class="contenedor-blog">
-            <h2 class="titulo-blog">ACTUALIDAD DEL SECTOR OIL & GAS</h2>
-            <p class="subtitulo-blog">Noticias en tiempo real sobre hidrocarburos, petróleo y energía en Colombia.</p>
-            
-            <div class="grid-blog" id="news-container">
-                <div style="width: 100%; text-align: center; grid-column: 1/-1; padding: 20px;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 30px; color: #0b6838;"></i>
-                    <p style="margin-top: 10px; color: #666;">Cargando noticias en tiempo real...</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const feedURL = "https://news.google.com/rss/search?q=produccion+pozos+petroleo+gas+colombia&hl=es-419&gl=CO&ceid=CO:es-419";
-            const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedURL);
-
-            fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('news-container');
-                if(data.status === 'ok' && data.items.length > 0){
-                    container.innerHTML = '';
-                    const items = data.items.slice(0, 3);
-                    const images = ["{% static 'images/WT.webp' %}", "{% static 'images/tuberia.webp' %}", "{% static 'images/separador.webp' %}"];
-                    items.forEach((item, index) => {
-                        const randomImg = images[index % images.length];
-                        const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-                        let title = item.title.split(' - ')[0];
-                        const html = `<article class="blog-card"><div class="blog-imagen"><img src="${randomImg}" style="width: 100%; height: 100%; object-fit: cover;"></div><div class="blog-contenido"><span class="blog-fecha">${date}</span><h3 style="font-size: 18px; margin-bottom: 10px;">${title}</h3><p style="font-size: 15px;">Manténgase informado con las últimas novedades del sector energético.</p><a href="${item.link}" target="_blank" class="leer-mas">Leer noticia completa <i class="fa-solid fa-arrow-right"></i></a></div></article>`;
-                        container.innerHTML += html;
-                    });
-                } else {
-                    container.innerHTML = '<p style="text-align:center; width:100%; color: #666;">No se pudieron cargar las noticias.</p>';
-                }
-            })
-            .catch(e => {
-                console.error("Error:", e);
-                document.getElementById('news-container').innerHTML = '<p style="text-align:center; width:100%; color: #666;">Verifique su conexión.</p>';
-            });
-        });
-    </script>
     {{ block.super }}
 {% endblock %}

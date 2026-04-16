@@ -1,0 +1,65 @@
+{% extends "plantillas/plantilla.html" %}
+{% load static %}
+
+{% block titulo %} Radicar PQRS - Petrocentro {% endblock %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5" style="padding-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4 rounded bg-white">
+                <h2 class="text-center mb-4" style="color: #0b6838;">Formulario de Radicación PQRS</h2>
+                <p class="text-center text-muted mb-4">Por favor, complete el siguiente formulario para enviar su Petición, Queja, Reclamo o Sugerencia.</p>
+                
+                {% if messages %}
+                    <div class="mb-3">
+                        {% include 'plantillas/mensajes.html' %}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'pqrs_form_view' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Escriba su nombre" required value="{{ request.POST.nombre }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Correo Electrónico *</label>
+                            <input type="email" name="correo" class="form-control" placeholder="ejemplo@correo.com" required value="{{ request.POST.correo }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono de Contacto</label>
+                            <input type="text" name="telefono" class="form-control" placeholder="Número de celular" value="{{ request.POST.telefono }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Solicitud *</label>
+                            <select name="tipo" class="form-select" required>
+                                <option value="" disabled {% if not request.POST.tipo %}selected{% endif %}>Seleccione una opción</option>
+                                <option value="Peticion" {% if request.POST.tipo == 'Peticion' %}selected{% endif %}>Petición</option>
+                                <option value="Queja" {% if request.POST.tipo == 'Queja' %}selected{% endif %}>Queja</option>
+                                <option value="Reclamo" {% if request.POST.tipo == 'Reclamo' %}selected{% endif %}>Reclamo</option>
+                                <option value="Sugerencia" {% if request.POST.tipo == 'Sugerencia' %}selected{% endif %}>Sugerencia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción del Requerimiento *</label>
+                        <textarea name="mensaje" class="form-control" rows="7" placeholder="Detalle su solicitud aquí..." required>{{ request.POST.mensaje }}</textarea>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold" style="background-color: #0b6838; border-radius: 50px;">
+                            <i class="fa-solid fa-paper-plane me-2"></i>RADICAR SOLICITUD
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sucribirse_blog %}{% endblock sucribirse_blog %}
+{% block script %}{% endblock %}

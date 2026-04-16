@@ -50,6 +50,14 @@
                     {{field.label_tag}}
                     {{field}}
                 {% endfor %}
+                
+                <!-- Campo de Rol Automático (Solo lectura para seguridad) -->
+                <div style="margin-bottom: 20px;">
+                    <label for="rol_display" style="display: block; margin-bottom: 5px;">Rol de la cuenta:</label>
+                    <input type="text" id="rol_display" value="Empleado" disabled style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #e9ecef; color: #555; cursor: not-allowed;">
+                    <small style="display: block; margin-top: 5px; color: #777; font-size: 0.85em;">* Los permisos de Administrador se asignan exclusivamente desde el panel de gestión.</small>
+                </div>
+
                 <button type="submit">Registrarse</button>
             </form>
         </div>

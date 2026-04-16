@@ -1,0 +1,136 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Gestión de Tareas{% endblock %}
+{% block nombre_pagina %}Gestión de Tareas Operativas{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Columna para Crear Tarea -->
+        {% if can_create_tasks %}
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-plus me-2"></i>Asignar Tarea por Cargo</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'gestion_tareas' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Título de la Tarea</label>
+                            <input type="text" name="titulo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="descripcion" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha Límite</label>
+                            <input type="date" name="fecha_limite" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Asignar al Cargo:</label>
+                            <select name="id_cargo" class="form-select" required>
+                                <option value="">Seleccione un cargo...</option>
+                                {% for cargo in cargos %}
+                                    <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane me-2"></i>Asignar Tareas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Columna para Listar y Filtrar Tareas -->
+        <div class="{% if can_create_tasks %}col-lg-8{% else %}col-lg-12{% endif %}">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa-solid fa-list-check me-2"></i>Listado de Tareas Asignadas</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    {% if nombre_rol == "Administrador" %}
+                    <form method="GET" class="row g-3 mb-4">
+                        <div class="col-md-5">
+                            <label class="form-label">Filtrar por Empleado:</label>
+                            <select name="empleado_filtro" class="form-select">
+                                <option value="">Todos los Empleados</option>
+                                {% for emp in empleados_filtro %}
+                                <option value="{{ emp.id }}" {% if request.GET.empleado_filtro == emp.id|stringformat:"s" %}selected{% endif %}>{{ emp.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrar por Estado:</label>
+                            <select name="estado_tarea" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="pendiente" {% if request.GET.estado_tarea == 'pendiente' %}selected{% endif %}>Pendientes</option>
+                                <option value="completada" {% if request.GET.estado_tarea == 'completada' %}selected{% endif %}>Completadas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary w-100"><i class="fa-solid fa-filter me-2"></i>Filtrar</button>
+                        </div>
+                    </form>
+                    {% endif %}
+
+                    <!-- Tabla de Tareas -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tarea</th>
+                                    <th>Asignada a</th>
+                                    <th>Cargo</th>
+                                    <th>Fecha Límite</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tarea in tareas %}
+                                <tr>
+                                    <td>{{ tarea.titulo }}</td>
+                                    <td>{{ tarea.empleado.nombre }}</td>
+                                    <td><span class="badge bg-secondary">{{ tarea.id_cargo.nombre }}</span></td>
+                                    <td>
+                                        <span class="{% if tarea.is_overdue %}text-danger fw-bold{% endif %}">
+                                            {{ tarea.fecha_limite|date:"d/M/Y" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if tarea.completada %}
+                                            <span class="badge bg-success">Completada</span>
+                                        {% elif tarea.is_overdue %}
+                                            <span class="badge bg-danger">Vencida</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if nombre_rol == "Administrador" and permisos.eliminar == 1 %}
+                                            {% if tarea.completada %}
+                                                <a href="{% url 'reactivar_tarea' tarea.id_tarea %}" class="btn btn-sm btn-outline-warning" title="Reactivar Tarea"><i class="fa-solid fa-rotate-left"></i></a>
+                                            {% endif %}
+                                            <a href="{% url 'eliminar_tarea' tarea.id_tarea %}" class="btn btn-sm btn-outline-danger" title="Eliminar Tarea" onclick="return confirm('¿Estás seguro de eliminar esta tarea?');"><i class="fa-solid fa-trash"></i></a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No se encontraron tareas con los filtros aplicados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

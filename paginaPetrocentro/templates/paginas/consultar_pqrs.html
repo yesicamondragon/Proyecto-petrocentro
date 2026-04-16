@@ -1,0 +1,58 @@
+{% extends "paginas/index.html" %}
+{% load static %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5" style="padding-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Consultar Estado de PQRS</h4>
+                </div>
+                <div class="card-body">
+                    <p>Ingrese su número de radicado para conocer el estado actual de su solicitud.</p>
+                    <form method="GET" action="{% url 'consultar_pqrs' %}">
+                        <div class="input-group mb-3">
+                            <input type="text" name="radicado" class="form-control" placeholder="Ej: PQR-20231027-XXXX" required value="{{ request.GET.radicado }}">
+                            <button class="btn btn-success" type="submit">Consultar</button>
+                        </div>
+                    </form>
+
+                    {% if pqr %}
+                    <div class="mt-4 p-3 border rounded bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Historial del Proceso (Radicado: {{ pqr.radicado }})</h5>
+                            <span class="badge {% if pqr.estado == 'Pendiente' %}bg-warning{% elif pqr.estado == 'En Proceso' %}bg-info{% else %}bg-success{% endif %}">
+                                {{ pqr.get_estado_display }}
+                            </span>
+                        </div>
+                        <hr>
+                        
+                        <!-- Parte 1: Solicitud del Usuario -->
+                        <div class="mb-4">
+                            <span class="badge bg-primary">Solicitud de: {{ pqr.nombre }}</span>
+                            <div class="mt-2 p-3 border-start border-3 border-primary bg-white shadow-sm">
+                                <strong>{{ pqr.get_tipo_display }} enviada:</strong>
+                                <p class="mb-1">{{ pqr.mensaje }}</p>
+                                <small class="text-muted"><i class="fa-solid fa-clock"></i> Fecha: {{ pqr.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Parte 2: Respuesta de la Empresa -->
+                        {% if pqr.respuesta %}
+                        <div class="mt-3 p-3 bg-white border-start border-4 border-success shadow-sm">
+                            <span class="badge bg-success">Respuesta Oficial de Petrocentro S.A.S</span>
+                            <p>{{ pqr.respuesta }}</p>
+                        </div>
+                        {% else %}
+                        <p class="text-muted italic small"><i class="fa fa-clock"></i> Su solicitud está siendo revisada por nuestro equipo técnico.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'plantillas/mensajes.html' %}
+{% endblock %}

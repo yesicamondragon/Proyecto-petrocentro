@@ -1,0 +1,154 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}
+    Gestión de Tareas
+{% endblock %}
+
+{% block nombre_pagina %} Gestión de Tareas {% endblock %}
+
+{% block contenido %}
+<br>
+<br>
+
+<!-- SECCIÓN PARA CREAR TAREAS (SOLO ADMIN) -->
+{% if can_create_tasks %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Asignar Nueva Tarea</h5>
+    </div>
+    <div class="card-body">
+        <form action="{% url 'gestion_tareas' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="titulo" class="form-label">Título de la Tarea</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="id_cargo" class="form-label">Asignar al Cargo</label>
+                    <select name="id_cargo" id="id_cargo" class="form-select" required>
+                        <option value="" selected>Seleccione un cargo...</option>
+                        {% for cargo in cargos %}
+                            <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="fecha_limite" class="form-label">Fecha Límite</label>
+                    <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Crear Tarea
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- LISTADO DE TAREAS -->
+<div class="row">
+    {% if tareas %}
+        {% for tarea in tareas %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 {% if tarea.completada %}border-success border-2{% else %}border-warning border-2{% endif %}">
+                <div class="card-header d-flex justify-content-between align-items-center {% if tarea.completada %}bg-success-subtle{% else %}bg-warning-subtle{% endif %}">
+                    <h6 class="mb-0">
+                        <i class="fa-solid fa-briefcase me-2"></i>
+                        {{ tarea.id_cargo.nombre }}
+                    </h6>
+                    {% if tarea.completada %}
+                        <span class="badge bg-success">Completada</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ tarea.titulo }}</h5>
+                    <p class="card-text text-muted">{{ tarea.descripcion|default:"Sin descripción." }}</p>
+                    {% if tarea.archivo_adjunto %}
+                        <p class="mb-0">
+                            <i class="fa-solid fa-paperclip text-primary"></i>
+                            <a href="{{ tarea.archivo_adjunto.url }}" target="_blank">Ver Reporte Adjunto</a>
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-muted d-flex justify-content-between align-items-center">
+                    <div>
+                        <small>
+                            <i class="fa-solid fa-calendar-days me-1"></i>
+                            Límite: {{ tarea.fecha_limite|date:"d/M/Y" }}
+                        </small>
+                    </div>
+                    <div>
+                        {% if tarea.completada %}
+                            <a href="{% url 'reactivar_tarea' tarea.id_tarea %}" class="btn btn-sm btn-outline-secondary" title="Marcar como pendiente">
+                                <i class="fa-solid fa-rotate-left"></i> Reactivar
+                            </a>
+                        {% else %}
+                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#completarModal-{{ tarea.id_tarea }}">
+                                <i class="fa-solid fa-check"></i> Completar
+                            </button>
+                        {% endif %}
+                        {% if permisos.eliminar == 1 %}
+                        <a href="{% url 'eliminar_tarea' tarea.id_tarea %}" class="btn btn-sm btn-danger" title="Eliminar Tarea" onclick="return confirm('¿Estás seguro de que quieres eliminar esta tarea?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para completar tarea -->
+        <div class="modal fade" id="completarModal-{{ tarea.id_tarea }}" tabindex="-1" aria-labelledby="completarModalLabel-{{ tarea.id_tarea }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="completarModalLabel-{{ tarea.id_tarea }}">Completar: {{ tarea.titulo }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{% url 'completar_tarea' tarea.id_tarea %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <p>Si lo requiere, puede adjuntar un archivo como evidencia (reporte, foto, etc.).</p>
+                            <input type="file" name="archivo_adjunto" class="form-control">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success"><i class="fa-solid fa-check"></i> Marcar como Completada</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                No hay tareas asignadas para tu cargo en este momento.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    // Script para establecer la fecha mínima en el input de fecha límite
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const fechaLimiteInput = document.getElementById('fecha_limite');
+        if (fechaLimiteInput) {
+            fechaLimiteInput.setAttribute('min', today);
+        }
+    });
+</script>
+{% endblock %}

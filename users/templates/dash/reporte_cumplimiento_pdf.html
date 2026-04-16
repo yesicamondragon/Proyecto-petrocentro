@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        h1 { text-align: center; color: #146c43; }
+        .header-info { text-align: center; margin-bottom: 20px; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #198754; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .badge-success { color: green; font-weight: bold; }
+        .badge-warning { color: orange; font-weight: bold; }
+        .badge-danger { color: red; font-weight: bold; }
+        .summary-box { 
+            border: 1px solid #198754; 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            background-color: #e9ecef;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ titulo }}</h1>
+    <div class="header-info">
+        <p>Petrocentro S.A.S - Fecha de generación: {{ fecha|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div class="summary-box">
+        <strong>Resumen Global:</strong><br>
+        Total Asignaciones: {{ resumen.total }} | 
+        Aprobados: {{ resumen.aprobados }} | 
+        <strong>Cumplimiento: {{ resumen.porcentaje }}%</strong>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Cargo</th>
+                <th>Empleado</th>
+                <th>Curso</th>
+                <th>Estado</th>
+                <th>Vencimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in registros %}
+            <tr>
+                <td>{{ item.empleado.id_cargo.nombre }}</td>
+                <td>{{ item.empleado.nombre }}</td>
+                <td>{{ item.curso.nombre }}</td>
+                <td>
+                    {% if item.estado == 'APROBADO' %}
+                        <span class="badge-success">APROBADO</span>
+                    {% elif item.estado == 'RECHAZADO' %}
+                        <span class="badge-danger">RECHAZADO</span>
+                    {% else %}
+                        <span class="badge-warning">{{ item.get_estado_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.fecha_vencimiento %}
+                        {{ item.fecha_vencimiento|date:"d/m/Y" }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

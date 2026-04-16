@@ -5,8 +5,9 @@
     <div class="oil-drop"></div>
     <h2 class="subscribe-title">Suscríbete a Nuestro Blog</h2>
     <p class="subscribe-description">Reciba contenido técnico exclusivo sobre optimización de producción y servicios petroleros en Colombia.</p>
-    <form id="subscribeForm" class="subscribe-form">
-        <input type="email" id="emailInput" class="subscribe-input" placeholder="Tu correo electrónico" required>
+    <form id="subscribeForm" class="subscribe-form" action="{% url 'suscribirse' %}" method="POST">
+        {% csrf_token %}
+        <input type="email" id="emailInput" name="correo" class="subscribe-input" placeholder="Tu correo electrónico" required>
         <button type="submit" class="subscribe-button">Suscribirse</button>
     </form>
     <div id="messageBox" class="message" style="display: none;"></div>

@@ -1,0 +1,33 @@
+{% extends "plantillas/plantilla.html" %}
+{% load static %}
+
+{% block titulo %} PQRS Enviado - Petrocentro {% endblock %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5" style="padding-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4 rounded bg-white text-center">
+                <h2 class="text-center mb-4" style="color: #1a673e;"><i class="fa-solid fa-check-circle me-2"></i>¡Solicitud Enviada Correctamente!</h2>
+                <p class="lead">Hemos recibido su Petición, Queja, Reclamo o Sugerencia.</p>
+                <p>En breve recibirá un correo electrónico con los detalles de su solicitud y su número de radicado.</p>
+                <p>Podrá consultar el estado de su solicitud en cualquier momento utilizando el número de radicado en nuestra sección de PQRS.</p>
+                
+                {% if messages %}
+                    <div class="mb-3">
+                        {% include 'plantillas/mensajes.html' %}
+                    </div>
+                {% endif %}
+
+                <div class="mt-4">
+                    <a href="{% url 'pqrs' %}" class="btn btn-success px-4 py-2 fw-bold" style="background-color: #0b6838; border-radius: 50px;">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Volver a PQRS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}{% endblock %}

@@ -1,0 +1,664 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Mi Agenda{% endblock %}
+{% block nombre_pagina %}Mi Agenda Personal{% endblock %}
+
+{% block links_css %}
+<style>
+    /* Pestaña activa oscura y marcada */
+    .nav-tabs .nav-link.active {
+        background-color: #198754 !important; /* Verde corporativo */
+        color: white !important;
+        border-color: #198754 !important;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .nav-tabs .nav-link {
+        color: #198754; /* Verde texto para inactivos */
+        font-weight: 500;
+    }
+    /* Gráfico Circular Simple CSS */
+    .pie-chart {
+        width: 60px; height: 60px; border-radius: 50%;
+        background: conic-gradient(var(--color, #198754) calc(var(--p) * 1%), #e9ecef 0);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; color: var(--color, #198754); font-size: 0.9rem;
+        position: relative;
+    }
+    .pie-chart::after {
+        content: ""; position: absolute; width: 45px; height: 45px;
+        background: white; border-radius: 50%;
+    }
+    .pie-value { position: relative; z-index: 1; }
+
+    /* BARRA DE NAVEGACIÓN MÓVIL (APP VIEW) */
+    @media (max-width: 768px) {
+        .mobile-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            z-index: 1050; border-top: 1px solid #dee2e6;
+        }
+        .mobile-nav-item {
+            text-align: center; color: #6c757d; font-size: 0.8rem; text-decoration: none;
+        }
+        .mobile-nav-item.active { color: #198754; font-weight: bold; }
+        .mobile-nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+        .container-fluid { padding-bottom: 70px; } /* Espacio para no tapar contenido */
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <!-- TARJETA DE PERFIL Y BIENVENIDA -->
+    <div class="card shadow-sm mb-4 bg-light border-0">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div>
+                    {% if empleado.foto_perfil %}
+                        <img src="{{ empleado.foto_perfil.url }}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" alt="Foto de perfil">
+                    {% else %}
+                        <img src="{% static 'images/sin_foto.webp' %}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" alt="Sin foto">
+                    {% endif %}
+                </div>
+                <div class="ms-3">
+                    {% if is_admin_view %}
+                        <h4 class="mb-0">Agenda de: {{ empleado.nombre }}</h4>
+                    {% else %}
+                        <h4 class="mb-0">Bienvenido, {{ empleado.nombre }}</h4>
+                    {% endif %}
+                    <p class="text-muted mb-0">Cargo: <strong>{{ empleado.id_cargo.nombre }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE GAMIFICACIÓN Y PROGRESO -->
+    <div class="row mb-4">
+        <!-- Tarjeta Cumplimiento de Cursos -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success mb-3"><i class="fa-solid fa-graduation-cap me-2"></i>Formación</h5>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="pie-chart me-3" style="--p: {{ progreso_cumplimiento }}; --color: #198754;">
+                            <span class="pie-value">{{ progreso_cumplimiento }}%</span>
+                        </div>
+                        <div class="progress flex-grow-1" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated {% if progreso_cumplimiento < 50 %}bg-warning text-dark{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ progreso_cumplimiento }}%;" aria-valuenow="{{ progreso_cumplimiento }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-0">Has completado <strong>{{ cursos_historial|length }}</strong> de <strong>{{ total_cursos }}</strong> cursos obligatorios.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta Cumplimiento de Tareas (NUEVA) -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>Tareas</h5>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="pie-chart me-3" style="--p: {{ progreso_tareas }}; --color: #0d6efd;">
+                            <span class="pie-value">{{ progreso_tareas }}%</span>
+                        </div>
+                        <div class="progress flex-grow-1" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated {% if progreso_tareas < 50 %}bg-warning text-dark{% else %}bg-primary{% endif %}" role="progressbar" style="width: {{ progreso_tareas }}%;" aria-valuenow="{{ progreso_tareas }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-0">Has completado <strong>{{ tareas_historial|length }}</strong> de <strong>{{ total_tareas }}</strong> tareas asignadas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta Insignias -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-secondary mb-3"><i class="fa-solid fa-award me-2"></i>Insignias Obtenidas</h5>
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        {% for insignia in insignias %}
+                            <div class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ insignia.desc }}">
+                                <i class="{{ insignia.icono }} fa-3x {{ insignia.color }} mb-1"></i>
+                                <div class="small fw-bold text-truncate" style="font-size: 0.70rem; max-width: 70px;">{{ insignia.titulo }}</div>
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- RANKING POR ÁREA (GAMIFICACIÓN AVANZADA) -->
+                        <div class="mt-3 w-100 border-top pt-2">
+                            <h6 class="text-secondary small fw-bold">RANKING DE ÁREA</h6>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="bg-light rounded p-2 me-2 text-center" style="min-width: 80px;">
+                                    <span class="d-block text-muted small">Tu Posición</span>
+                                    <span class="h4 fw-bold {% if ranking_area == 1 %}text-warning{% else %}text-dark{% endif %}">#{{ ranking_area }}</span>
+                                </div>
+                                <div class="text-start small text-muted">
+                                    de {{ total_area }} empleados<br>en tu zona.
+                                </div>
+                            </div>
+                            {% if ranking_area == 1 %}
+                                <span class="badge bg-warning text-dark mt-1"><i class="fa-solid fa-trophy"></i> ¡Líder de Zona!</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- RETO MENSUAL -->
+                        <div class="mt-2 w-100 border-top pt-2">
+                            <h6 class="text-secondary small fw-bold">RETO DEL MES</h6>
+                            <div class="d-flex align-items-center justify-content-center p-2 rounded {% if reto_mensual.cumplido %}bg-success-subtle text-success{% else %}bg-light text-muted{% endif %}">
+                                <i class="{{ reto_mensual.icono }} fa-2x me-2"></i>
+                                <div class="text-start lh-1">
+                                    <div class="fw-bold small">{{ reto_mensual.titulo }}</div>
+                                    <div style="font-size: 0.65rem;">{{ reto_mensual.descripcion }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN POR PESTAÑAS -->
+    <ul class="nav nav-tabs mb-3 d-none d-md-flex" id="agendaTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab" aria-controls="pendientes" aria-selected="true">
+                <i class="fa-solid fa-clock me-2"></i>Mis Pendientes 
+                {% with total_pendientes=tareas_pendientes|length|add:cursos_pendientes|length %}
+                    {% if total_pendientes > 0 %}
+                        <span class="badge rounded-pill bg-danger ms-2">{{ total_pendientes }}</span>
+                    {% endif %}
+                {% endwith %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab" aria-controls="historial" aria-selected="false">
+                <i class="fa-solid fa-history me-2"></i>Historial
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="soporte-tab" data-bs-toggle="tab" data-bs-target="#soporte" type="button" role="tab" aria-controls="soporte" aria-selected="false">
+                <i class="fa-solid fa-circle-question me-2"></i>Soporte
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="agendaTabsContent">
+        <!-- PESTAÑA: PENDIENTES -->
+        <div class="tab-pane fade show active" id="pendientes" role="tabpanel" aria-labelledby="pendientes-tab">
+            <div class="row g-4">
+                {% if tareas_pendientes or cursos_pendientes %}
+                    <!-- Columna de Cursos y Formación (si existen) -->
+                    {% if cursos_pendientes %}
+                        <div class="{% if tareas_pendientes %}col-md-6{% else %}col-md-12{% endif %}">
+                            <h5 class="text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Cursos Pendientes</h5>
+                            <hr>
+                            {% for curso_asig in cursos_pendientes %}
+                            <div class="card mb-3 {% if curso_asig.estado == 'RECHAZADO' %}border-danger{% else %}border-info{% endif %}">
+                                <div class="card-header d-flex justify-content-between align-items-center {% if curso_asig.estado == 'RECHAZADO' %}bg-danger-subtle{% else %}bg-info-subtle{% endif %} p-2">
+                                    <h6 class="mb-0">{{ curso_asig.curso.nombre }}</h6>
+                                    <div>
+                                        <span class="badge {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            <i class="fa-solid {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}fa-users{% else %}fa-laptop{% endif %} me-1"></i>
+                                            {{ curso_asig.curso.get_modalidad_display }}
+                                        </span>
+                                        <span class="badge {% if curso_asig.estado == 'RECHAZADO' %}bg-danger{% else %}bg-info{% endif %}">{{ curso_asig.get_estado_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Bloque de Información del Curso (Lo que puso el Admin) -->
+                                    <div class="bg-light p-3 rounded mb-3 border">
+                                        <h6 class="fw-bold mb-2 text-success"><i class="fa-solid fa-circle-info"></i> Información del Curso:</h6>
+                                        <p class="mb-0 small text-muted">{{ curso_asig.curso.descripcion|default:"Sigue las instrucciones para completar esta formación obligatoria."|linebreaksbr }}</p>
+                                    </div>
+
+                                    {% if curso_asig.estado == 'RECHAZADO' and curso_asig.comentarios_revision %}
+                                        <div class="alert alert-danger py-2 mb-2">
+                                            <strong>Motivo del rechazo:</strong> {{ curso_asig.comentarios_revision }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}
+                                        <div class="alert alert-info py-2 mb-3"><i class="fa-solid fa-location-dot me-2"></i><strong>Lugar:</strong> {{ curso_asig.curso.lugar|default:"Ubicación por definir" }}</div>
+                                    {% endif %}
+
+                                    {% if curso_asig.curso.external_url %}
+                                    <div class="d-grid gap-2 mb-3">
+                                        <a href="{{ curso_asig.curso.external_url }}" target="_blank" class="btn btn-success">
+                                            <i class="fa-solid fa-play me-2"></i>Realizar Curso
+                                        </a>
+                                    </div>
+                                    <p class="small text-muted mb-2">Una vez finalizado, sube tu certificado para validación:</p>
+                                    {% elif curso_asig.curso.modalidad == 'PRESENCIAL' %}
+                                    <p class="small text-muted mb-2">Asiste a la capacitación en el lugar indicado y sube tu constancia de asistencia:</p>
+                                    {% else %}
+                                    <p class="small text-muted mb-2">Sube tu certificado descargado de la plataforma externa (Profe).</p>
+                                    {% endif %}
+
+                                    <form action="{% url 'subir_certificado' curso_asig.id_empleado_curso %}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center" onsubmit="confirmarEnvioCertificado(event, this)">
+                                        {% csrf_token %}
+                                        <input type="file" name="certificado" class="form-control form-control-sm" required>
+                                        <button type="submit" class="btn btn-sm btn-secondary ms-2" title="Subir o reemplazar certificado">
+                                            <i class="fa-solid fa-upload"></i>
+                                        </button>
+                                    </form>
+                                    {% if curso_asig.certificado %}
+                                        <div class="d-flex justify-content-between align-items-center mt-2 p-2 bg-light border rounded">
+                                            <span class="small text-truncate">
+                                                <i class="fa-solid fa-paperclip text-primary"></i> 
+                                                <a href="{{ curso_asig.certificado.url }}" target="_blank" class="text-decoration-none">Ver Archivo</a>
+                                            </span>
+                                            <form action="{% url 'eliminar_certificado' curso_asig.id_empleado_curso %}" method="POST" class="m-0">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" title="Quitar archivo" onclick="return confirm('¿Estás seguro de eliminar este archivo?');">
+                                                    <i class="fa-solid fa-trash-can"></i> Quitar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Columna de Tareas Operativas (si existen) -->
+                    {% if tareas_pendientes %}
+                        <div class="{% if cursos_pendientes %}col-md-6{% else %}col-md-12{% endif %}">
+                            <h5 class="text-success"><i class="fa-solid fa-list-check me-2"></i>Tareas por Realizar</h5>
+                            <hr>
+                            {% for tarea in tareas_pendientes %}
+                            <div class="card mb-3 {% if tarea.is_overdue %}border-danger border-2{% else %}border-warning{% endif %}">
+                                <div class="card-header d-flex justify-content-between align-items-center {% if tarea.is_overdue %}bg-danger-subtle{% else %}bg-warning-subtle{% endif %}">
+                                    <h6 class="mb-0">{{ tarea.titulo }}</h6>
+                                    <div>
+                                        {% if tarea.is_overdue %}
+                                            <span class="badge bg-danger">Vencida</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text text-muted">{{ tarea.descripcion|default:"Sin descripción." }}</p>
+                                </div>
+                                <div class="card-footer text-muted d-flex justify-content-between">
+                                    <small><i class="fa-solid fa-calendar-days me-1"></i> Límite: {{ tarea.fecha_limite|date:"d/M/Y" }}</small>
+                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#completarModal-{{ tarea.id_tarea }}">
+                                        <i class="fa-solid fa-check"></i> Completar
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-success text-center">
+                            <h4 class="alert-heading">¡Todo al día!</h4>
+                            <p>No tienes tareas operativas ni cursos pendientes. ¡Excelente trabajo!</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PESTAÑA: HISTORIAL -->
+        <div class="tab-pane fade" id="historial" role="tabpanel" aria-labelledby="historial-tab">
+            <div class="row">
+                <!-- Columna: Cursos por Hacer -->
+                <div class="col-md-6">
+                    <h5 class="text-success"><i class="fa-solid fa-hourglass-half me-2"></i>Cursos por Hacer</h5>
+                    <hr>
+                    {% if cursos_pendientes %}
+                        {% for curso_asig in cursos_pendientes %}
+                        <div class="card mb-3 {% if curso_asig.estado == 'RECHAZADO' %}border-danger{% else %}border-warning{% endif %}">
+                            <div class="card-header d-flex justify-content-between align-items-center {% if curso_asig.estado == 'RECHAZADO' %}bg-danger-subtle{% else %}bg-warning-subtle{% endif %} p-2">
+                                <h6 class="mb-0">{{ curso_asig.curso.nombre }}</h6>
+                                <div>
+                                    <span class="badge {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        <i class="fa-solid {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}fa-users{% else %}fa-laptop{% endif %} me-1"></i>
+                                        {{ curso_asig.curso.get_modalidad_display }}
+                                    </span>
+                                    <span class="badge {% if curso_asig.estado == 'RECHAZADO' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ curso_asig.get_estado_display }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small">{{ curso_asig.curso.descripcion|default:"Curso obligatorio pendiente." }}</p>
+                                {% if curso_asig.estado == 'RECHAZADO' %}
+                                    <div class="text-danger small mb-2"><strong>Motivo:</strong> {{ curso_asig.comentarios_revision }}</div>
+                                {% endif %}
+                                {% if curso_asig.estado == 'EN_REVISION' %}
+                                    <div class="text-info small"><i class="fa-solid fa-clock"></i> Esperando validación.</div>
+                                {% else %}
+                                    <div class="text-warning small"><i class="fa-solid fa-circle-exclamation"></i> Requiere acción en pestaña Pendientes.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-light text-center">¡Estás al día! No hay cursos por hacer.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Columna: Cursos ya Realizados -->
+                <div class="col-md-6">
+                    <h5 class="text-success"><i class="fa-solid fa-circle-check me-2"></i>Cursos ya Realizados</h5>
+                    <hr>
+                    {% if cursos_historial %}
+                        <div class="list-group">
+                        {% for curso_asig in cursos_historial %}
+                            <div class="list-group-item list-group-item-action list-group-item-success">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <h6 class="mb-1">{{ curso_asig.curso.nombre }}</h6>
+                                    <div>
+                                        <span class="badge {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            <i class="fa-solid {% if curso_asig.curso.modalidad == 'PRESENCIAL' %}fa-users{% else %}fa-laptop{% endif %} me-1"></i>
+                                            {{ curso_asig.curso.get_modalidad_display }}
+                                        </span>
+                                        <span class="badge bg-success"><i class="fa-solid fa-check"></i> Aprobado</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <!-- Historial visible con fechas -->
+                                    <div>
+                                        {% if curso_asig.fecha_vencimiento %}
+                                            <small class="text-warning fw-bold"><i class="fa-solid fa-calendar-xmark"></i> Vence: {{ curso_asig.fecha_vencimiento|date:"d/M/Y" }}</small>
+                                        {% else %}
+                                            <small class="text-success"><i class="fa-solid fa-infinity"></i> Certificado Permanente</small>
+                                        {% endif %}
+                                    </div>
+                                    {% if curso_asig.certificado %}
+                                        <a href="{{ curso_asig.certificado.url }}" target="_blank" class="btn btn-sm btn-light border"><i class="fa-solid fa-download"></i> Certificado</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aún no tienes cursos aprobados.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Historial de Tareas (Desplazado abajo) -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="text-secondary"><i class="fa-solid fa-list-check me-2"></i>Historial de Tareas</h5>
+                    <hr>
+                    {% if tareas_historial %}
+                        <div class="list-group">
+                        {% for tarea in tareas_historial %}
+                            <div class="list-group-item list-group-item-action list-group-item-light">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 text-decoration-line-through text-muted">{{ tarea.titulo }}</h6>
+                                    <small class="text-success fw-bold">Completada</small>
+                                </div>
+                                <p class="mb-1 small">{{ tarea.descripcion }}</p>
+                                {% if tarea.archivo_adjunto %}
+                                    <small><a href="{{ tarea.archivo_adjunto.url }}" target="_blank"><i class="fa-solid fa-file"></i> Ver Evidencia</a></small>
+                                {% endif %}
+                                
+                                <!-- Acción de Validación para Administrador -->
+                                {% if is_admin_view or request.user.is_superuser %}
+                                <form action="{% url 'reactivar_tarea' tarea.id_tarea %}" method="POST" class="mt-2 text-end">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Rechazar esta tarea? Volverá a estar pendiente para el empleado.');"><i class="fa-solid fa-rotate-left me-1"></i> Rechazar / Reactivar</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aún no tienes tareas completadas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA: SOPORTE -->
+        <div class="tab-pane fade" id="soporte" role="tabpanel" aria-labelledby="soporte-tab">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center p-5">
+                            <i class="fa-solid fa-headset fa-4x text-primary mb-4"></i>
+                            <h3>¿Necesitas Ayuda?</h3>
+                            <p class="lead text-muted">Aquí tienes recursos para gestionar tu agenda y cumplimiento.</p>
+                            
+                            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4">
+                                <button type="button" class="btn btn-outline-primary btn-lg px-4 gap-3" data-bs-toggle="modal" data-bs-target="#manualesModal">
+                                    <i class="fa-solid fa-book me-2"></i>Ver Manuales y Guías
+                                </button>
+                                <button type="button" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#soporteModal">
+                                    <i class="fa-solid fa-envelope me-2"></i>Contactar Administrador
+                                </button>
+                            </div>
+                            <div class="mt-4">
+                                <small class="text-muted">Para dudas sobre certificados "Profe", contacta a tu supervisor directo.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BARRA DE NAVEGACIÓN MÓVIL (SOLO VISIBLE EN CELULAR) -->
+<div class="mobile-nav d-md-none">
+    <a href="#" class="mobile-nav-item active" onclick="clickTab('pendientes-tab', this)">
+        <div class="position-relative">
+            <i class="fa-solid fa-clipboard-list"></i>
+            {% with total_pendientes=tareas_pendientes|length|add:cursos_pendientes|length %}
+                {% if total_pendientes > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 2px 4px;">
+                    {{ total_pendientes }}
+                </span>
+                {% endif %}
+            {% endwith %}
+        </div>
+        Pendientes
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="clickTab('historial-tab', this)">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Historial
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="clickTab('soporte-tab', this)">
+        <i class="fa-solid fa-headset"></i>
+        Ayuda
+    </a>
+    <!-- Botón flotante de chat integrado -->
+    <a href="#" class="mobile-nav-item text-success" onclick="toggleChat()">
+        <i class="fa-solid fa-comments"></i>
+        Chat
+    </a>
+</div>
+
+<!-- Modales de Tareas (ya existen en tareas.html, los copio) -->
+{% for tarea in tareas %}
+<div class="modal fade" id="completarModal-{{ tarea.id_tarea }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Completar: {{ tarea.titulo }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'completar_tarea' tarea.id_tarea %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Si lo requiere, puede adjuntar un archivo como evidencia (reporte, foto, etc.).</p>
+                    <input type="file" name="archivo_adjunto" class="form-control">
+                    <div class="mt-3">
+                        <label for="comentarios_cumplimiento-{{ tarea.id_tarea }}" class="form-label">Descripción de actividades realizadas (Opcional)</label>
+                        <textarea name="comentarios_cumplimiento" id="comentarios_cumplimiento-{{ tarea.id_tarea }}" class="form-control" rows="3" placeholder="Describe brevemente lo que hiciste..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="fa-solid fa-check"></i> Marcar como Completada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal de Soporte (Contacto Admin) -->
+<div class="modal fade" id="soporteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fa-solid fa-headset me-2"></i>Contactar Soporte</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'soporte_empleado' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Asunto</label>
+                        <select name="asunto" class="form-select" required>
+                            <option value="Duda sobre Tarea">Duda sobre una Tarea</option>
+                            <option value="Problema con Certificado">Problema al subir Certificado</option>
+                            <option value="Error en Plataforma">Reportar un Error</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mensaje</label>
+                        <textarea name="mensaje" class="form-control" rows="4" placeholder="Describe tu solicitud..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Manuales (Placeholder) -->
+<div class="modal fade" id="manualesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manuales y Guías de Ayuda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#guiaCargaModal" class="list-group-item list-group-item-action text-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fa-solid fa-book-open text-primary me-2"></i>Guía de Carga de Certificados</h6>
+                            <small class="text-primary">Ver guía</small>
+                        </div>
+                        <p class="mb-1 small">Paso a paso para descargar tu certificado de Guardian y subirlo aquí.</p>
+                    </button>
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#protocoloTareasModal" class="list-group-item list-group-item-action text-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fa-solid fa-list-check text-success me-2"></i>Protocolo de Tareas Operativas</h6>
+                            <small class="text-primary">Ver guía</small>
+                        </div>
+                        <p class="mb-1 small">Instrucciones generales para el cumplimiento de tareas asignadas.</p>
+                    </button>
+                </div>
+                <div class="alert alert-info mt-3 mb-0 text-center">
+                    <small>Si no encuentras lo que buscas, usa el botón de contacto.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Guía Carga -->
+<div class="modal fade" id="guiaCargaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fa-solid fa-book-open me-2"></i>Guía de Carga de Certificados</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5><i class="fa-solid fa-1 text-primary"></i> Descarga desde Guardian</h5>
+                <p>Ingresa a la plataforma Guardian de la Productividad. Dirígete a tu historial de autoevaluaciones o cursos y descarga el certificado en formato PDF o imagen.</p>
+                <hr>
+                <h5><i class="fa-solid fa-2 text-primary"></i> Ubica el Curso en tu Agenda</h5>
+                <p>En esta plataforma, ve a la pestaña <strong>"Mis Pendientes"</strong>. En la columna de "Cursos Obligatorios", busca el curso correspondiente (ej. Curso ARL).</p>
+                <hr>
+                <h5><i class="fa-solid fa-3 text-primary"></i> Sube el Archivo</h5>
+                <p>En la tarjeta del curso, verás un campo para seleccionar archivo. Haz clic, busca el certificado que descargaste en tu dispositivo y selecciónalo.</p>
+                <hr>
+                <h5><i class="fa-solid fa-4 text-primary"></i> Enviar para Validación</h5>
+                <p>Haz clic en el botón de <i class="fa-solid fa-upload"></i> (Subir) al lado del archivo. El estado cambiará a "EN REVISIÓN". El administrador validará tu certificado pronto.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-target="#manualesModal" data-bs-toggle="modal">Volver</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Protocolo Tareas -->
+<div class="modal fade" id="protocoloTareasModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fa-solid fa-list-check me-2"></i>Protocolo de Tareas Operativas</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5><i class="fa-solid fa-check-circle text-success"></i> Revisión Diaria</h5>
+                <p>Es responsabilidad de cada empleado revisar su agenda operativa al inicio de la jornada para identificar nuevas asignaciones.</p>
+                <hr>
+                <h5><i class="fa-solid fa-clock text-success"></i> Priorización</h5>
+                <p>Las tareas marcadas como "Vencidas" o que vencen el día de hoy deben tener prioridad alta en su ejecución.</p>
+                <hr>
+                <h5><i class="fa-solid fa-camera text-success"></i> Evidencias</h5>
+                <p>Al completar una tarea operativa, si se requiere soporte visual o documental, asegúrese de tener el archivo listo (foto, pdf, reporte) antes de marcarla como completada.</p>
+                <hr>
+                <h5><i class="fa-solid fa-clipboard-check text-success"></i> Cierre de Tarea</h5>
+                <p>Una vez realizada la labor, ubique la tarea en la pestaña "Mis Pendientes", haga clic en "Completar", adjunte la evidencia si aplica y confirme la acción.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-target="#manualesModal" data-bs-toggle="modal">Volver</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script para sincronizar la barra móvil con las pestañas de Bootstrap
+    function clickTab(tabId, element) {
+        // Activar pestaña real
+        document.getElementById(tabId).click();
+        
+        // Actualizar estilos barra móvil
+        document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
+        if (element) {
+            element.classList.add('active');
+        }
+    }
+
+    function confirmarEnvioCertificado(event, form) {
+        event.preventDefault(); // Detiene el envío automático
+        Swal.fire({
+            title: '¿Está seguro de enviar el curso?',
+            text: "El certificado entrará en proceso de validación.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Enviar',
+            cancelButtonText: 'Deshacer'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // Envía el formulario si el usuario confirma
+            }
+        });
+    }
+</script>
+{% endblock %}

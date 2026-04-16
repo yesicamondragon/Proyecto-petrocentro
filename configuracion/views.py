@@ -16,7 +16,7 @@ from .models import *
 from Petrocentro import settings
 from blogs.models import *
 from django.contrib.auth.models import User
-from paginaPetrocentro.models import Usuario,Estado
+from paginaPetrocentro.models import Usuario, Estado, Suscriptores
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 import uuid
@@ -37,13 +37,13 @@ def obtener_permisos(permisos):
         if permiso.permiso.nombre == "Crear":
             crear = 1
     for permiso in permisos:
-        if permiso.permiso.nombre == "Consultar":
+        if permiso.permiso.nombre in ["Consultar", "Consultor"]:
             consultar = 1
     for permiso in permisos: 
         if permiso.permiso.nombre == "Eliminar":
             eliminar = 1
     for permiso in permisos:
-        if permiso.permiso.nombre == "Actualizar":
+        if permiso.permiso.nombre in ["Actualizar", "Editar", "Editor"]:
             editar = 1 
     for permiso in permisos:
         if permiso.permiso.nombre == "Usuarios":
@@ -62,68 +62,84 @@ def obtener_permisos(permisos):
 #Funcion que redirige a la vista del perfil.
 @login_required
 def perfil(request):
-    
-        usuario_logeado = request.session.get('usuario_logeado') #Obtener el id del user logeado
+    usuario_logeado_id = request.session.get('usuario_logeado')
 
-        try:
-                emp = Usuario.objects.get(id = usuario_logeado )
-                emplea= Empleado.objects.get(id = emp.id)
-                rol = emplea.id_rol
-                if rol != None:
-                    nombre_rol = rol.nombre
-                else: 
-                    nombre_rol = "No tiene rol"
-                empleado = Empleado.objects.get(id = emp.id) 
-                permisos = Rol_permiso.objects.filter(rol = rol)
-                obtener_permiso = obtener_permisos(permisos)
-            
+    if not usuario_logeado_id:
+        messages.error(request, "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.")
+        return redirect('login_view')
 
-                
-                #Enviamos toda la data al template 
-                data = {
-                'usuario': emp,
-                'empleado': empleado,
-                'crear': obtener_permiso['crear'],
-                'usuarios':obtener_permiso['usuarios'],
-                'editar': obtener_permiso['editar'],
-                'eliminar': obtener_permiso['eliminar'],
-                'nombre_rol' : nombre_rol,
-                }
-                return render(request, 'configuracion/perfil.html', data)
+    # Todos los usuarios logueados deben tener un perfil de Usuario.
+    usuario_profile = get_object_or_404(Usuario, id=usuario_logeado_id)
 
-        except Usuario.DoesNotExist as e :
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                data = {'usuario': usuario}
-                return render(request, 'configuracion/perfil.html', data)
+    # Inicializamos el contexto con la información base y permisos por defecto.
+    context = {
+        'usuario': usuario_profile,
+        'empleado': None,
+        'nombre_rol': 'Usuario',
+        'crear': 0,
+        'usuarios': 0,
+        'editar': 0,
+        'eliminar': 0,
+    }
+
+    # Ahora, intentamos obtener el perfil de Empleado y sus permisos.
+    try:
+        empleado_profile = Empleado.objects.get(id=usuario_profile.id)
+        context['empleado'] = empleado_profile
+        
+        rol = empleado_profile.id_rol
+        if rol:
+            context['nombre_rol'] = rol.nombre
+            permisos_qs = Rol_permiso.objects.filter(rol=rol)
+            permisos_data = obtener_permisos(permisos_qs)
+            context.update(permisos_data) # Actualiza el contexto con los permisos
+        else:
+            context['nombre_rol'] = "Empleado (Sin Rol)"
+
+    except Empleado.DoesNotExist:
+        # Es un usuario normal sin perfil de empleado, el contexto base es suficiente.
+        pass
+
+    # Si es superusuario, sobreescribimos los permisos para darle acceso total.
+    if request.user.is_superuser:
+        context['nombre_rol'] = "Administrador"
+        context.update({'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1})
+
+    return render(request, 'configuracion/perfil.html', context)
 
 #Funcion que edita si es preciso los campos del perfil.
 def editar_perfil(request):
     if request.method == 'POST':
        
-        usuario_logeado = request.session.get('usuario_logeado')
-        usuario = Usuario.objects.get(id = usuario_logeado)
+        usuario_logeado_id = request.session.get('usuario_logeado')
+        usuario = get_object_or_404(Usuario, id=usuario_logeado_id)
+        
         nombre = request.POST.get('nombre')
-        identificacion = request.POST.get('identificacion')
         correo = request.POST.get('correo')
-        telefono = request.POST.get('telefono')
         foto= request.FILES.get('foto')
          
-         
+        # Actualizar datos básicos de Usuario (Perfil Personal)
+        usuario.nombre = nombre
+        usuario.correo = correo
         if foto:
-            usuario.foto_perfil=foto
-            usuario.nombre=nombre
-            usuario.identificacion=identificacion
-            usuario.correo=correo
-            usuario.telefono = telefono
+            # Eliminar la foto anterior si existe para no acumular archivos basura
+            if usuario.foto_perfil:
+                usuario.foto_perfil.delete(save=False)
+            usuario.foto_perfil = foto
+        usuario.save()
 
-            usuario.save()
-        else:
-            usuario.nombre=nombre
-            usuario.identificacion=identificacion
-            usuario.correo=correo
-            usuario.telefono = telefono
-            usuario.save()
-            
+        # Actualizar datos extendidos de Empleado (Teléfono, Identificación) si existen
+        identificacion = request.POST.get('identificacion')
+        telefono = request.POST.get('telefono')
+        
+        try:
+            empleado = Empleado.objects.get(id=usuario.id)
+            empleado.identificacion = identificacion
+            empleado.telefono = telefono
+            empleado.save()
+        except Empleado.DoesNotExist:
+            pass
+
         if usuario:
             messages.success(request, 'Perfil modificado exitosamente')
             return redirect('perfil')
@@ -191,35 +207,44 @@ def password_change(request, id):
 #Funcion que dirige a la vista de configuracion de las fotos del carrusel en la pagina "nosotros".
 @login_required
 def configuracion_nosotros (request):
-    usuario_logeado = request.session.get('usuario_logeado')
-    try:  
-        emp = Usuario.objects.get(id = usuario_logeado )
-        emplea= Empleado.objects.get(id = emp.id)
-        rol = emplea.id_rol
-        nombre_rol = rol.nombre
-        empleado = Empleado.objects.get(id = emp.id) 
-        permisos = Rol_permiso.objects.filter(rol_id = rol)
-        obtener_permiso = obtener_permisos(permisos)
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    user = request.user
 
-        
-            
-        fotos=Nosotros.objects.all()
-        data={
-        'fotos': fotos,
-        'empleado': empleado,
-        'nombre_rol':nombre_rol,
-        'usuario': emp,
-        'crear': obtener_permiso['crear'],
-        'usuarios':obtener_permiso['usuarios'],
-        'editar': obtener_permiso['editar'],
-        'eliminar': obtener_permiso['eliminar'],
-        'empleado': empleado,
-        }
+    # --- Obtener perfil de usuario y permisos ---
+    permisos = {}
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
+    empleado = None
+    nombre_rol = "Usuario"
 
-        return render(request, 'configuracion/nosotros_conf.html',data)
-    except Exception as e:
-        messages.error(request, f'Error : {e}')
-        return redirect('inicio')
+    if user.is_superuser:
+        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        nombre_rol = "Administrador"
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+        except Empleado.DoesNotExist:
+            pass # Superuser might not be an employee
+    else:
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+            if empleado.id_rol and empleado.id_rol.nombre == "Administrador":
+                nombre_rol = "Administrador"
+                permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
+                permisos = obtener_permisos(permisos_qs)
+            else:
+                messages.error(request, 'No tienes permisos para acceder a la configuración.')
+                return redirect('index')
+        except Empleado.DoesNotExist:
+            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+            return redirect('index')
+
+    # --- Lógica de la vista ---
+    fotos = Nosotros.objects.all()
+    data = {
+        'fotos': fotos, 'empleado': empleado, 'nombre_rol': nombre_rol, 'usuario': emp,
+        'crear': permisos.get('crear', 0), 'usuarios': permisos.get('usuarios', 0),
+        'editar': permisos.get('editar', 0), 'eliminar': permisos.get('eliminar', 0),
+    }
+    return render(request, 'configuracion/nosotros_conf.html', data)
 
 #Funcion que permite agregar las fotos al carrusel.
 def agregar_fotos_nosotros(request):
@@ -334,47 +359,46 @@ def editar_nosotros(request,id):
 #Funcion que dirige a la vista de los roles.
 @login_required
 def roles(request):
-    usuario_logeado = request.session.get('usuario_logeado')
-    try:
-        emp = Usuario.objects.get(id = usuario_logeado )
-        emplea= Empleado.objects.get(id = emp.id)
-        rol = emplea.id_rol
-        nombre_rol = rol.nombre
-        empleado = Empleado.objects.get(id = emp.id) 
-        permisos = Rol_permiso.objects.filter(rol = rol)
-        obtener_permiso = obtener_permisos(permisos)
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    user = request.user
 
-  
-            
-        if nombre_rol == "Administrador" and emplea.estado.id == 1:   
-            rol_permiso= Rol_permiso.objects.all()
-            permiso = Rol.objects.all()
-            rol= Rol.objects.all()
-            
-            data = {
-                
-                'empleado':empleado,
-                'roles': rol,
-                'permisos':permiso,
-                'rol_permisos': rol_permiso,
-                'crear': obtener_permiso['crear'],
-                'editar': obtener_permiso['editar'],
-                'usuarios': obtener_permiso['usuarios'],
-                'eliminar': obtener_permiso['eliminar'],
-                'empleado': empleado,
-                'nombre_rol':nombre_rol,
-                'usuario': emp,
-                
-            }
-            return render(request,'configuracion/roles.html', data)
-        else:
-            messages.error(request, 'No tiene permisos para este modulo')
-            return redirect('empleados')
-            
-       
-    except Exception as e:
-        messages.error(request, f'Error: {e}')
-        return redirect('empleados')
+    # --- Obtener perfil de usuario y permisos ---
+    permisos = {}
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
+    empleado = None
+    nombre_rol = "Usuario"
+
+    if user.is_superuser:
+        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        nombre_rol = "Administrador"
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+        except Empleado.DoesNotExist:
+            pass # Superuser might not be an employee
+    else:
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+            if empleado.id_rol and empleado.id_rol.nombre == "Administrador":
+                nombre_rol = "Administrador"
+                permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
+                permisos = obtener_permisos(permisos_qs)
+            else:
+                messages.error(request, 'No tienes permisos para este módulo.')
+                return redirect('index')
+        except Empleado.DoesNotExist:
+            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+            return redirect('index')
+
+    # --- Lógica de la vista ---
+    data = {
+        'empleado': empleado, 'roles': Rol.objects.prefetch_related('permiso').all(),
+        'permisos': Permisos.objects.all(), 'rol_permisos': Rol_permiso.objects.all(),
+        'crear': permisos.get('crear', 0), 'editar': permisos.get('editar', 0),
+        'usuarios': permisos.get('usuarios', 0), 'eliminar': permisos.get('eliminar', 0),
+        'lista_empleados': Empleado.objects.all().order_by('nombre'), # Para modal de asignación
+        'nombre_rol': nombre_rol, 'usuario': emp,
+    }
+    return render(request, 'configuracion/roles.html', data)
     
 #Funcion que filtra los roles desde la plantilla, esta funcion se llama mediante javascript.
 def filtrar_permisos(request):
@@ -417,6 +441,17 @@ def crear_rol(request):
                 
                 rol = Rol(nombre=nombre)
                 rol.save()
+                
+                # Historial de cambios
+                try:
+                    admin = Usuario.objects.get(id=request.session.get('usuario_logeado'))
+                    LogActividad.objects.create(
+                        admin_responsable=admin,
+                        accion="Crear Rol",
+                        detalles=f"Se creó el rol: {nombre}"
+                    )
+                except: pass
+
                 messages.success(request, 'Rol creado correctamente.')
                 return redirect('asignar_roles')
 
@@ -429,64 +464,91 @@ def crear_rol(request):
 def agregar_permisos(request,id):
     if request.method == 'POST':
         try:
+            # Gestión Granular: Se mapea el input del form con el nombre en BD
+            # Esto permite activar/desactivar permisos específicos
             crear = request.POST.get('crear')
             consultar = request.POST.get('consultar')
             editar = request.POST.get('editar')
             eliminar = request.POST.get('eliminar')
-            proyecto = request.POST.get('proyecto')
             usuarios = request.POST.get('usuarios')
   
-                     
             rol = Rol.objects.get(id_rol=id)
+            cambios_realizados = []
+
+            # Helper para buscar permisos con variantes de nombre (evita error DoesNotExist)
+            def get_permiso_seguro(lista_nombres):
+                return Permisos.objects.filter(nombre__in=lista_nombres).first()
 
             #Crear
-            if crear == 'on':                
-                permiso = Permisos.objects.get(nombre="Crear")
-                if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
-                    Rol_permiso.objects.create(rol = rol, permiso = permiso)
-            else:
-                permiso = Permisos.objects.get(nombre="Crear")                
-                Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+            permiso = get_permiso_seguro(["Crear"])
+            if permiso:
+                if crear == 'on':                
+                    if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.create(rol = rol, permiso = permiso)
+                        cambios_realizados.append("Activar Crear")
+                else:
+                    if Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+                        cambios_realizados.append("Desactivar Crear")
                 
             #Eliminar
-            if eliminar == 'on':
-                permiso = Permisos.objects.get(nombre="eliminar")                
-                if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
-                    Rol_permiso.objects.create(rol = rol, permiso = permiso)
-            else:
-                permiso = Permisos.objects.get(nombre="eliminar")                
-                Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+            permiso = get_permiso_seguro(["Eliminar"])
+            if permiso:
+                if eliminar == 'on':
+                    if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.create(rol = rol, permiso = permiso)
+                        cambios_realizados.append("Activar Eliminar")
+                else:
+                    if Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+                        cambios_realizados.append("Desactivar Eliminar")
                 
             #Editar    
-            if editar == 'on':
-                permiso = Permisos.objects.get(nombre="actualizar")                
-                if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
-                    Rol_permiso.objects.create(rol = rol, permiso = permiso)
-            else:
-                permiso = Permisos.objects.get(nombre="actualizar")            
-                Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+            permiso = get_permiso_seguro(["Editar", "Editor", "Actualizar"])
+            if permiso:
+                if editar == 'on':
+                    if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.create(rol = rol, permiso = permiso)
+                        cambios_realizados.append("Activar Editar")
+                else:
+                    if Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+                        cambios_realizados.append("Desactivar Editar")
                 
             #Consultar
-            if consultar == 'on':
-                permiso = Permisos.objects.get(nombre="consultar")                
-                if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
-                    Rol_permiso.objects.create(rol = rol, permiso = permiso)
-            else:
-                permiso = Permisos.objects.get(nombre="consultar")                
-                Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
-
-            #Proyecto
-     
-          
+            permiso = get_permiso_seguro(["Consultar", "Consultor"])
+            if permiso:
+                if consultar == 'on':
+                    if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.create(rol = rol, permiso = permiso)
+                        cambios_realizados.append("Activar Consultar")
+                else:
+                    if Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+                        cambios_realizados.append("Desactivar Consultar")
                 
             #Usuarios
-            if usuarios == 'on':
-                permiso = Permisos.objects.get(nombre="Usuarios")                
-                if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
-                    Rol_permiso.objects.create(rol = rol, permiso = permiso)
-            else:
-                permiso = Permisos.objects.get(nombre="Usuarios")                
-                Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+            permiso = get_permiso_seguro(["Usuarios"])
+            if permiso:
+                if usuarios == 'on':
+                    if not Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.create(rol = rol, permiso = permiso)
+                        cambios_realizados.append("Activar Usuarios")
+                else:
+                    if Rol_permiso.objects.filter(rol = rol, permiso = permiso).exists():
+                        Rol_permiso.objects.filter(rol = rol, permiso = permiso).delete()
+                        cambios_realizados.append("Desactivar Usuarios")
+            
+            # Historial de cambios en roles
+            if cambios_realizados:
+                try:
+                    admin = Usuario.objects.get(id=request.session.get('usuario_logeado'))
+                    LogActividad.objects.create(
+                        admin_responsable=admin,
+                        accion="Modificar Permisos Rol",
+                        detalles=f"Rol {rol.nombre}: {', '.join(cambios_realizados)}"
+                    )
+                except: pass
                 
             messages.success(request, 'Asignación de roles realizada.')
             return redirect('asignar_roles')
@@ -497,11 +559,80 @@ def agregar_permisos(request,id):
             return redirect('asignar_roles')
         
     return redirect('asignar_roles')
+
+@login_required
+def asignar_usuarios_rol(request, id):
+    """Asigna masivamente usuarios a un rol específico desde la vista de roles."""
+    if request.method == 'POST':
+        try:
+            rol = get_object_or_404(Rol, id_rol=id)
+            usuarios_ids = request.POST.getlist('usuarios_seleccionados')
+            
+            if not usuarios_ids:
+                messages.warning(request, "No seleccionaste ningún usuario.")
+                return redirect('asignar_roles')
+
+            # Actualizar empleados
+            empleados_afectados = Empleado.objects.filter(id__in=usuarios_ids)
+            count = empleados_afectados.update(id_rol=rol)
+
+            # Historial
+            try:
+                admin = Usuario.objects.get(id=request.session.get('usuario_logeado'))
+                LogActividad.objects.create(
+                    admin_responsable=admin,
+                    accion="Asignación Masiva Rol",
+                    detalles=f"Se asignó el rol '{rol.nombre}' a {count} usuarios."
+                )
+            except: pass
+
+            messages.success(request, f"Se asignó el rol {rol.nombre} a {count} empleados correctamente.")
+        except Exception as e:
+            messages.error(request, f"Error al asignar usuarios: {e}")
+    
+    return redirect('asignar_roles')
         
+@login_required
+def eliminar_rol(request, id):
+    # Verificación de permisos
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    try:
+        emp = Empleado.objects.get(id=usuario_logeado_id)
+        permiso_eliminar = False
+        
+        if request.user.is_superuser:
+            permiso_eliminar = True
+        elif emp.id_rol:
+            # Verificar si tiene permiso 'Eliminar' en su rol
+            permiso_eliminar = Rol_permiso.objects.filter(rol=emp.id_rol, permiso__nombre='Eliminar').exists()
+            
+        if not permiso_eliminar:
+            messages.error(request, 'No tienes permisos para eliminar roles.')
+            return redirect('asignar_roles')
+
+        rol = get_object_or_404(Rol, id_rol=id)
+
+        # Protección para roles del sistema
+        # Evitamos borrar roles críticos
+        if rol.nombre in ['Administrador', 'Empleado']:
+            messages.error(request, f'El rol "{rol.nombre}" es fundamental para el sistema y no puede ser eliminado.')
+            return redirect('asignar_roles')
+
+        rol.delete()
+        
+        # Log de actividad (Opcional, si deseas registrar la acción)
+        messages.success(request, 'Rol eliminado correctamente.')
+        
+    except Exception as e:
+        messages.error(request, f'Error al eliminar el rol: {e}')
+    
+    return redirect('asignar_roles')
+
 #---------------------------------------------------------------- POSTS ----------------------------------------------------------------
 
 def send_email_post(email,creador,fecha,post,titulo):
     
+        # Al estar en configuracion/templates/emails/, la ruta relativa es emails/...
         template = render_to_string('emails/email_blog_suscriptor.html',{
             'creador' : creador,
             'titulo':titulo,
@@ -519,77 +650,100 @@ def send_email_post(email,creador,fecha,post,titulo):
         send_mail(subject,message ,  from_email, to_email, html_message=template)
         
 def crear_post_view(request):
-        usuario_logeado = request.session.get('usuario_logeado')
-        try:
-                emp = Usuario.objects.get(id = usuario_logeado )
-                emplea= Empleado.objects.get(id = emp.id)
-                rol = emplea.id_rol
-                nombre_rol = rol.nombre
-                empleado = Empleado.objects.get(id = emp.id) 
-                permisos = Rol_permiso.objects.filter(rol = rol)
-                obtener_permiso = obtener_permisos(permisos)
-                post = Post.objects.order_by('-fecha_creacion')
-        
-                
-                if nombre_rol == "Administrador" and emplea.estado.id == 1:   
-                        rol_permiso= Rol_permiso.objects.all()
-                        permiso = Rol.objects.all()
-                        rol= Rol.objects.all()
-                        
-                        data = {
-                                'posts':post,
-                                'empleado':empleado,
-                                'roles': rol,
-                                'permisos':permiso,
-                                'rol_permisos': rol_permiso,
-                                'crear': obtener_permiso['crear'],
-                                'editar': obtener_permiso['editar'],
-                                'usuarios': obtener_permiso['usuarios'],
-                                'eliminar': obtener_permiso['eliminar'],
-                                'empleado': empleado,
-                                'nombre_rol':nombre_rol,
-                                'usuario': emp,
-                                
-                        }
-                        return render(request,'configuracion/post_view.html', data)
-                else:
-                        messages.error(request, 'No tiene permisos para este modulo')
-                        return redirect('empleados')
-                
-        except Exception as e:
-                messages.error(request, f'Error: {e}')
-                return redirect('empleados')
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    user = request.user
 
-def crear_post(request):
-        usuario_logeado = request.session.get('usuario_logeado')
-        emp = Usuario.objects.get(id = usuario_logeado )
-        emplea= Empleado.objects.get(id = emp.id)
-        rol = emplea.id_rol
-        nombre_rol = rol.nombre
-        empleado = Empleado.objects.get(id = emp.id) 
-        permisos = Rol_permiso.objects.filter(rol = rol)
-        obtener_permiso = obtener_permisos(permisos)
+    # --- Obtener perfil de usuario y permisos ---
+    permisos = {}
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
+    empleado = None
+    nombre_rol = "Usuario"
+
+    if user.is_superuser:
+        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        nombre_rol = "Administrador"
         try:
-            
-                form = Form_post()
-                
-                data={ 
-                    'form': form,
-                    'empleado':empleado,
-                    'crear': obtener_permiso['crear'],
-                    'editar': obtener_permiso['editar'],
-                    'usuarios': obtener_permiso['usuarios'],
-                    'eliminar': obtener_permiso['eliminar'],
-                    'empleado': empleado,
-                    'nombre_rol':nombre_rol,
-                    'usuario': emp,
-                      }
-                    
-                
-                return render(request, 'configuracion/crear_post.html',data)
-        except Exception as e:
-                messages.error(request, f'Error: {e}')
-                return redirect('crear_post')
+            empleado = Empleado.objects.get(id=emp.id)
+        except Empleado.DoesNotExist:
+            pass # Un superusuario podría no ser un empleado
+    else:
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+            if empleado.id_rol:
+                rol_nom = empleado.id_rol.nombre
+                nombre_rol = rol_nom
+                permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
+                permisos = obtener_permisos(permisos_qs)
+            else:
+                nombre_rol = "Empleado (Sin Rol)"
+        except Empleado.DoesNotExist:
+            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+            return redirect('index')
+
+    # --- Verificación de autorización ---
+    is_active_employee = empleado and empleado.estado.id == 1
+    can_view = nombre_rol in ["Administrador", "Empleado"] and (user.is_superuser or is_active_employee)
+
+    if not can_view:
+        messages.error(request, 'No tienes permisos para este módulo.')
+        return redirect('index')
+
+    # --- Lógica de la vista ---
+    post = Post.objects.order_by('-fecha_creacion')
+    data = {
+        'posts': post, 'empleado': empleado, 'usuario': emp,
+        'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
+        'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'eliminar': permisos.get('eliminar', 0),
+    }
+    return render(request, 'configuracion/post_view.html', data)
+
+@login_required
+def crear_post(request):
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    user = request.user
+
+    # --- Obtener perfil de usuario y permisos ---
+    permisos = {}
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
+    empleado = None
+    nombre_rol = "Usuario"
+
+    if user.is_superuser:
+        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        nombre_rol = "Administrador"
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+        except Empleado.DoesNotExist:
+            pass # Superuser might not be an employee
+    else:
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+            if empleado.id_rol:
+                rol_nom = empleado.id_rol.nombre
+                nombre_rol = rol_nom
+                permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
+                permisos = obtener_permisos(permisos_qs)
+            else:
+                nombre_rol = "Empleado (Sin Rol)"
+        except Empleado.DoesNotExist:
+            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+            return redirect('index')
+
+    # --- Verificación de autorización para crear ---
+    if not permisos.get('crear'):
+        messages.error(request, 'No tienes permisos para crear posts.')
+        return redirect('crear_post_view')
+
+    # --- Lógica de la vista ---
+    form = Form_post()
+    data = {
+        'form': form, 'empleado': empleado, 'usuario': emp,
+        'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
+        'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'eliminar': permisos.get('eliminar', 0),
+    }
+    return render(request, 'configuracion/crear_post.html', data)
 
 def guardar_post(request):
         usuario_logeado = request.session.get('usuario_logeado')
@@ -628,16 +782,25 @@ def guardar_post(request):
                             post.save()
                             creador = Usuario.objects.get(id =usuario_logeado.id )
                             url = reverse('detail-post', kwargs={'slug': post.slug})
-                            full_url = f"{settings.DOMAIN_NAME}{url}"
+                            full_url = f"{settings.DOMAIN_NAME.rstrip('/')}{url}"
                             if empleado == True:
                                 empleados = Empleado.objects.all()
                                 for empleado in empleados:
-                                    send_email_post(empleado.correo, creador.nombre, post.fecha_creacion,full_url, titulo )
+                                    try:
+                                        send_email_post(empleado.correo, creador.nombre, post.fecha_creacion, full_url, titulo)
+                                    except Exception as e:
+                                        print(f"Error enviando a empleado {empleado.correo}: {e}")
                             else:
-                                
                                 suscriptores = Suscriptores.objects.all()
+                                if not suscriptores.exists():
+                                    print("No hay suscriptores para notificar.")
+                                    
                                 for suscriptor in suscriptores:
-                                    send_email_post(suscriptor.correo, creador.nombre, post.fecha_creacion,full_url,titulo )
+                                    try:
+                                        send_email_post(suscriptor.correo, creador.nombre, post.fecha_creacion, full_url, titulo)
+                                    except Exception as e:
+                                        print(f"Error enviando a suscriptor {suscriptor.correo}: {e}")
+                                        
                             return redirect('blog')
                         
         except Exception as e:
@@ -645,36 +808,58 @@ def guardar_post(request):
             return redirect('crear_post')
                         
 
+@login_required
 def editar_post_view(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    user = request.user
 
-    post = get_object_or_404(Post, slug = slug)
-    usuario_logeado = request.session.get('usuario_logeado')
-    emp = Usuario.objects.get(id = usuario_logeado )
-    emplea= Empleado.objects.get(id = emp.id)
-    rol = emplea.id_rol
-    nombre_rol = rol.nombre
-    empleado = Empleado.objects.get(id = emp.id) 
-    permisos = Rol_permiso.objects.filter(rol = rol)
-    obtener_permiso = obtener_permisos(permisos)
+    # --- Obtener perfil de usuario y permisos ---
+    permisos = {}
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
+    empleado = None
+    nombre_rol = "Usuario"
+
+    if user.is_superuser:
+        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        nombre_rol = "Administrador"
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+        except Empleado.DoesNotExist:
+            pass # Superuser might not be an employee
+    else:
+        try:
+            empleado = Empleado.objects.get(id=emp.id)
+            if empleado.id_rol:
+                rol_nom = empleado.id_rol.nombre
+                nombre_rol = rol_nom
+                permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
+                permisos = obtener_permisos(permisos_qs)
+            else:
+                nombre_rol = "Empleado (Sin Rol)"
+        except Empleado.DoesNotExist:
+            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+            return redirect('index')
+
+    # --- Verificación de autorización para editar ---
+    if not permisos.get('editar'):
+        messages.error(request, 'No tienes permisos para editar posts.')
+        return redirect('crear_post_view')
+
+    # --- Lógica de la vista ---
     if request.method == 'POST':
         form = Form_post(request.POST, request.FILES, instance=post)
         if form.is_valid():
-            post = form.save()
+            form.save()
+            messages.success(request, f"Post '{post.titulo}' actualizado correctamente.")
             return redirect('crear_post_view')
     else:
         form = Form_post(instance=post)
 
-    data={
-        'form': form,
-        'post': post,
-        'empleado':empleado,
-        'crear': obtener_permiso['crear'],
-        'editar': obtener_permiso['editar'],
-        'usuarios': obtener_permiso['usuarios'],
-        'eliminar': obtener_permiso['eliminar'],
-        'empleado': empleado,
-        'nombre_rol':nombre_rol,
-        'usuario': emp,
-        }
+    data = {
+        'form': form, 'post': post, 'empleado': empleado, 'usuario': emp,
+        'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
+        'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'eliminar': permisos.get('eliminar', 0),
+    }
     return render(request, 'configuracion/editar_post_view.html', data)
-

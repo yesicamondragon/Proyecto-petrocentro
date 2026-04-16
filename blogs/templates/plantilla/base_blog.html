@@ -48,9 +48,9 @@
                         <div>
                          
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item boton" href="{% url 'politica' %}">POLÍTICA</a></li>
+                              
                                 <li><a class="dropdown-item boton" href="{% url 'tecnologia' %}">TECNOLOGÍA</a></li>
-                                <li><a class="dropdown-item boton" href="{% url 'economia' %}">ECONOMÍA</a></li>
+                              
                                 <li><a class="dropdown-item boton" href="{% url 'hidrocarburos' %}">HIDROCARBUROS</a></li>
                                 <li><a class="dropdown-item boton" href="{% url 'medio_ambiente' %}">M/AMBIENTE</a></li>
                             </ul>
@@ -179,6 +179,78 @@
        
         <br><br>
         
+        <!-- Actualidad del Sector: Noticias automáticas de Google -->
+        <section class="blog-section" style="padding-bottom: 0; background-color: #fff;">
+            <div class="contenedor-blog">
+                <h2 class="titulo-blog">ACTUALIDAD DEL SECTOR OIL & GAS</h2>
+                <p class="subtitulo-blog">Noticias en tiempo real sobre hidrocarburos y energía.</p>
+                <div class="grid-blog" id="news-container">
+                    <div style="width: 100%; text-align: center; grid-column: 1/-1; padding: 20px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 30px; color: #0b6838;"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                let query = "petroleo colombia hidrocarburos";
+                const path = window.location.pathname;
+                if (path.includes('politica')) query = "politica minminas hidrocarburos colombia";
+                else if (path.includes('tecnologia')) query = "tecnologia innovacion oil gas colombia";
+                else if (path.includes('medio_ambiente')) query = "medio ambiente sostenibilidad sector petrolero colombia";
+                else if (path.includes('economia')) query = "economia petroleo dolar colombia";
+                else if (path.includes('hidrocarburos')) query = "explotacion hidrocarburos colombia";
+
+                const feedURL = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=es-419&gl=CO&ceid=CO:es-419`;
+                const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedURL);
+
+                fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('news-container');
+                    if(data.status === 'ok' && data.items.length > 0){
+                        container.innerHTML = '';
+                        data.items.slice(0, 3).forEach((item, index) => {
+                            const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                            let title = item.title.split(' - ')[0];
+                            
+                            // 1. Intentar obtener la imagen real de la noticia desde varias fuentes
+                            let imageUrl = item.thumbnail || (item.enclosure && item.enclosure.link) || "";
+                            
+                            // 2. Si no hay, extraer del HTML de la descripción (donde Google suele poner el thumbnail real)
+                            if (!imageUrl && item.description) {
+                                const doc = new DOMParser().parseFromString(item.description, 'text/html');
+                                const img = doc.querySelector('img');
+                                if (img) imageUrl = img.src;
+                            }
+
+                            // 3. Fallback Dinámico y Único: Si sigue sin haber imagen, generar una industrial variada
+                            if (!imageUrl || imageUrl.includes('logo') || imageUrl.includes('icon')) {
+                                const industrialTags = ['oilwell', 'refinery', 'petroleum', 'drilling', 'gas-station', 'pipelines'];
+                                // Seleccionar una etiqueta basada en el título o aleatoria
+                                const tag = industrialTags.find(t => title.toLowerCase().includes(t)) || industrialTags[index % industrialTags.length];
+                                // Generar una semilla aleatoria para que cambie en cada recarga
+                                const randomSeed = Math.floor(Math.random() * 1000000) + index;
+                                imageUrl = `https://loremflickr.com/800/500/${tag}?lock=${randomSeed}`;
+                            }
+
+                            const mediaTag = `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+
+                            container.innerHTML += `
+                                <article class="blog-card">
+                                    <div class="blog-imagen">${mediaTag}</div>
+                                    <div class="blog-contenido">
+                                        <span class="blog-fecha">${date}</span>
+                                        <h3 style="font-size: 18px; margin-bottom: 10px;">${title}</h3>
+                                        <a href="${item.link}" target="_blank" class="leer-mas">Leer noticia completa <i class="fa-solid fa-arrow-right"></i></a>
+                                    </div>
+                                </article>`;
+                        });
+                    } else { container.innerHTML = '<p style="text-align:center; width:100%;">No hay noticias recientes.</p>'; }
+                }).catch(e => console.error(e));
+            });
+        </script>
 
         {% block content %}
         {% if posts %}
@@ -186,11 +258,12 @@
             {% for post in posts %}
                 <div class="post-articulo" onclick="window.location.href='{% url 'detail-post' post.slug %}' ">
                     <div class="post-articulo-completo">
-                       {% if post.image %}
-    <img class="image-post" src="{{ post.image.url }}" alt="{{ post.titulo }}">
-{% else %}
-    <img class="image-post" src="{% static 'images/default.jpg' %}" alt="Imagen por defecto">
-{% endif %}
+                        {% if post.image %}
+                            <img class="image-post" src="{{ post.image.url }}" alt="{{ post.titulo }}">
+                        {% else %}
+                            {# Fallback para posts propios: Usamos una semilla que cambia cada segundo para asegurar variedad total #}
+                            <img class="image-post" src="https://loremflickr.com/800/500/oil,industry?lock={{ post.id }}{{ 'now'|date:'U' }}" alt="{{ post.titulo }}">
+                        {% endif %}
 
                         <br>
                         <p class="post-fecha">{{ post.fecha_creacion }}</p>
@@ -245,18 +318,21 @@
         
         {% endblock posts %}
 <hr>
+{% block sucribirse_blog %}
 <div class="subscribe-container">
     <div class="oil-drop"></div>
     <div class="oil-drop"></div>
     <div class="oil-drop"></div>
     <h2 class="subscribe-title">Suscríbete a Nuestro Blog</h2>
     <p class="subscribe-description">Reciba contenido técnico exclusivo sobre optimización de producción y servicios petroleros en Colombia.</p>
-    <form id="subscribeForm" class="subscribe-form">
-        <input type="email" id="emailInput" class="subscribe-input" placeholder="Tu correo electrónico" required>
+    <form id="subscribeForm" class="subscribe-form" action="{% url 'suscribirse' %}" method="POST">
+        {% csrf_token %}
+        <input type="email" id="emailInput" name="correo" class="subscribe-input" placeholder="Tu correo electrónico" required>
         <button type="submit" class="subscribe-button">Suscribirse</button>
     </form>
     <div id="messageBox" class="message" style="display: none;"></div>
 </div>
+{% endblock sucribirse_blog %}
 
         <footer >
 
@@ -330,7 +406,57 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="{% static 'js/script.js' %}"></script>
-        <script src="{% static 'js/suscribeForm.js' %}"></script>
+        
+        <script>
+            // Manejo robusto del formulario de suscripción
+            document.getElementById('subscribeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const formData = new FormData(form);
+                const messageBox = document.getElementById('messageBox');
+                
+                messageBox.style.display = 'none'; // Ocultar mensaje previo
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(async response => {
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        // Si no es JSON, probablemente sea un error 500 en HTML
+                        throw new Error('El servidor encontró un error técnico. Intente más tarde.');
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(data.message || `Error del servidor (${response.status})`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    messageBox.style.display = 'block';
+                    messageBox.innerText = data.message || 'Proceso finalizado.';
+                    
+                    let alertClass = 'info';
+                    if (data.status === 'success') alertClass = 'success';
+                    else if (data.status === 'error') alertClass = 'error';
+                    
+                    messageBox.className = 'message ' + alertClass;
+                    if(data.status === 'success') form.reset();
+                })
+                .catch(error => {
+                    console.error('Subscription Error:', error);
+                    messageBox.style.display = 'block';
+                    // Evitar el mensaje "undefined" a toda costa
+                    messageBox.innerText = error.message || 'Error de conexión con el servidor.';
+                    messageBox.className = 'message error';
+                });
+            });
+        </script>
+
         <!-- jQuery 1.8+ -->
         <script src="{% static 'plugin/components/jQuery/jquery-1.11.3.min.js'%}"></script>
         <!-- Plugin JS file WhatsApp -->

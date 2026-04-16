@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import StaticViewSitemap
 from .views import CustomPasswordResetView, CustomPasswordResetConfirmView
+from users import views as users_views
 
 sitemaps = {
     'sitemap': StaticViewSitemap,  # Incluimos el sitemap de las vistas estáticas
@@ -11,6 +12,7 @@ sitemaps = {
 urlpatterns = [
     
     path ('', views.index , name='index'),
+    path('api/indicadores/', views.api_indicadores, name='api_indicadores'),
     
     path('registro/', views.registro, name="registro"),
     path('nosotros/', views.nosotros, name="nosotros"),
@@ -35,11 +37,24 @@ urlpatterns = [
     ), name='password_reset_complete'),
     
     
-    path('contacto_correo/', views.contacto_mensaje, name="contacto_correo"),
+    path('contacto_mensaje/', views.contacto_mensaje, name="contacto_mensaje"),
     
 
     
     path("politicas_nosotros/", views.politicas_nosotros , name="politicas_nosotros"),
     #Url reset password
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
+    path('suscribirse/', views.suscribirse, name='suscribirse'),
+    path('pqrs-radicar/', views.pqrs_form_view, name='pqrs_form_view'),
+    path('consultar-pqrs/', views.consultar_pqrs, name='consultar_pqrs'),
+    path('guardar-valoracion/', views.guardar_valoracion, name='guardar_valoracion'),
+    path('guardar-reseña-interna/', views.guardar_reseña_interna, name='guardar_reseña_interna'),
+    path('solicitar-cotizacion/', views.solicitar_cotizacion, name='solicitar_cotizacion'),
+    path('pqrs-radicar/success/', views.pqrs_form_success, name='pqrs_form_success'),
+    path('gestion-pqrs/', users_views.gestion_pqrs, name='gestion_pqrs'),
+    path('responder-pqrs/<int:id_pqr>/', users_views.responder_pqrs, name='responder_pqrs'),
+    path('gestion-cotizaciones/', users_views.gestion_cotizaciones, name='gestion_cotizaciones'),
+    path("qr-pqrs/", views.generar_qr, name="qr_pqrs"),
+
 ]

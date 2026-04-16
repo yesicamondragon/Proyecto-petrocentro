@@ -35,11 +35,3 @@ class Post(models.Model):
         
         def __str__(self) :
                 return self.titulo
-        
-class Suscriptores(models.Model):
-        correo = models.CharField(max_length=50, null =True, blank=True )
-        
-        class Meta:
-                db_table='Suscriptores'
-                verbose_name = 'Suscriptor'
-                verbose_name_plural = 'Suscriptores'

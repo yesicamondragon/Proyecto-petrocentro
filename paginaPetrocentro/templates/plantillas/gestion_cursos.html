@@ -1,0 +1,276 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Gestión de Cursos{% endblock %}
+{% block nombre_pagina %}Gestión de Cursos Obligatorios{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <!-- DASHBOARD DE INDICADORES (KPIs) -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 border-primary border-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Cumplimiento Global</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.cumplimiento }}%</div>
+                        </div>
+                        <div class="col-auto"><i class="fa-solid fa-chart-line fa-2x text-gray-300 text-primary"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 border-warning border-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pendientes de Revisión</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pendientes_revision }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fa-solid fa-clipboard-check fa-2x text-gray-300 text-warning"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 border-success border-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Cursos Activos</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.cursos_activos }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fa-solid fa-graduation-cap fa-2x text-gray-300 text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 border-info border-3">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Asignaciones</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_asignaciones }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fa-solid fa-users fa-2x text-gray-300 text-info"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Columna para Crear y Listar Cursos -->
+        <div class="col-md-5">
+            {% if permisos.crear == 1 %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Crear o Editar Curso</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'gestion_cursos' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nombre_curso" class="form-label">Nombre del Curso</label>
+                            <input type="text" name="nombre_curso" class="form-control" placeholder="Ej: Curso ARL Nivel Avanzado" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion_curso" class="form-label">Descripción</label>
+                            <textarea name="descripcion_curso" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="external_url" class="form-label">URL Externa del Curso (Opcional)</label>
+                            <input type="url" name="external_url" class="form-control" placeholder="https://plataforma.com/curso/123">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Obligatorio para los Cargos:</label>
+                            <select name="cargos_obligatorios" class="form-select" multiple size="5">
+                                {% for cargo in cargos %}
+                                    <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Mantén presionada la tecla Ctrl para seleccionar varios.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save me-2"></i>Guardar Curso</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <h5><i class="fa-solid fa-graduation-cap me-2"></i>Cursos Existentes</h5>
+            <div class="list-group">
+                {% for curso in cursos %}
+                    <div class="list-group-item">
+                        <h6 class="mb-1">{{ curso.nombre }}</h6>
+                        <small class="text-muted">Obligatorio para: 
+                            {% for cargo in curso.obligatorio_para.all %}
+                                <span class="badge bg-secondary">{{ cargo.nombre }}</span>
+                            {% empty %}
+                                Ninguno
+                            {% endfor %}
+                        </small>
+                        {% if permisos.editar == 1 or permisos.eliminar == 1 %}
+                        <div class="mt-2 text-end">
+                            <a href="{% url 'editar_curso' curso.id_curso %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_curso' curso.id_curso %}" class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('¿Estás seguro de eliminar este curso? Se borrarán todos los registros de los empleados asociados.');">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Columna para Validar Certificados -->
+        {% if permisos.editar == 1 %}
+        <div class="col-md-7">
+            <h4><i class="fa-solid fa-user-check me-2"></i>Certificados Pendientes de Validación</h4>
+            <hr>
+            {% if certificados_pendientes %}
+                {% for cert in certificados_pendientes %}
+                <div class="card mb-3 border-info">
+                    <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ cert.empleado.nombre }} - {{ cert.curso.nombre }}</h6>
+                        <a href="{{ cert.certificado.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-eye me-1"></i> Ver Certificado
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'validar_certificado' cert.id_empleado_curso %}" method="POST">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" name="comentarios" class="form-control" placeholder="Motivo del rechazo (opcional)...">
+                                <button type="submit" name="accion" value="rechazar" class="btn btn-danger"><i class="fa-solid fa-times me-1"></i> Rechazar</button>
+                                <button type="submit" name="accion" value="aprobar" class="btn btn-success"><i class="fa-solid fa-check me-1"></i> Aprobar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-light text-center">No hay certificados pendientes de validación.</div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SECCIÓN DE SUPERVISIÓN Y CUMPLIMIENTO GLOBAL -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fa-solid fa-clipboard-list me-2"></i>Matriz Oficial de Cumplimiento</h5>
+                    <a href="{% url 'exportar_matriz_excel' %}" id="export-btn" class="btn btn-sm btn-light">
+                        <i class="fa-solid fa-file-excel me-1 text-success"></i> Exportar a Excel
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <form method="GET" class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrar por Curso:</label>
+                            <select name="curso" class="form-select">
+                                <option value="">Todos los Cursos</option>
+                                {% for c in cursos %}
+                                <option value="{{ c.id_curso }}" {% if request.GET.curso == c.id_curso|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrar por Estado:</label>
+                            <select name="estado" class="form-select">
+                                <option value="">Todos los Estados</option>
+                                <option value="PENDIENTE" {% if request.GET.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente (Sin subir)</option>
+                                <option value="EN_REVISION" {% if request.GET.estado == 'EN_REVISION' %}selected{% endif %}>En Revisión</option>
+                                <option value="APROBADO" {% if request.GET.estado == 'APROBADO' %}selected{% endif %}>Aprobado (Cumplido)</option>
+                                <option value="RECHAZADO" {% if request.GET.estado == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary w-100"><i class="fa-solid fa-filter me-2"></i>Aplicar Filtros</button>
+                        </div>
+                    </form>
+
+                    <!-- Tabla de Resultados -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Empleado</th>
+                                    <th>Cargo</th>
+                                    <th>Curso Obligatorio</th>
+                                    <th>Estado</th>
+                                    <th>Certificado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in seguimiento %}
+                                <tr>
+                                    <td>{{ item.empleado.nombre }}</td>
+                                    <td><span class="badge bg-secondary">{{ item.empleado.id_cargo.nombre }}</span></td>
+                                    <td>{{ item.curso.nombre }}</td>
+                                    <td>
+                                        <span class="badge {% if item.estado == 'APROBADO' %}bg-success{% elif item.estado == 'PENDIENTE' %}bg-warning text-dark{% elif item.estado == 'RECHAZADO' %}bg-danger{% else %}bg-info{% endif %}">
+                                            {{ item.get_estado_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if item.certificado %}
+                                            <a href="{{ item.certificado.url }}" target="_blank" class="btn btn-sm btn-outline-dark" title="Ver Documento">
+                                                <i class="fa-solid fa-file-pdf text-danger"></i> Ver
+                                            </a>
+                                        {% else %}
+                                            <small class="text-muted">No adjunto</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No se encontraron registros con los filtros seleccionados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const exportBtn = document.getElementById('export-btn');
+    const cursoFilter = document.querySelector('select[name="curso"]');
+    const estadoFilter = document.querySelector('select[name="estado"]');
+
+    function updateExportLink() {
+        const baseUrl = "{% url 'exportar_matriz_excel' %}";
+        const params = new URLSearchParams();
+        if (cursoFilter.value) {
+            params.append('curso', cursoFilter.value);
+        }
+        if (estadoFilter.value) {
+            params.append('estado', estadoFilter.value);
+        }
+        exportBtn.href = `${baseUrl}?${params.toString()}`;
+    }
+
+    updateExportLink();
+    cursoFilter.addEventListener('change', updateExportLink);
+    estadoFilter.addEventListener('change', updateExportLink);
+});
+</script>
+{% endblock %}

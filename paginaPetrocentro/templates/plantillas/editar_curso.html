@@ -1,0 +1,46 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Editar Curso{% endblock %}
+{% block nombre_pagina %}Editar Curso{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Editar: {{ curso.nombre }}</h5>
+                    <a href="{% url 'gestion_cursos' %}" class="btn btn-sm btn-secondary"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+                </div>
+                <div class="card-body">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="nombre_curso" class="form-label">Nombre del Curso</label>
+                            <input type="text" name="nombre_curso" class="form-control" value="{{ curso.nombre }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion_curso" class="form-label">Descripción</label>
+                            <textarea name="descripcion_curso" class="form-control" rows="3">{{ curso.descripcion }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Obligatorio para los Cargos:</label>
+                            <select name="cargos_obligatorios" class="form-select" multiple size="6">
+                                {% for cargo in cargos %}
+                                    <option value="{{ cargo.id_cargo }}" 
+                                        {% if cargo.id_cargo in cargos_seleccionados %}selected{% endif %}>
+                                        {{ cargo.nombre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Mantén presionada la tecla Ctrl (o Cmd) para seleccionar múltiples cargos.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-save me-2"></i>Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

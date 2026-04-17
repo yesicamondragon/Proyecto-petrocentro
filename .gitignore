@@ -71,7 +71,7 @@ cover/
 
 # Django stuff:
 #archivos estaticos generados por el django 
-static/
+#static/
 staticfiles/
 # Flask stuff:
 instance/

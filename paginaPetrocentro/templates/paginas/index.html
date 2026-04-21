@@ -53,7 +53,7 @@
                     <span class="breadcrumb-current">Inicio</span>
                 </div>
                 <h1 style="font-size: clamp(1.6rem, 5vw, 2.2rem); color: white; margin-bottom: 10px; font-weight: 800;">Especialistas en Servicios Oil & Gas</h1>
-                <p style="font-size: clamp(0.95rem, 3vw, 1.1rem); color: rgba(255,255,255,0.95); margin-bottom: 25px; line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto;">Servicios integrales de diseño, operación y mantenimiento para el sector Oil & Gas con 14 años de experiencia.</p>
+                <p style="font-size: clamp(0.95rem, 3vw, 1.1rem); color: rgba(255,255,255,0.95); margin-bottom: 25px; line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto;">Servicios integrales de diseño, operación y mantenimiento para el sector Oil & Gas, con más de 14 años de experiencia. En Petrocentro ofrecemos soluciones eficientes, seguras e innovadoras, respaldadas por un equipo altamente calificado, garantizando la optimización de procesos y el cumplimiento de los más altos estándares de calidad en la industria.</p>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
                     <button type="button" class="btn btn-success px-4 py-2" style="font-weight: 600; border-radius: 5px;" onclick="window.location.href='{% url 'contacto'%}'">CONTÁCTANOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
                     <button class="btn btn-outline-light px-4 py-2" style="font-weight: 600; border-radius: 5px;" type="button" onclick="window.location.href='{% url 'servicios'%}'">SERVICIOS &nbsp;<i class="fa-solid fa-arrow-right"></i></button>
@@ -361,8 +361,8 @@
     const animateCounters = () => {
         counters.forEach(counter => {
             const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText.replace('+', '');
+                const target = parseInt(counter.getAttribute('data-target'));
+                const count = parseInt(counter.innerText.replace(/\D/g, '')) || 0;
                 const inc = target / speed;
                 if (count < target) {
                     counter.innerText = Math.ceil(count + inc);
@@ -383,7 +383,7 @@
                 observer.unobserve(entry.target);
             }
         });
-    }, {threshold: 0.5});
+    }, {threshold: 0.2}); // Umbral reducido para mejor respuesta en móviles
 
     document.querySelectorAll('.indicadores-experiencia').forEach(section => {
         observer.observe(section);
@@ -534,7 +534,7 @@
 
     @media (max-width: 768px) {
         .slider-wrapper { padding: 0 10px; }
-        .slider-control { display: none; } /* En móvil se usa el deslizamiento táctil */
+        .slider-control { display: flex !important; width: 35px; height: 35px; } 
     }
 
     /* Estilos de Tarjetas idénticos a Servicios */
@@ -744,7 +744,50 @@
         .timeline::after { left: 31px; }
         .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
         .timeline-item.derecha { left: 0%; }
-        
+
+        /* Ajustes específicos para Clientes Estratégicos en celulares */
+        .l p {
+            width: 95% !important; /* Quita el ancho fijo de 724px */
+            text-align: center !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+        }
+        .imagenes {
+            grid-template-columns: repeat(2, 1fr) !important; /* Asegura 2 columnas en móviles medianos */
+            gap: 15px !important;
+            width: 100% !important;
+            padding: 10px !important;
+        }
+        .imagenes img, .imagenes .ecopetrol, .imagenes .canacol, .imagenes .mansa, .imagenes .gran, .imagenes .lupatech, .imagenes .sygma, .imagenes .setip, .imagenes .cpp, .imagenes .cppp {
+            width: 100% !important; /* Hace que el logo sea flexible */
+            max-width: 140px !important; /* Limita el tamaño máximo para que no se pixelen */
+            height: auto !important;
+            object-fit: contain !important;
+            margin: auto !important;
+        }
+
+        /* Ajustes para los indicadores de experiencia en celular */
+        .indicadores-experiencia {
+            padding: 40px 0 !important;
+        }
+        .indicador-item {
+            margin: 10px auto 30px auto !important;
+            width: 100%;
+        }
+        .indicador-item .contador {
+            font-size: 3rem !important; /* Tamaño destacado para el número */
+            margin-bottom: 5px !important;
+        }
+        .indicador-item .caso-img {
+            max-width: 260px !important; /* Evita que la foto ocupe todo el ancho */
+            height: auto !important;
+            margin: 15px auto 0 !important;
+        }
+
+        /* Aumentar el tamaño de la imagen en la sección "¿POR QUÉ ELEGIR PETROCENTRO?" en celulares */
+        .propuesta-valor .text-center img {
+            width: 85% !important;
+        }
     }
 </style>
 {% endblock %}

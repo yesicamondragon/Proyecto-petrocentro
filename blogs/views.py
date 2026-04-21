@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
 from blogs.models import *
 from users.models import Empleado
-from django.contrib.auth.models import User as Usuario
 from paginaPetrocentro.models import Usuario
 from .forms import Form_post
 import uuid
@@ -15,26 +14,34 @@ from paginaPetrocentro.views import obtener_noticias_rss
 
 # Create your views here.
 
+def get_blog_context(request):
+    """Helper para obtener el contexto común (usuario y empleado) de forma eficiente."""
+    usuario_logeado_id = request.session.get('usuario_logeado')
+    context = {}
+    if usuario_logeado_id:
+        try:
+            usuario = Usuario.objects.get(id=usuario_logeado_id)
+            context['usuario'] = usuario
+            try:
+                context['empleado'] = Empleado.objects.get(id=usuario.id)
+            except Empleado.DoesNotExist:
+                pass
+        except Usuario.DoesNotExist:
+            pass
+    return context
 
 def blog_view(request):
-    usuario_logeado = request.session.get('usuario_logeado')
+    """Muestra todas las noticias de todas las categorías (GENERAL)."""
+    context = get_blog_context(request)
     busqueda = request.GET.get('busqueda')
 
+    # --- CAMBIO CLAVE: Obtenemos todos los posts activos sin filtrar por categoría ---
     post = Post.objects.filter(estado=True)
     
-    if usuario_logeado:
-        usuario = Usuario.objects.get(id=usuario_logeado)
-        try:
-            empleado = Empleado.objects.get(id=usuario.id)
-            # Si es empleado, mostrar todos los posts
-        except Empleado.DoesNotExist:
-            # Si no es empleado, filtrar los posts
-            post = post.filter(empleado=False)
-    else:
-        # Si no está logueado, filtrar los posts
+    # Filtro de seguridad para contenido exclusivo de empleados
+    if not context.get('empleado'):
         post = post.filter(empleado=False)
     
-    # Aplicar búsqueda si existe
     if busqueda:
         post = post.filter(
             Q(titulo__icontains=busqueda) |
@@ -42,41 +49,23 @@ def blog_view(request):
             Q(contenido__icontains=busqueda)
         ).distinct()
     
-    # Ordenar y paginar
-    post = post.order_by('-fecha_creacion')
-
-    paginator = Paginator(post, 50)
-    page = request.GET.get('page')
-    post = paginator.get_page(page)
+    # Solicitamos 12 posts (4 filas x 3 columnas) para la vista GENERAL
+    posts_paginados = paginacion(request, post.order_by('-fecha_creacion'), 12)
     
-    # Preparar contexto
-    context = {
-        'posts': post,
-    }
-    
-    if usuario_logeado:
-        context['usuario'] = usuario
-        if 'empleado' in locals():
-            context['empleado'] = empleado
-    
+    context['posts'] = posts_paginados
+    context['busqueda'] = busqueda
     return render(request, 'blog/blog.html', context)
                
 @login_required   
 def crear_blog(request):
-        usuario_logeado = request.session.get('usuario_logeado')
-        usuario_logeado = Usuario.objects.get(id = usuario_logeado)
+        context = get_blog_context(request)
+        usuario = context.get('usuario')
         if request.method == 'POST':
                 form = Form_post(request.POST, request.FILES)
                 
                 if form.is_valid():
                         cleaned_data = form.cleaned_data
-                        titulo = cleaned_data.get('titulo')
-                        descripcion = cleaned_data.get('descripcion')
-                        contenido = cleaned_data.get('contenido')
-                        image = cleaned_data.get('image')
-                        categoria = cleaned_data.get('categoria')
-                        
-                        slug = slugify(titulo)
+                        slug = slugify(cleaned_data.get('titulo'))
                         original_slug = slug
                         queryset = Post.objects.filter(slug__startswith=slug)
                         if queryset.exists():
@@ -85,186 +74,82 @@ def crear_blog(request):
                                         queryset = Post.objects.filter(slug__startswith=slug)
                                         
                         post = Post(
-                                titulo=titulo, 
-                                descripcion=descripcion, 
-                                contenido=contenido, 
-                                image=image, 
-                                categoria= categoria,
-                                author = Usuario.objects.get(id =usuario_logeado.id ),
+                                titulo=cleaned_data.get('titulo'), 
+                                descripcion=cleaned_data.get('descripcion'), 
+                                contenido=cleaned_data.get('contenido'), 
+                                image=cleaned_data.get('image'), 
+                                categoria= cleaned_data.get('categoria'),
+                                author = usuario,
                                 slug=slug,
-                                
                         )
                         post.save()
                         return redirect('blog')              
 
 def post_detail_view(request, slug):
-        context = {}
-        usuario_logeado = request.session.get('usuario_logeado')
+        context = get_blog_context(request)
+        is_empleado = context.get('empleado') is not None
 
-        if usuario_logeado:
-                try:
-                        usuario = Usuario.objects.get(id=usuario_logeado)
-                        context['usuario'] = usuario
-
-                        try:
-                                emp = Empleado.objects.get(id=usuario.id)
-                                context['empleado'] = emp
-                                # Si es empleado, muestra todos los posts
-                                post = get_object_or_404(Post, slug=slug,estado=True)
-                                posts = Post.objects.filter(estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
-                        except Empleado.DoesNotExist:
-                                # Si no es empleado, muestra solo los posts que no son para empleados
-                                post = get_object_or_404(Post, slug=slug, empleado=False)
-                                posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
-                except Usuario.DoesNotExist:
-                # Manejar el caso en que el usuario no existe
-                        post = get_object_or_404(Post, slug=slug, empleado=False)
-                        posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+        if is_empleado:
+                # Si es empleado, muestra todos los posts
+                post = get_object_or_404(Post, slug=slug, estado=True)
+                posts_relacionados = Post.objects.filter(estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
         else:
-                # Si no está logueado, muestra solo los posts que no son exclusivos para empleados
+                # Si no es empleado, muestra solo los posts públicos
                 post = get_object_or_404(Post, slug=slug, empleado=False)
-                posts = Post.objects.filter(empleado=False,estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                posts_relacionados = Post.objects.filter(empleado=False, estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
 
         context['post'] = post
-        context['posts'] = posts
+        context['posts'] = posts_relacionados
         context['slug'] = post.slug
-
         return render(request, 'blog/detail_blog.html', context)
 
-#Busqueda funcion
-def obtener_post(busqueda=None, categoria=None,empleado = None):
-        categoria = Categoria.objects.get(nombre__iexact = categoria)
-        if empleado == None:
-                post = Post.objects.filter(estado=True, categoria = categoria).order_by('-fecha_creacion')
-        else:
-                post = Post.objects.filter(estado=True, categoria = categoria, empleado = empleado).order_by('-fecha_creacion')
-       
-                   
-        if busqueda:
-                post = post.filter(
-                        Q(titulo__icontains=busqueda) |
-                        Q(descripcion__icontains=busqueda)|
-                        Q(contenido__icontains=busqueda) ,
-                        estado = True,
-                        categoria = categoria
-                        
-                ).distinct().order_by('-fecha_creacion')
-        return post
-
-def paginacion( request, posts ):
-        paginator = Paginator(posts, 6)
+def paginacion( request, posts, num=6 ):
+        paginator = Paginator(posts, num)
         page = request.GET.get('page')
         return paginator.get_page(page)
 
+# Helper para obtener posts filtrados por categoría y visibilidad
+def get_filtered_posts(request, category_name):
+    busqueda = request.GET.get('busqueda')
+    context = get_blog_context(request)
+    is_empleado = context.get('empleado') is not None
+
+    # Filtro base
+    posts = Post.objects.filter(estado=True, categoria__nombre__iexact=category_name).order_by('-fecha_creacion')
+    
+    # Visibilidad
+    if not is_empleado:
+        posts = posts.filter(empleado=False)
+
+    # Búsqueda
+    if busqueda:
+        posts = posts.filter(
+            Q(titulo__icontains=busqueda) | Q(descripcion__icontains=busqueda) | Q(contenido__icontains=busqueda)
+        ).distinct()
+
+    context['posts'] = paginacion(request, posts)
+    context['busqueda'] = busqueda
+    return context
+
 def tecnologia(request):
-        usuario_logeado = request.session.get('usuario_logeado')
-        busqueda = request.GET.get('busqueda')
-        post = obtener_post(busqueda,'Tecnologia', False)            
-        post = paginacion(request,post)
-        
-        context= {
-                'posts': post,
-        }
-        if usuario_logeado:
-                usuario = Usuario.objects.get(id=usuario_logeado)
-                context['usuario'] = usuario
-                try:
-                        empleado = Empleado.objects.get(id=usuario.id)
-                        post = obtener_post(busqueda,'Tecnologia')                        
-                        post = paginacion(request,post)
-                        context['empleado'] = empleado
-                        context['posts'] = post  
-                except:
-                     pass
-        return render(request, 'blog/tecnologia.html', context)
+    context = get_filtered_posts(request, 'Tecnologia')
+    return render(request, 'blog/tecnologia.html', context)
         
 def medio_ambiente(request):
-        busqueda = request.GET.get('busqueda')
-        post = obtener_post(busqueda,'Medio_ambiente',False)
-        post = paginacion(request, post)
-        
-        context={
-                'posts': post,
-        }
-        usuario_logeado = request.session.get('usuario_logeado')
-        if usuario_logeado:
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                context['usuario'] = usuario
-                try:
-                        empleado = Empleado.objects.get(id = usuario.id)
-                        post = obtener_post(busqueda,'Medio_ambiente')
-                        post = paginacion(request,post)
-                        context['posts'] = post  
-                        context['empleado'] = empleado
-                except:
-                        pass
-        return render(request,'blog/medio_ambiente.html',context)
+    context = get_filtered_posts(request, 'Medio_ambiente')
+    return render(request, 'blog/medio_ambiente.html', context)
 
 def economia(request):
-        busqueda = request.GET.get('busqueda')
-        post = obtener_post(busqueda,'economia',False)
-        post = paginacion(request, post)
-        
-        context={
-                'posts': post,
-        }
-        usuario_logeado = request.session.get('usuario_logeado')
-        if usuario_logeado:
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                context['usuario'] = usuario
-                try:
-                        empleado = Empleado.objects.get(id = usuario.id)
-                        post = obtener_post(busqueda,'economia')
-                        post = paginacion(request, post)
-                        context['posts'] = post                        
-                        context['empleado'] = empleado
-                except:
-                        pass
-        return render(request,'blog/economia.html',context)
+    context = get_filtered_posts(request, 'economia')
+    return render(request, 'blog/economia.html', context)
 
 def politica(request):
-        busqueda = request.GET.get('busqueda')
-        post = obtener_post(busqueda,'politica',False)
-        post = paginacion(request, post)
-        
-        context= {
-                'posts': post,
-        }
-        usuario_logeado = request.session.get('usuario_logeado')
-        if usuario_logeado:
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                context['usuario'] = usuario
-                try:
-                        empleado = Empleado.objects.get(id = usuario.id)
-                        post = obtener_post(busqueda,'politica')
-                        post = paginacion(request, post)
-                        context['posts'] = post 
-                        context['empleado'] = empleado
-                except:
-                        pass
-        return render(request,'blog/politica.html',context)
+    context = get_filtered_posts(request, 'politica')
+    return render(request, 'blog/politica.html', context)
 
 def hidrocarburos(request):
-        busqueda = request.GET.get('busqueda')        
-        post = obtener_post(busqueda,'Hidrocarburos',False )
-        post = paginacion(request, post)
-        
-        context= {
-                'posts': post,
-        }
-        usuario_logeado = request.session.get('usuario_logeado')
-        if usuario_logeado:
-                usuario = Usuario.objects.get(id = usuario_logeado)
-                context['usuario'] = usuario
-                try:
-                        empleado = Empleado.objects.get(id = usuario.id)
-                        post = obtener_post(busqueda,'Hidrocarburos')
-                        post = paginacion(request, post)
-                        context['posts'] = post 
-                        context['empleado'] = empleado
-                except:
-                        pass
-        return render(request,'blog/hidrocarburos.html',context)
+    context = get_filtered_posts(request, 'Hidrocarburos')
+    return render(request, 'blog/hidrocarburos.html', context)
 
          
         

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import ChatMessage, Usuario, Estado, PQRS, Cotizacion
+from users.models import Candidato
 from django.core.mail import send_mail
 from Petrocentro import settings
 
@@ -55,3 +56,10 @@ class CotizacionAdmin(admin.ModelAdmin):
     list_filter = ('servicio', 'fecha_creacion')
     search_fields = ('nombre', 'empresa', 'email', 'mensaje')
     readonly_fields = ('fecha_creacion',)
+
+@admin.register(Candidato)
+class CandidatoAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'correo', 'cargo_interes', 'fecha_postulacion')
+    list_filter = ('cargo_interes', 'fecha_postulacion')
+    search_fields = ('nombre', 'correo')
+    readonly_fields = ('fecha_postulacion',)

@@ -2,6 +2,7 @@ from django.db import models
 from paginaPetrocentro.models import Usuario
 from configuracion.models import *
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
 class Ubicacion(models.Model):
     idUbicacion= models.AutoField(primary_key=True, null=False)
     nombre = models.CharField(max_length=20, null=False)
@@ -138,3 +139,21 @@ class MensajeChat(models.Model):
     class Meta:
         db_table = "mensaje_chat"
         ordering = ['fecha']
+
+class Candidato(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre Completo")
+    correo = models.EmailField(verbose_name="Correo Electrónico")
+    telefono = models.CharField(max_length=20, verbose_name="Teléfono")
+    cargo_interes = models.ForeignKey(Cargo, on_delete=models.SET_NULL, null=True, verbose_name="Cargo de interés")
+    hoja_de_vida = models.FileField(
+        upload_to='cvs/', 
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        help_text="Adjunte su hoja de vida solo en formato PDF"
+    )
+    mensaje = models.TextField(blank=True, null=True, verbose_name="Mensaje/Presentación")
+    fecha_postulacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "candidato"
+        verbose_name = "Candidato"
+        verbose_name_plural = "Candidatos"

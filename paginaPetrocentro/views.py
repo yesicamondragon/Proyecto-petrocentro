@@ -684,4 +684,81 @@ def suscribirse(request):
     except Exception as e:
         print(f"Error en suscripción: {e}")
         return JsonResponse({'status': 'error', 'message': 'Hubo un problema técnico en el servidor.'}, status=500)
+
+def trabaja_con_nosotros(request):
+    """Interfaz para recepción de hojas de vida"""
+    from users.models import Cargo, Candidato
+    
+    # Cargos a excluir de la lista desplegable pública
+    cargos_excluidos_nombres = [
+        "Aprendiz",
+        "Gerente de Operaciones",
+        "Administrador de Contrato", # Asumiendo "administrador de con" es este
+        "Coordinador HSEQ"
+    ]
+    
+    # Obtener todos los cargos y luego excluir los no deseados
+    cargos_disponibles = Cargo.objects.exclude(nombre__in=cargos_excluidos_nombres)
+    
+    context = {'cargos': cargos_disponibles}
+    
+    # Gestión de sesión para NavBar
+    usuario_logeado = request.session.get('usuario_logeado')
+    if usuario_logeado:
+        try:
+            usuario = Usuario.objects.get(id=usuario_logeado)
+            context['usuario'] = usuario
+            context['empleado'] = Empleado.objects.filter(id=usuario.id).first()
+        except: pass
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        correo = request.POST.get('correo')
+        telefono = request.POST.get('telefono')
+        cargo_id = request.POST.get('cargo')
+        mensaje = request.POST.get('mensaje')
+        hoja_vida = request.FILES.get('hoja_vida')
+
+        if hoja_vida and not hoja_vida.name.endswith('.pdf'):
+            messages.error(request, "Error: Solo se permiten archivos en formato PDF.")
+        elif not all([nombre, correo, telefono, hoja_vida]):
+            messages.error(request, "Por favor complete todos los campos obligatorios.")
+        else:
+            try:
+                cargo = Cargo.objects.get(id_cargo=cargo_id) if cargo_id else None
+                Candidato.objects.create(
+                    nombre=nombre, correo=correo, telefono=telefono,
+                    cargo_interes=cargo, hoja_de_vida=hoja_vida, mensaje=mensaje
+                )
+                
+                # Notificación automática por correo electrónico con adjunto PDF
+                subject = f"NUEVA POSTULACIÓN: {nombre} - {cargo.nombre if cargo else 'General'}"
+                email_body = f"""
+Se ha recibido una nueva postulación laboral a través del portal "Trabaja con nosotros":
+
+DATOS DEL CANDIDATO:
+--------------------------------------------------
+Nombre: {nombre}
+Correo: {correo}
+Teléfono: {telefono}
+Cargo de Interés: {cargo.nombre if cargo else 'No especificado'}
+--------------------------------------------------
+
+MENSAJE DE PRESENTACIÓN:
+{mensaje if mensaje else 'Sin mensaje adicional.'}
+
+La hoja de vida se encuentra adjunta a este correo en formato PDF.
+"""
+                email = EmailMessage(subject, email_body, settings.EMAIL_HOST_USER, ['ti.petrocentro@gmail.com'])
+                if hoja_vida:
+                    hoja_vida.seek(0)  # Aseguramos que el puntero del archivo esté al inicio
+                    email.attach(hoja_vida.name, hoja_vida.read(), hoja_vida.content_type)
+                email.send(fail_silently=True)
+
+                messages.success(request, "¡Postulación recibida! Gracias por querer formar parte de Petrocentro.")
+                return redirect('trabaja_con_nosotros')
+            except Exception as e:
+                messages.error(request, f"Error al enviar: {e}")
+
+    return render(request, 'paginas/trabaja_con_nosotros.html', context)
         

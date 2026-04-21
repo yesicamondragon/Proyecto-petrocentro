@@ -4247,8 +4247,8 @@ svg{
     .formulario h1{
         /* CONTÁCTANOS */
 
-        width: 100%;
-        height: auto;
+        width: 50%;
+        height: 64px;
 
         font-family: 'Helvetica';
         font-style: normal;
@@ -4266,7 +4266,7 @@ svg{
     .formulario p{
         
         width: 100%;
-        height: auto;
+        height: 48px;
 
         font-family: 'Helvetica';
         font-style: normal;

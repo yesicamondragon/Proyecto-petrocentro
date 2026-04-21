@@ -107,28 +107,19 @@
             <li class="correo-perfil">
                 <p> {{ user.email }} </p>
             </li>
-            <div class="perfil-cerrar">
-           
-                  
-                  <li>
-                    <a href="{% url 'perfil' %}">
-                        <i class="fa-solid fa-gear icons"></i>
-                        &nbsp;Ajustes
-                    </a>
-                  </li>
-                  <li>
-                    <a href="{% if user.is_superuser or empleado.id_rol.nombre == 'Administrador' %}{% url 'perfil_admin' %}{% else %}{% url 'perfil_empleado' %}{% endif %}">
-                        <i class="fa-solid fa-table-columns"></i>
-                        &nbsp;Volver al Menú
-                    </a>
-                  </li>
-                  <li>
-                    <a href=" {% url 'logout_view' %} ">
-                        <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesion
-                    </a>
-                  </li>
-            </div>
-            
+            <li class="perfil-cerrar">
+                <a href="{% url 'perfil' %}">
+                    <i class="fa-solid fa-gear icons"></i>
+                    &nbsp;Ajustes
+                </a>
+                <a href="{% if user.is_superuser or (empleado and empleado.id_rol and empleado.id_rol.nombre == 'Administrador') %}{% url 'perfil_admin' %}{% else %}{% url 'perfil_empleado' %}{% endif %}">
+                    <i class="fa-solid fa-table-columns"></i>
+                    &nbsp;Menú
+                </a>
+                <a href="{% url 'logout_view' %}" style="grid-column: span 2; border-top: 1px solid #eee; margin-top: 5px; padding-top: 10px;">
+                    <i class="bi bi-box-arrow-left"></i>&nbsp; Cerrar Sesión
+                </a>
+            </li>
         </ul>
         </div>
     {% else %}
@@ -193,12 +184,10 @@
                       </a>
                 
                   <div class="red_social  ">
-                    <a href="https://www.facebook.com/profile.php?id=61588063301788" target="_blank" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/petro.centro/?hl=en" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://wa.me/message/5R3AZZHYENO5F1" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-                    <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="https://www.tiktok.com/@sector_pretolero?lang=es" target="_blank" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                    <a href="https://www.linkedin.com/in/petrocentro-petrocentro-2a93243b8/" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#" > &nbsp; <i class="fa-brands fa-facebook"> &nbsp; </i></a>
+                    <a href="https://www.instagram.com/petrocentrosas/" > &nbsp; <i class="fa-brands fa-instagram"> &nbsp; </i></a>
+                    <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" > &nbsp; <i class="fa-brands fa-youtube"> &nbsp; </i></a>
+                    <a href="https://www.linkedin.com/company/petrocentro-sas/" > &nbsp; <i class="fa-brands fa-linkedin"></i>  </a>
                   </div>
               </figure>
             </div>
@@ -326,89 +315,74 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-          // OPTIMIZACIÓN: Ocultar pantalla de carga inmediatamente
-          document.addEventListener('DOMContentLoaded', function() {
-              var loader = document.getElementById('loadingOverlay');
+          // Ocultar pantalla de carga al finalizar la carga de recursos
+          window.addEventListener('load', function() {
+              const loader = document.getElementById('loadingOverlay');
               if (loader) loader.style.display = 'none';
           });
 
           {% if messages %}
-          // Recorrer los mensajes que llegan de las vistas 
-          {% for message in messages  %}
+          // Mostrar mensajes de Django de forma secuencial
+          (async () => {
+              {% for message in messages %}
+                  await Swal.fire({
+                      icon: "{% if 'success' in message.tags %}success{% elif 'error' in message.tags or 'danger' in message.tags %}error{% else %}warning{% endif %}",
+                      title: "{% if 'success' in message.tags %}¡Éxito!{% elif 'error' in message.tags or 'danger' in message.tags %}Error{% else %}Atención{% endif %}",
+                      text: '{{ message|escapejs }}',
+                      confirmButtonColor: '#0b6838' // Color corporativo
+                  });
+              {% endfor %}
+          })();
+          {% endif %}
 
-              {% if message.tags == 'success' %}
-                  Swal.fire({
-                      icon:'success',
-                      title: 'Exito',
-                      text: '{{ message }}',
-                  });
-              {% elif message.tags == 'error' %}
-                  Swal.fire({
-                      icon: 'warning',
-                      title: 'warning',
-                      text: '{{ message }}',
-                  });
-              {% else %}
-              Swal.fire({
-                      icon: 'warning',
-                      title: 'Atención',
-                      text: '{{ message }}',
-                  });
-              {% endif %}
-          {% endfor %}
-      {% endif %}
+      // OPTIMIZACIÓN: Consultas al DOM fuera del evento para mayor fluidez
+      const header = document.querySelector('header');
+      const botones = document.querySelectorAll('.boton, .little-boton'); // Seleccionar ambos tipos de botones
+      if (header) header.style.transition = 'background-color 400ms ease, height 400ms ease, box-shadow 400ms ease';
+
       window.addEventListener('scroll', function(){
-        
-        var header = document.querySelector('header');
-        const botones = document.querySelectorAll('.boton');
-        header.classList.toggle('header-nav',window.scrollY>0)
+        const scrolled = window.scrollY > 0;
 
-        // Itera sobre los elementos y agrega la clase "header-nav"
-        botones.forEach(function(boton) {
-          boton.classList.toggle('header-nav',window.scrollY>0)
-          var colorOriginal = boton.getAttribute('data-original-color');
+        if (header) { // Asegurarse de que el header existe
+            // Ajustar color de los botones de navegación
+            botones.forEach(function(boton) {
+                const colorOriginal = boton.getAttribute('data-original-color') || 'white';
+                boton.style.color = scrolled ? 'black' : colorOriginal;
+            });
             
-          if(window.scrollY > 0){
-              boton.style.color = 'black';
-            }else{
-              boton.style.color = colorOriginal;
-                
+            // Ajustar apariencia del encabezado
+            if (scrolled){
+                header.style.backgroundColor = '#ffffff';
+                header.style.height = '60px';
+                header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            } else {
+                header.style.backgroundColor = 'transparent';
+                header.style.height = ''; // Restablece al valor definido en CSS
+                header.style.boxShadow = 'none';
             }
-          
-        });
-       
-        
-
-        if (window.scrollY > 0){
-          
-          header.style.transition= 'All 400ms ease-out'
-          header.style.backgroundColor = '#ffffff';
-          header.style.height = '60px';
-          
         }
-        else{
-          header.style.backgroundColor = 'transparent';
-          
+      });
 
-        }
-        
-      })
       function perfil(){
-        document.getElementById("lista-perfil").classList.toggle("active-perfil");
+        const menu = document.getElementById("lista-perfil");
+        if (menu) menu.classList.toggle("active-perfil");
+      }
 
-    }
-    window.onkeyup = function(e){
-      var perfil = document.getElementById("lista-perfil");
-      if (e.key === "Escape") {
-        perfil.classList.remove("active-perfil");
-      }
-    }
-    window.onclick = function(e){
-      var perfil = document.getElementById("lista-perfil");
-      if (e.target == perfil) {
-        perfil.classList.remove("active-perfil");
-      }
-    }
+      window.addEventListener('keyup', function(e){
+        if (e.key === "Escape") {
+          const menu = document.getElementById("lista-perfil");
+          if (menu) menu.classList.remove("active-perfil");
+        }
+      });
+
+      window.addEventListener('click', function(e){
+        const menu = document.getElementById("lista-perfil");
+        const profileImg = document.querySelector('.imagen-perfil'); // Asumiendo que esta es la imagen que abre el menú
+        // Cierra el menú si está abierto, el clic no fue dentro del menú y no fue en la imagen que lo abre
+        if (menu && menu.classList.contains('active-perfil') && !menu.contains(e.target) && e.target !== profileImg) {
+          menu.classList.remove("active-perfil");
+        }
+      });
     </script>
     <!-- Script bootstrap -->
 

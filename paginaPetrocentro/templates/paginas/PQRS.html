@@ -270,7 +270,7 @@
 {% block sucribirse_blog %}{% endblock sucribirse_blog %}
 
 {% block script %}
-<script>
+<style>
     /* Centrar títulos y breadcrumb en la cabecera de PQRS */
     .letras-pqrs {
         text-align: center;
@@ -282,6 +282,7 @@
         align-items: center;
     }
     .l-pqrs .breadcrumb-container { justify-content: center; }
+    .l-pqrs h1 { margin-right: 0 !important; margin-left: 10px; } /* Desplazamiento hacia la derecha */
 </style>
 <script>
     function consultarEstado() {
@@ -334,7 +335,7 @@
             });
         }
     }
-</script>
+</style>
 <style>
     @media (max-width: 768px) {
         .letras-pqrs {

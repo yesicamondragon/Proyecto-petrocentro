@@ -1,0 +1,89 @@
+{% extends 'plantillas/plantilla.html' %}
+{% load static %}
+
+{% block titulo %} Trabaja con Nosotros - Petrocentro {% endblock %}
+
+{% block contenido %}
+<style>
+    .contact-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+        margin-top: 50px;
+    }
+
+    .formulario.color {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-bottom: 50px;
+    }
+
+    .formulario h1 {
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .contact-wrapper { padding: 20px 10px; }
+        .formulario.color { padding: 25px 15px; }
+        .formulario h1 { 
+            font-size: 2rem; 
+            text-align: center; 
+            height: auto !important; 
+            width: 100% !important; 
+            line-height: 1.2; 
+            margin-top: 10px;
+            margin-bottom: 20px; 
+        }
+    }
+</style>
+
+<div class="contact-wrapper">
+    <div class="formulario color">
+        <div class="breadcrumb-container dark-mode" style="justify-content: flex-start; margin-bottom: 20px;">
+            <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
+            <span class="breadcrumb-separator">&gt;</span>
+            <span class="breadcrumb-current">Trabaja con nosotros</span>
+        </div>
+
+        <h1>TRABAJA CON NOSOTROS</h1>
+        <p class="comentario" style="height: auto; margin-bottom: 25px;">
+            ¿Buscas nuevos retos? Únete a Petrocentro.<br>
+            Buscamos talentos apasionados por la industria energética para formar parte de nuestro equipo técnico y administrativo.
+        </p>
+
+        <form action="{% url 'trabaja_con_nosotros' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input class="input w-100" type="text" placeholder="Nombre Completo*" name="nombre" required>
+            </div>
+            <div class="mb-3">
+                <input class="input w-100" type="email" placeholder="Correo Electrónico*" name="correo" required>
+            </div>
+            <div class="mb-3">
+                <input class="input w-100" type="text" placeholder="Teléfono de contacto*" name="telefono" required>
+            </div>
+            <div class="mb-3">
+                <select name="cargo" class="input w-100" style="height: 50px; border-radius: 15px; border: 2px solid var(--color-1); padding: 0 15px; font-size: 17px;">
+                    <option value="">Cargo de interés...</option>
+                    {% for cargo in cargos %}
+                    <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #0000009c; font-size: 18px;">Adjuntar Hoja de Vida (Solo PDF)*</label>
+                <input type="file" name="hoja_vida" accept=".pdf" required style="height: auto; padding: 10px; border: 2px dashed var(--color-1); border-radius: 15px;">
+            </div>
+            <div class="mb-3">
+                <textarea class="input w-100" placeholder="Mensaje adicional / Presentación" name="mensaje" rows="4" style="height: auto; border-radius: 15px; border: 2px solid var(--color-1); padding: 10px;"></textarea>
+            </div>
+            <input class="button w-100" type="submit" name="enviar" value="Enviar Postulación">
+        </form>
+    </div>
+</div>
+{% endblock %}

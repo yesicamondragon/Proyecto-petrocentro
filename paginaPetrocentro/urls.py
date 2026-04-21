@@ -56,5 +56,6 @@ urlpatterns = [
     path('responder-pqrs/<int:id_pqr>/', users_views.responder_pqrs, name='responder_pqrs'),
     path('gestion-cotizaciones/', users_views.gestion_cotizaciones, name='gestion_cotizaciones'),
     path("qr-pqrs/", views.generar_qr, name="qr_pqrs"),
+    path('trabaja-con-nosotros/', views.trabaja_con_nosotros, name='trabaja_con_nosotros'),
 
 ]

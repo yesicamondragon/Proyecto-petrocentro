@@ -20,31 +20,74 @@
 <style>
     .contact-wrapper {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 40px 20px;
     }
 
     .formulario.color {
         width: 100%;
         max-width: 850px;
-        margin: 0 auto;
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         padding: 40px;
     }
 
+    .info-box-lateral {
+        width: 100%;
+        max-width: 850px;
+    }
+
     .horario2 { display: none; } /* Oculto en escritorio */
 
     @media (max-width: 768px) {
+        /* Neutralizamos el diseño del contenedor padre de Style.css que causa la franja derecha */
+        .container { 
+            background: #fff !important; 
+            height: auto !important; 
+            box-shadow: none !important;
+        }
+
         .contact-wrapper { padding: 20px 10px; }
-        .formulario.color { padding: 25px 15px; }
-        .con { display: none; } /* Oculta lista de escritorio */
-        .horario2 { display: block; } /* Muestra acordeón en móvil */
+        .formulario.color { padding: 25px 15px; } /* Ajuste de padding para móviles */
+        .con { display: block !important; } /* Asegura que la información de contacto esté visible */
+        .horario2 { display: none !important; } /* Oculta el acordeón en móvil */
         .breadcrumb-container { justify-content: center !important; }
         .formulario h1 { font-size: 1.8rem; text-align: center; }
         .comentario { text-align: center; font-size: 0.95rem; }
         
+        .con .telefono {
+            height: auto !important; /* Elimina la altura fija que causaba el solapamiento */
+            flex-direction: column; /* Apila los elementos verticalmente */
+            align-items: flex-start; /* Alinea el texto a la izquierda */
+            gap: 10px; /* Más espacio entre etiqueta y botón */
+            margin-bottom: 35px; /* Mayor separación entre bloques (Email, Tel, etc) */
+            padding-bottom: 20px; /* Espacio antes de la línea divisoria */
+            border-bottom: 1px solid #eee; /* Separador sutil */
+        }
+        .con .telefono:last-child {
+            border-bottom: none; /* Sin borde para el último elemento */
+            margin-bottom: 0;
+        }
+        .con .telefono .bold {
+            font-size: 1rem; /* Ajusta el tamaño de fuente para mejor lectura en móvil */
+            display: block; /* Asegura que ocupe todo el ancho */
+            margin-top: 5px; /* Espacio entre la etiqueta y el dato */
+        }
+        .con .telefono .btn-cta-contact {
+            margin-left: 0 !important; /* Elimina el margen izquierdo del botón */
+            margin-top: 10px; /* Agrega margen superior para separar del texto */
+            width: 100%; /* Hace que el botón ocupe todo el ancho */
+            text-align: center; /* Centra el texto en el botón */
+            box-sizing: border-box; /* Incluye el padding en el cálculo del ancho */
+        }
+        .con .telefono i {
+            margin-right: 5px; /* Reduce el margen del icono */
+        }
         .qr-grid { gap: 20px !important; }
         .qr-item { width: 100% !important; max-width: 300px; margin: 0 auto; }
         
@@ -63,34 +106,49 @@
 </style>
 
 <div class="contact-wrapper">
-            <div class="formulario color">
+            <!-- Botón para desplegar el formulario (al inicio) -->
+            <div class="mt-4" style="width: 100%; max-width: 850px;">
+                <button class="button w-100" type="button" data-bs-toggle="collapse" data-bs-target="#formCollapse" aria-expanded="false" aria-controls="formCollapse" style="font-weight: bold; height: 60px;">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i> ESCRIBIR MENSAJE / CONTACTARNOS
+                </button>
+            </div>
+
+            <!-- Formulario Colapsable -->
+            <div class="collapse w-100" id="formCollapse" style="max-width: 850px;">
+                <div class="formulario color mt-3">
+                    
+                    <h1>CONTÁCTANOS</h1>
+                    <p class="comentario" style="height: auto; margin-bottom: 25px;">Estamos listos para atender tu operación.<br>
+                    Nuestro equipo técnico y administrativo responderá tu solicitud en el menor tiempo posible.</p>
+                    
+                    <form action="{% url 'contacto_mensaje' %}" method="post" id="contactForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input class="input w-100" type="text" placeholder="Nombre*" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <input class="input w-100" type="email" placeholder="Email*" name="correo" required>
+                        </div>
+                        <div class="mb-3">
+                            <input class="input w-100" type="number" placeholder="Teléfono (opcional)" name="numero">
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="input w-100" placeholder="¿Cómo podemos ayudarte?" name="mensaje" rows="4" required style="height: auto; border-radius: 5px; border: 1px solid #ccc; padding: 10px;"></textarea>
+                        </div>
+                        <input class="button w-100" type="submit" name="enviar" value="Enviar Mensaje">
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cuadro de Información de Contacto (Visible siempre y ahora después del botón/formulario) -->
+            <div class="formulario color info-box-lateral">
                 <div class="breadcrumb-container dark-mode" style="justify-content: flex-start; margin-bottom: 20px;">
                     <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
                     <span class="breadcrumb-separator">&gt;</span>
                     <span class="breadcrumb-current">Contacto</span>
                 </div>
-                
-                <h1>CONTÁCTANOS</h1>
-                <p class="comentario" style="height: auto; margin-bottom: 25px;">Estamos listos para atender tu operación.<br>
-                Nuestro equipo técnico y administrativo responderá tu solicitud en el menor tiempo posible.</p>
-                
-                <form action="{% url 'contacto_mensaje' %}" method="post" id="contactForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <input class="input w-100" type="text" placeholder="Nombre*" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <input class="input w-100" type="email" placeholder="Email*" name="correo" required>
-                    </div>
-                    <div class="mb-3">
-                        <input class="input w-100" type="number" placeholder="Teléfono (opcional)" name="numero">
-                    </div>
-                    <div class="mb-3">
-                        <textarea class="input w-100" placeholder="¿Cómo podemos ayudarte?" name="mensaje" rows="4" required style="height: auto; border-radius: 5px; border: 1px solid #ccc; padding: 10px;"></textarea>
-                    </div>
-                    <input class="button w-100" type="submit" name="enviar" value="Enviar Mensaje">
-                </form>
 
+                <h2 style="font-size: 1.5rem; color: #1a1a1a; margin-bottom: 25px; font-weight: 700; border-bottom: 2px solid var(--color-1); padding-bottom: 10px;">DATOS DE CONTACTO</h2>
                 <div class="con mt-4">
                     <p class="telefono"><i class="fa-solid fa-envelope me-2"></i> EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span>
                         <a href="https://mail.google.com/mail/?view=cm&fs=1&to=gerenciaoperaciones@petrocentro.co" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Enviar</a>
@@ -102,86 +160,29 @@
                         <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Ver Mapa</a>
                     </p>
                 </div>
-
-                <div class="accordion accordion-flush horario2 mt-4" id="accordionFlushExample" >
-                    <div class="accordion-item ">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button collapsed button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                          Contacto
-                        </button>
-                      </h2>
-                      <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                        <div class="accordion-body">
-                            <p class="telefono"> <i class="fa-solid fa-envelope"></i> EMAIL: <span class="bold">gerenciaoperaciones@petrocentro.co</span>
-                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=gerenciaoperaciones@petrocentro.co" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Enviar</a>
-                            </p>
-                            <p class="telefono"> <i class="fa-solid fa-phone"></i> TELEFONO: <span class="bold">+57 313 4267179</span> 
-                                <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Chatear</a>
-                            </p>
-                        </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item pt-2">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button collapsed button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-                          Ubicacion
-                        </button>
-                      </h2>
-                      <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                        <div class="accordion-body">
-                            <p class="telefono" > <i class="fa-solid fa-location-dot"></i> UBICACIÓN:<br><span class="bold">Pirámide Siete II, Av. Calle 127 #13-96, Bogotá</span>
-                                <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Ver Mapa</a>
-                            </p>
-                            
-                        </div>
-                      </div>
-                    </div>
-                    <div class="accordion-item pt-2">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button collapsed button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-                         Horario
-                        </button>
-                      </h2>
-                      <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                        <div class="accordion-body">
-                            <p class="mb-0">Lunes a viernes: 08:30 a. m. – 05:30 p. m.</p>
-                        </div>
-                    </div>
-                  </div>
             </div>
-        </div>
-    </div>
 </div>
-
-<!-- Sección de Códigos QR para contacto rápido -->
 <section class="qr-contact-section" data-aos="fade-up" style="padding: 60px 20px; background-color: #f8f9fa; text-align: center;">
     
         <h2 style="font-weight: 800; color: #1a1a1a; margin-bottom: 10px; font-family: 'Montserrat', sans-serif;">¡ESCÁNÉANOS Y CONTÁCTANOS!</h2>
         <p style="color: #666; margin-bottom: 40px; font-family: 'Open Sans', sans-serif;">Utiliza tu cámara para acceder rápidamente a nuestros canales de atención directa.</p>
         
-        <div class="qr-grid" style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
-            <!-- QR WhatsApp -->
-            <div class="qr-item" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s ease;">
-                <div style="background: #e8f5e9; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <i class="fa-brands fa-whatsapp" style="font-size: 30px; color: #25D366;"></i>
+        <div class="qr-grid" style="display: flex; justify-content: center;">
+            <div class="qr-item" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 300px; transition: transform 0.3s ease;">
+                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #e8f5e9; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 24px; color: #25D366;"></i>
+                    </div>
+                    <div style="background: #fbe9e7; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-envelope" style="font-size: 22px; color: #D44638;"></i>
+                    </div>
                 </div>
-                <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">WhatsApp</h4>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wa.me/573134267179" alt="QR WhatsApp Petrocentro" style="width: 160px; height: 160px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
-                <p style="font-size: 0.9rem; color: #777; margin-top: 15px; font-family: 'Open Sans', sans-serif;">Chatea con nosotros al instante</p>
-            </div>
-
-            <!-- QR Gmail -->
-            <div class="qr-item" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s ease;">
-                <div style="background: #fbe9e7; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <i class="fa-solid fa-envelope" style="font-size: 26px; color: #D44638;"></i>
-                </div>
-                <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">Gmail</h4>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=mailto:gerenciaoperaciones@petrocentro.co" alt="QR Gmail Petrocentro" style="width: 160px; height: 160px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
-                <p style="font-size: 0.9rem; color: #777; margin-top: 15px; font-family: 'Open Sans', sans-serif;">Envíanos un correo corporativo</p>
+                <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">Contacto Petrocentro</h4>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AEND%3AVCARD" alt="QR Contacto Petrocentro" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
+                <p style="font-size: 0.95rem; color: #555; margin-top: 15px; font-family: 'Open Sans', sans-serif; line-height: 1.4;">WhatsApp & Correo corporativo</p>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     <!-- Redes Sociales -->
     <section class="redes-sociales-section" data-aos="fade-up">
@@ -200,13 +201,17 @@
                     <i class="fa-brands fa-whatsapp"></i>
                     <span>WhatsApp</span>
                 </a>
+                <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" target="_blank" class="red-item">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
                 <a href="https://www.tiktok.com/@sector_pretolero?lang=es" target="_blank" class="red-item">
                     <i class="fa-brands fa-tiktok"></i>
                     <span>TikTok</span>
                 </a>
                 <a href="https://www.linkedin.com/in/petrocentro-petrocentro-2a93243b8/" target="_blank" class="red-item">
                     <i class="fa-brands fa-linkedin"></i>
-                    <span>linkedin</span>
+                    <span>LinkedIn</span>
                 </a>
             </div>
         </div>

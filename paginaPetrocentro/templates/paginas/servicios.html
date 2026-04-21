@@ -54,19 +54,6 @@
             </div>
         </article>
 
-        <!-- Tarjeta 8: Medición de fluidos -->
-        <article class="card card--8" onclick="mostrarModalServicio('Otros Servicios Especializados', '1. Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios.\n\n2. Fabricación de equipos para manejo y tratamiento de agua industrial.', '{% static 'images/suministrodepersonalespecializado.jpeg' %}')">
-            <div class="card__img"></div>
-            <div class="card__img--hover"></div>
-            <div class="card__info">
-                <div class="icono-servicio-card"><i class="fa-solid fa-gauge-high"></i></div>
-                <span class="card__category">Otros servicios</span>
-                <p class="card__description card8-dynamic-text"></p>
-                <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
-            </div>
-        </article>
-
-
         <!-- Tarjeta 12: Adquisición de Datos -->
         <article class="card card--12" onclick="mostrarModalServicio('Adquisición de Datos y Monitoreo en Tiempo Real', 'Implementamos sistemas avanzados de telemetría para la captura de variables críticas (presión, temperatura y caudal) en tiempo real. Este servicio permite un análisis dinámico del comportamiento del pozo durante las pruebas, facilitando ajustes operativos inmediatos y garantizando la integridad de la información para la certificación de reservas.\n', '{% static 'images/adquisiciondedatosymonitoreo.webp' %}')">
             <div class="card__img"></div>
@@ -117,6 +104,18 @@
                 <div class="icono-servicio-card"><i class="fa-solid fa-filter"></i></div>
                 <span class="card__category">Venta y Renta de Equipos</span>
                 <p class="card__description">En Petrocentro rentamos y vendemos soluciones técnicas integrales para superficie. Garantizamos trazabilidad y eficiencia absoluta en nuestro proceso de servicios para el sector Oil & Gas.</p>
+                <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
+            </div>
+        </article>
+
+        <!-- Tarjeta 8: Otros servicios especializados -->
+        <article class="card card--8" onclick="mostrarModalServicio('Otros Servicios Especializados', '1. Suministro de personal especializado: contamos con personal calificado para brindarle apoyo en la puesta en marcha y control de operación de sus servicios.\n\n2. Fabricación de equipos para manejo y tratamiento de agua industrial.', '{% static 'images/suministrodepersonalespecializado.jpeg' %}')">
+            <div class="card__img"></div>
+            <div class="card__img--hover"></div>
+            <div class="card__info">
+                <div class="icono-servicio-card"><i class="fa-solid fa-gauge-high"></i></div>
+                <span class="card__category">Otros servicios</span>
+                <p class="card__description card8-dynamic-text"></p>
                 <h3 class="card__title">Explorar servicio &nbsp; <i class="fa-solid fa-arrow-right"></i></h3>       
             </div>
         </article>
@@ -360,7 +359,7 @@
             <div class="modal-contenido" style="text-align: justify;">
                 <p>El ciclo de vida de un pozo de hidrocarburos es un proceso integral que abarca desde la exploración inicial hasta el abandono final. En Petrocentro, nos especializamos en la etapa crítica de <strong>Evaluación y Producción</strong>.</p>
                 <img src="{% static 'images/WT.webp' %}" alt="Ciclo de Vida del Pozo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <p>Durante la fase de <strong>Well Testing</strong>, realizamos pruebas dinámicas para determinar la capacidad productiva del yacimiento, midiendo variables como presión, temperatura y caudales de flujo. Esta información es vital para diseñar las facilidades de superficie adecuadas y optimizar la recuperación de reservas, asegurando la viabilidad económica y técnica del proyecto a largo plazo.</p>
+                <p>Durante la fase de <strong>Well Testing</strong>, realizamos pruebas dinámicas para determinar la capacidad productiva del pozo, midiendo variables como presión, temperatura y caudales de flujo. Esta información es vital para diseñar las facilidades de superficie adecuadas y optimizar la recuperación de reservas, asegurando la viabilidad económica y técnica del proyecto a largo plazo.</p>
             </div>
         </div>
     </div>
@@ -415,6 +414,16 @@
     // CSS para el efecto hover de las tarjetas de reseña
     const style = document.createElement('style');
     style.innerHTML = `
+        .banner-servicios {
+            filter: none !important; /* Imagen clarita */
+            background-color: transparent !important;
+        }
+
+        .banner-servicios::before, .banner-servicios::after {
+            display: none !important; /* Elimina sombras sobre la imagen */
+            content: none !important;
+        }
+
         .slider-wrapper {
             position: relative;
             width: 100%;

@@ -64,29 +64,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         
         # --- Lógica del Bot (Modificado para responder a todos) ---
-        response = None
-        msg_lower = message.lower()
-        
-        # --- Respuestas Automáticas ---
-        if any(word in msg_lower for word in ["hola", "buenos", "buenas", "inicio"]):
-            response = "¡Hola! Bienvenido a Petrocentro. 👋<br>Puedo ayudarte con información sobre:<br>🔹 <b>Horarios</b><br>🔹 <b>Ubicación</b><br>🔹 <b>Precios/Cotizaciones</b><br>🔹 <b>Facturación</b>"
-        elif "horario" in msg_lower:
-            response = "🕒 <b>Horario de Atención:</b><br>Lunes a Viernes: 8:30 AM - 5:30 PM.<br>Sábados y Domingos: No hay servicio."
-        elif any(word in msg_lower for word in ["ubicacion", "ubicación", "donde", "dónde", "direccion", "dirección", "sede"]):
-            response = "📍 <b>Sede Principal:</b><br>Avenida Calle 127 #13-96, Bogotá.<br>También contamos con bases en Meta y Putumayo."
-        elif any(word in msg_lower for word in ["precio", "costo", "cotiza", "valor"]):
-            response = "💰 <b>Cotizaciones:</b><br>Manejamos tarifas personalizadas.<br>Para una oferta formal, llena nuestro formulario:<br><a href='/contacto/' class='btn btn-sm btn-light border mt-2' style='text-decoration:none; color:#333;' target='_blank'>📝 Ir a Formulario de Cotización</a>"
-        elif any(word in msg_lower for word in ["factura", "facturación", "pago", "electronica", "electrónica"]):
-            response = "📄 <b>Facturación:</b><br>Para temas administrativos y facturación electrónica, escribe a: <i>ti.petrocentro@gmail.com</i><br>WhatsApp: 3134267179"
-        
-        # --- Fallback: Redirección a WhatsApp ---
-        else:
-            response = (
-                "Entiendo, para esa consulta específica te recomiendo hablar con un ingeniero especializado.<br><br>"
-                "<a href='https://wa.me/573134267179?text=Hola,%20tengo%20una%20consulta%20desde%20la%20web' target='_blank' class='btn btn-success btn-sm' style='color:white; text-decoration:none;'>"
-                "<i class='fa fa-whatsapp'></i> Hablar con un Asesor"
-                "</a>"
-            )
+        response = self.get_bot_response(message)
 
         if response:
             # Guardar la respuesta del bot en la base de datos
@@ -102,6 +80,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'origin_channel': 'bot_server'
                 }
             )
+
+    def get_bot_response(self, message):
+        """Centraliza la lógica de decisión del bot."""
+        msg_lower = message.lower()
+
+        if any(word in msg_lower for word in ["hola", "buenos", "buenas", "inicio"]):
+            return "¡Hola! Bienvenido a Petrocentro. 👋<br>Puedo ayudarte con información sobre:<br>🔹 <b>Horarios</b><br>🔹 <b>Ubicación</b><br>🔹 <b>Precios/Cotizaciones</b><br>🔹 <b>Facturación</b>"
+        elif "horario" in msg_lower:
+            return "🕒 <b>Horario de Atención:</b><br>Lunes a Viernes: 8:30 AM - 5:30 PM.<br>Sábados y Domingos: No hay servicio."
+        elif any(word in msg_lower for word in ["ubicacion", "ubicación", "donde", "dónde", "direccion", "dirección", "sede"]):
+            return "📍 <b>Sede Principal:</b><br>Avenida Calle 127 #13-96, Bogotá.<br>También contamos con bases en Meta y Putumayo."
+        elif any(word in msg_lower for word in ["precio", "costo", "cotiza", "valor"]):
+            return "💰 <b>Cotizaciones:</b><br>Manejamos tarifas personalizadas.<br>Para una oferta formal, llena nuestro formulario:<br><a href='/contacto/' class='btn btn-sm btn-light border mt-2' style='text-decoration:none; color:#333;' target='_blank'>📝 Ir a Formulario de Cotización</a>"
+        elif any(word in msg_lower for word in ["factura", "facturación", "pago", "electronica", "electrónica"]):
+            return "📄 <b>Facturación:</b><br>Para temas administrativos y facturación electrónica, escribe a: <a href='mailto:ti.petrocentro@gmail.com' style='color:#0b6838; text-decoration:underline; font-style:italic;'>ti.petrocentro@gmail.com</a><br>WhatsApp: 3134267179"
+        
+        return (
+            "Entiendo, para esa consulta específica te recomiendo hablar con un ingeniero especializado.<br><br>"
+            "<a href='https://wa.me/573134267179?text=Hola,%20tengo%20una%20consulta%20desde%20la%20web' target='_blank' class='btn btn-success btn-sm' style='color:white; text-decoration:none;'>"
+            "<i class='fa fa-whatsapp'></i> Hablar con un Asesor"
+            "</a>"
+        )
 
     # Recibir mensaje del grupo (Grupo -> WebSocket)
     async def chat_message(self, event):

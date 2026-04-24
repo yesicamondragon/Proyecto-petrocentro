@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.http import JsonResponse
 import qrcode
+from django.core.cache import cache
 from django.http import HttpResponse
 
 def generar_qr(request):
@@ -62,6 +63,11 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         return super().post(request, *args, **kwargs)
 
 def obtener_noticias_rss():
+    # Intentar obtener noticias de la caché
+    cached_news = cache.get('rss_news_petrocentro')
+    if cached_news:
+        return cached_news
+
     try:
         url = "https://news.google.com/rss/search?q=petroleo+colombia+hidrocarburos&hl=es-419&gl=CO&ceid=CO:es-419"
         response = requests.get(url, timeout=5)
@@ -72,7 +78,7 @@ def obtener_noticias_rss():
         # Temas industriales variados para asegurar que no se repitan
         temas_fallback = ["oilwell", "refinery", "pipeline", "drilling", "energy-industry"]
         
-        for item in items[:6]: # Mostramos las 6 más recientes
+        for item in items[:9]: 
             titulo_full = item.title.text
             titulo = titulo_full.split(" - ")[0] # Título limpio
             fuente = titulo_full.split(" - ")[-1] if " - " in titulo_full else "Noticia Sector"
@@ -98,13 +104,22 @@ def obtener_noticias_rss():
                 'fecha': item.pubDate.text[:16],
                 'imagen': imagen_url
             })
+        
+        # Guardar en caché por 2 horas (7200 segundos)
+        cache.set('rss_news_petrocentro', noticias, 7200)
         return noticias
-    except:
+    except Exception as e:
+        print(f"Error RSS: {e}")
         return []
 
 #Funcion para redirigir al index
 def get_economic_indicators():
     """Obtiene indicadores de mercado (Dólar y Brent) vía yfinance."""
+    # Intentar obtener datos de la caché para carga instantánea
+    cached_data = cache.get('market_indicators')
+    if cached_data:
+        return cached_data
+
     data = {'dolar': '...', 'brent': '...'}
     try:
         # USDCOP=X es el par Dólar/Peso Colombiano
@@ -118,6 +133,9 @@ def get_economic_indicators():
         brent_price = brent_ticker.fast_info.last_price
         if brent_price:
             data["brent"] = f"${brent_price:,.2f}"
+        
+        # Guardar en caché por 1 hora (3600 segundos)
+        cache.set('market_indicators', data, 3600)
     except Exception as e:
         print(f"Error obteniendo indicadores: {e}")
     return data
@@ -214,16 +232,22 @@ def servicios(request):
         'generales': 'Servicios Generales'
     }
     
+    # Obtenemos todas las estadísticas de una sola vez
+    stats_qs = Valoracion.objects.values('servicio').annotate(
+        promedio=Avg('puntuacion'),
+        total=Count('id')
+    )
+    
     stats_valoraciones = {}
-    for key, name in categorias_map.items():
-        stats = Valoracion.objects.filter(servicio=name).aggregate(
-            promedio=Avg('puntuacion'),
-            total=Count('id')
-        )
-        stats_valoraciones[key] = {
-            'promedio': round(stats['promedio'], 1) if stats['promedio'] else 0,
-            'total': stats['total']
-        }
+    for s in stats_qs:
+        # Buscamos la 'key' (evaluacion, integridad...) basada en el 'name' en categorias_map
+        key = next((k for k, v in categorias_map.items() if v == s['servicio']), None)
+        if key:
+            stats_valoraciones[key] = {
+                'promedio': round(s['promedio'], 1),
+                'total': s['total']
+            }
+
     context['stats_valoraciones'] = stats_valoraciones
             
     return render(request, 'paginas/servicios.html', context)
@@ -721,6 +745,8 @@ def trabaja_con_nosotros(request):
 
         if hoja_vida and not hoja_vida.name.endswith('.pdf'):
             messages.error(request, "Error: Solo se permiten archivos en formato PDF.")
+        elif hoja_vida and hoja_vida.size > 5242880:
+            messages.error(request, "Error: La hoja de vida no debe superar los 5 MB.")
         elif not all([nombre, correo, telefono, hoja_vida]):
             messages.error(request, "Por favor complete todos los campos obligatorios.")
         else:

@@ -42,6 +42,16 @@
         max-width: 850px;
     }
 
+    .comentario {
+        text-align: justify !important;
+        hyphens: auto;
+    }
+
+    .subtitulo-mapa {
+        text-align: justify !important;
+        hyphens: auto;
+    }
+
     .horario2 { display: none; } /* Oculto en escritorio */
 
     @media (max-width: 768px) {
@@ -58,7 +68,6 @@
         .horario2 { display: none !important; } /* Oculta el acordeón en móvil */
         .breadcrumb-container { justify-content: center !important; }
         .formulario h1 { font-size: 1.8rem; text-align: center; }
-        .comentario { text-align: center; font-size: 0.95rem; }
         
         .con .telefono {
             height: auto !important; /* Elimina la altura fija que causaba el solapamiento */
@@ -157,7 +166,7 @@
                         <a href="https://wa.me/573134267179" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Chatear</a>
                     </p>
                     <p class="telefono" > <i class="fa-solid fa-location-dot me-2"></i> UBICACIÓN: <span class="bold">Pirámide Siete II, Av. Calle 127 #13-96, Bogotá</span>
-                        <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Ver Mapa</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Oficina+204,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="margin-left: 15px; padding: 5px 15px; font-size: 12px;">Ver Mapa</a>
                     </p>
                 </div>
             </div>
@@ -178,8 +187,10 @@
                     </div>
                 </div>
                 <h4 style="font-weight: 700; color: #1a1a1a; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">Contacto Petrocentro</h4>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AEND%3AVCARD" alt="QR Contacto Petrocentro" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
-                <p style="font-size: 0.95rem; color: #555; margin-top: 15px; font-family: 'Open Sans', sans-serif; line-height: 1.4;">WhatsApp & Correo corporativo</p>
+                <a href="data:text/vcard;charset=utf-8,BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro%20S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" download="Petrocentro.vcf" title="Clic para guardar contacto" style="text-decoration: none;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" alt="QR Contacto Petrocentro" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px; cursor: pointer;">
+                    <p style="font-size: 0.95rem; color: #555; margin-top: 15px; font-family: 'Open Sans', sans-serif; line-height: 1.4;">Clic para Guardar Contacto</p>
+                </a>
             </div>
         </div>
     </section>
@@ -224,18 +235,18 @@
                 <p class="subtitulo-mapa">Nuestras bases operativas están situadas estratégicamente para garantizar una respuesta rápida en todo el territorio nacional.</p>
                 
                 <div class="mapa-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d994.0943013157107!2d-74.04049583038243!3d4.704361836291394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f8535456f7c8f%3A0x924437162d13870e!2sPetrocentro%20S.A.S.!5e0!3m2!1ses-419!2sco!4v1715290216734!5m2!1ses-419!2sco&q=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Oficina+204,+Bogotá,+Colombia" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
                 <div class="mapa-acciones" style="text-align: center; margin-top: 20px;">
-                    <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="background-color: #198754; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block;">
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II,+Avenida+Calle+127+%2313-96,+Oficina+204,+Bogotá,+Colombia" target="_blank" class="btn-cta-contact" style="background-color: #198754; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block;">
                         Abrir en Maps <i class="fa-solid fa-map-location-dot"></i>
                     </a>
                 </div>
                 
                 <div class="info-sedes">
                     <div class="sede-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <h4>Sede Principal - Bogotá</h4>
+                        <i class="fa-solid fa-location-dot"></i> 
+                        <h4>Sede Principal - Bogotá (Oficina 204)</h4>
                         <p>Centro administrativo y logístico para la coordinación nacional.</p>
                     </div>
                     <div class="sede-item">

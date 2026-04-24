@@ -51,9 +51,8 @@
         </div>
 
         <h1>TRABAJA CON NOSOTROS</h1>
-        <p class="comentario" style="height: auto; margin-bottom: 25px;">
-            ¿Buscas nuevos retos? Únete a Petrocentro.<br>
-            Buscamos talentos apasionados por la industria energética para formar parte de nuestro equipo técnico y administrativo.
+        <p class="comentario" style="height: auto; margin-bottom: 25px; text-align: justify !important; hyphens: auto;">
+            Si tienes experiencia en el sector petrolero enfocada hacia nuestra línea de servicio, envíanos tu currículo.
         </p>
 
         <form action="{% url 'trabaja_con_nosotros' %}" method="POST" enctype="multipart/form-data">
@@ -68,12 +67,7 @@
                 <input class="input w-100" type="text" placeholder="Teléfono de contacto*" name="telefono" required>
             </div>
             <div class="mb-3">
-                <select name="cargo" class="input w-100" style="height: 50px; border-radius: 15px; border: 2px solid var(--color-1); padding: 0 15px; font-size: 17px;">
-                    <option value="">Cargo de interés...</option>
-                    {% for cargo in cargos %}
-                    <option value="{{ cargo.id_cargo }}">{{ cargo.nombre }}</option>
-                    {% endfor %}
-                </select>
+                <input class="input w-100" type="text" placeholder="Cargo de interés*" name="cargo" required style="height: 50px; border-radius: 15px; border: 2px solid var(--color-1); padding: 0 15px; font-size: 17px;">
             </div>
             <div class="mb-3">
                 <label class="form-label fw-bold" style="color: #0000009c; font-size: 18px;">Adjuntar Hoja de Vida (Solo PDF)*</label>
@@ -86,4 +80,23 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.querySelector('input[name="hoja_vida"]').addEventListener('change', function() {
+        const file = this.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+
+        if (file && file.size > maxSize) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Archivo muy pesado',
+                text: 'La hoja de vida no debe superar los 5 MB para garantizar el envío.',
+                confirmButtonColor: '#0b6838'
+            });
+            this.value = ''; // Limpiar el campo para que el usuario seleccione otro
+        }
+    });
+</script>
 {% endblock %}

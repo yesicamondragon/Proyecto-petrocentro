@@ -383,11 +383,17 @@
                 observer.unobserve(entry.target);
             }
         });
-    }, {threshold: 0.2}); // Umbral reducido para mejor respuesta en móviles
+    }, {threshold: 0.1}); // Umbral reducido para asegurar la carga en móviles
 
-    document.querySelectorAll('.indicadores-experiencia').forEach(section => {
-        observer.observe(section);
-    });
+    // Inicialización robusta para asegurar que los números carguen en cualquier dispositivo
+    const targetSection = document.querySelector('.indicadores-experiencia');
+    if (targetSection) {
+        if ('IntersectionObserver' in window) {
+            observer.observe(targetSection);
+        } else {
+            animateCounters(); // Fallback inmediato para navegadores obsoletos
+        }
+    }
 
     // Script para Modales
     window.abrirModal = function(id) {
@@ -455,6 +461,14 @@
 </script>
 <style>
 
+
+    .l p {
+        text-align: justify !important;
+    }
+
+    .subtitulo-propuesta {
+        text-align: justify !important;
+    }
 
     .propuesta-valor .cta-botones {
     margin-top: 20px; /* Ajusta el valor según el espacio que quieras */
@@ -558,7 +572,16 @@
         display: block;
         transition: all 0.4s ease;
     }
-    .propuesta-item h3, 
+    .propuesta-item h3 {
+        position: relative;
+        z-index: 3;
+        transition: all 0.4s ease;
+        padding: 0px 20px;
+        font-weight: 800;
+        color: #1a1a1a;
+        text-shadow: none;
+        text-align: center !important;
+    }
     .propuesta-item p {
         position: relative;
         z-index: 3; /* Por encima de la imagen y el overlay */
@@ -567,6 +590,9 @@
         font-weight: 800; /* Letra en negrilla siempre */
         color: #1a1a1a;
         text-shadow: none; /* Texto nítido sobre el fondo blanco */
+        text-align: justify !important;
+        hyphens: auto;
+        -webkit-hyphens: auto;
     }
     .propuesta-item h3 { margin-top: 5px; margin-bottom: 5px; }
     .propuesta-item .caso-img {
@@ -610,11 +636,19 @@
         padding: 2px 25px; /* Parte blanca reducida al mínimo */
         transition: all 0.4s ease;
     }
-    .item-gestion-ambiental .contenido-gestion h3,
-    .item-gestion-ambiental .contenido-gestion p {
-        font-weight: 800; /* Letra en negrilla siempre */
+    .item-gestion-ambiental .contenido-gestion h3 {
+        font-weight: 800;
         color: #1a1a1a;
-        text-shadow: none; /* Texto nítido sobre el fondo blanco */
+        text-shadow: none;
+        text-align: center !important;
+    }
+    .item-gestion-ambiental .contenido-gestion p {
+        font-weight: 800;
+        color: #1a1a1a;
+        text-shadow: none;
+        text-align: justify !important;
+        hyphens: auto;
+        -webkit-hyphens: auto;
     }
     .item-gestion-ambiental .icono-gestion {
         font-size: 2.5rem;
@@ -721,7 +755,7 @@
         .propuesta-item { height: 430px !important; position: relative !important; display: block !important; background: #fff !important; }
         .propuesta-item h3, .propuesta-item p, .propuesta-item .icono-propuesta { position: relative !important; z-index: 10 !important; }
         .propuesta-item h3 { font-size: 1rem !important; padding: 5px 15px !important; color: #1a1a1a !important; transition: color 0.4s; }
-        .propuesta-item p { font-size: 0.8rem !important; padding: 0 15px 15px 15px !important; color: #1a1a1a !important; transition: color 0.4s; }
+        .propuesta-item p { text-align: justify !important; font-size: 0.8rem !important; padding: 0 15px 15px 15px !important; color: #1a1a1a !important; transition: color 0.4s; }
         .propuesta-item .icono-propuesta { font-size: 2rem; padding: 15px 15px 0 15px; color: #198754 !important; }
         .propuesta-item .caso-img { position: absolute !important; bottom: 0 !important; left: 0; width: 100%; height: 210px !important; z-index: 1 !important; transition: height 0.6s ease !important; object-fit: contain !important; }
         .propuesta-item:hover .caso-img { height: 100% !important; }
@@ -730,7 +764,7 @@
         .item-gestion-ambiental { height: 520px !important; flex: 0 0 100% !important; position: relative !important; display: block !important; background: #fff !important; }
         .item-gestion-ambiental .contenido-gestion { position: relative !important; z-index: 10 !important; }
         .item-gestion-ambiental .contenido-gestion h3 { font-size: 1rem !important; color: #1a1a1a !important; transition: color 0.4s; }
-        .item-gestion-ambiental .contenido-gestion p { font-size: 0.8rem !important; color: #1a1a1a !important; transition: color 0.4s; }
+        .item-gestion-ambiental .contenido-gestion p { text-align: justify !important; font-size: 0.8rem !important; color: #1a1a1a !important; transition: color 0.4s; }
         .item-gestion-ambiental .icono-gestion { font-size: 2rem; color: #198754 !important; }
         .item-gestion-ambiental .img-container-gestion { position: absolute !important; bottom: 0 !important; left: 0; width: 100%; height: 230px !important; z-index: 1 !important; transition: height 0.6s ease !important; }
         .item-gestion-ambiental .img-gestion { object-fit: contain !important; }
@@ -748,10 +782,11 @@
         /* Ajustes específicos para Clientes Estratégicos en celulares */
         .l p {
             width: 95% !important; /* Quita el ancho fijo de 724px */
-            text-align: center !important;
+            text-align: justify !important;
             font-size: 1rem !important;
             line-height: 1.5 !important;
         }
+        .subtitulo-propuesta { text-align: justify !important; width: 95% !important; margin: 0 auto 30px auto !important; }
         .imagenes {
             grid-template-columns: repeat(2, 1fr) !important; /* Asegura 2 columnas en móviles medianos */
             gap: 15px !important;

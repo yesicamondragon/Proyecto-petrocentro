@@ -80,21 +80,6 @@ function showModal(titulo, contenido, imagenUrl) {
 
   //Lee si el usuario pulsa por fuera del area que ocupa el modal para cerrar
 
-  //overlay
-document.addEventListener("DOMContentLoaded", function() {
-    // Ocultar el elemento de carga cuando la página se haya cargado completamente
-    var loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "none";
-
-  });
-  
-  //overlay
-  document.addEventListener("DOMContentLoaded", function() {
-    // Ocultar el elemento de carga cuando la página se haya cargado completamente
-    var loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "none";
-
-  });
 
 //Funcion para desplegar el menu de opciones del perfil
 function perfil(){

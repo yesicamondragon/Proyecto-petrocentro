@@ -41,7 +41,7 @@
 <header class="header fixed-top">
   <nav class="nav-2" >
     <div class="logo">
-        <a href="#"><img src="{% static 'images/logo.webp'%}" alt=""></a>
+        <a href="#"><img src="{% static 'images/logo.webp'%}" alt="Logo Petrocentro" loading="lazy"></a>
     </div>
     <!-- Acciones de menú-->
     <div class="botones">
@@ -74,7 +74,7 @@
       <a class="boton" data-original-color="black"  href="{% url 'pqrs' %}">PQRS</a>
 
       {% endif %}
-      <a class="boton" href="{% url 'blog' %}">BLOG</a>
+      <a class="boton" href="{% url 'blog' %}">NOTICIAS</a>
 
       {% if request.resolver_match.url_name == 'trabaja_con_nosotros' %}
         <a class="little-boton" data-original-color="black" href="{% url 'trabaja_con_nosotros' %}">TRABAJA CON NOSOTROS</a>
@@ -156,7 +156,7 @@
             <a href="{% url 'nosotros' %}">Nosotros</a>
             <a href="{% url 'contacto' %}">Contacto</a>
             <a href="{% url 'pqrs' %}">PQRS</a>
-            <a href="{% url 'blog' %}">Blog</a>
+            <a href="{% url 'blog' %}">Noticias</a>
             <a href="{% url 'trabaja_con_nosotros' %}">Trabaja con nosotros</a>
 
             <!-- Verificar si el usuario está logeado-->
@@ -175,9 +175,9 @@
 
         </article>
     </nav>
-    {% block contenido%} 
+    {% block contenido %} 
                 
-    {%endblock%}
+    {% endblock %}
     <hr>
     <!-- Pie de página-->
     <footer >
@@ -189,7 +189,7 @@
               <figure>
                 
                       <a href="{% url 'index' %}">
-                      <img class="img-fluid" src="{% static 'images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S">
+                      <img class="img-fluid" src="{% static 'images/logo.webp'%}" alt="logotipo de Petrocentro S.A.S" loading="lazy">
                       </a>
                 
                   <div class="red_social  ">
@@ -226,7 +226,7 @@
                 <li>
                     <a href="https://www.google.com/maps/search/?api=1&query=Pirámide+Siete+II+Avenida+Calle+127+%2313-96+Bogotá+Colombia" target="_blank" style="color: inherit; text-decoration: none; display: block;">
                         <i class="fa-solid fa-location-dot" style="color: #198754; margin-right: 5px; font-size: 0.9rem;"></i>
-                        <small style="font-weight: 700;">UBICACIÓN:</small> <br> <span style="font-size: 0.85rem;">Av. Calle 127 #13-96, Bogotá</span>
+                        <small style="font-weight: 700;">UBICACIÓN:</small> <br> <span style="font-size: 0.85rem;">Av. Calle 127 #13-96, Oficina 204, Bogotá</span>
                     </a>
                 </li>
               </ul>
@@ -234,8 +234,10 @@
             <div class="box4">
               <h3 style="font-size: 1.2rem;">Contacto Rápido</h3>
               <div style="display: inline-block; background: white; padding: 8px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AEND%3AVCARD" alt="QR Unificado Petrocentro" style="width: 85px; height: 85px;">
-                <small style="display: block; color: #198754; font-size: 9px; margin-top: 5px; font-weight: 700; text-transform: uppercase;">Escanea para Guardar</small>
+                <a href="data:text/vcard;charset=utf-8,BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro%20S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" download="Petrocentro.vcf" title="Clic para guardar contacto" style="text-decoration: none;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" alt="QR Unificado Petrocentro" style="width: 85px; height: 85px; cursor: pointer;">
+                    <small style="display: block; color: #198754; font-size: 9px; margin-top: 5px; font-weight: 700; text-transform: uppercase;">Clic o Escanea para Guardar</small>
+                </a>
               </div>
             </div>
             <div class="box3 " >
@@ -316,8 +318,8 @@
           defaultMsg : '',
       });
     </script>
-    {% block script %}{% endblock  %}
-    <script src="{% static 'js/suscribeForm.js' %}"></script>
+    {% block script %}{% endblock %}
+    <script src="{% static 'js/suscribeNoticias.js' %}"></script>
     <!-- AOS script-->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -357,42 +359,34 @@
               {% endif %}
           {% endfor %}
       {% endif %}
-      window.addEventListener('scroll', function(){
-        
-        var header = document.querySelector('header');
-        const botones = document.querySelectorAll('.boton');
-        header.classList.toggle('header-nav',window.scrollY>0)
+      let isScrolling = false;
+      window.addEventListener('scroll', function() {
+          if (!isScrolling) {
+              window.requestAnimationFrame(function() {
+                  const header = document.querySelector('header');
+                  const botones = document.querySelectorAll('.boton');
+                  const scrollPos = window.scrollY;
+                  
+                  header.classList.toggle('header-nav', scrollPos > 0);
 
-        // Itera sobre los elementos y agrega la clase "header-nav"
-        botones.forEach(function(boton) {
-          boton.classList.toggle('header-nav',window.scrollY>0)
-          var colorOriginal = boton.getAttribute('data-original-color');
-            
-          if(window.scrollY > 0){
-              boton.style.color = 'black';
-            }else{
-              boton.style.color = colorOriginal;
-                
-            }
-          
-        });
-       
-        
+                  if (scrollPos > 0) {
+                      header.style.backgroundColor = '#ffffff';
+                      header.style.height = '60px';
+                  } else {
+                      header.style.backgroundColor = 'transparent';
+                      header.style.height = 'auto';
+                  }
 
-        if (window.scrollY > 0){
-          
-          header.style.transition= 'All 400ms ease-out'
-          header.style.backgroundColor = '#ffffff';
-          header.style.height = '60px';
-          
-        }
-        else{
-          header.style.backgroundColor = 'transparent';
-          
+                  botones.forEach(function(boton) {
+                      const colorOriginal = boton.getAttribute('data-original-color');
+                      boton.style.color = (scrollPos > 0) ? 'black' : colorOriginal;
+                  });
 
-        }
-        
-      })
+                  isScrolling = false;
+              });
+              isScrolling = true;
+          }
+      }, { passive: true });
       function perfil(){
         document.getElementById("lista-perfil").classList.toggle("active-perfil");
 

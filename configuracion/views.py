@@ -34,19 +34,16 @@ def obtener_permisos(permisos):
     usuarios = 0 
    
     for permiso in permisos:
-        if permiso.permiso.nombre == "Crear":
+        nombre = permiso.permiso.nombre
+        if nombre == "Crear":
             crear = 1
-    for permiso in permisos:
-        if permiso.permiso.nombre in ["Consultar", "Consultor"]:
+        elif nombre in ["Consultar", "Consultor"]:
             consultar = 1
-    for permiso in permisos: 
-        if permiso.permiso.nombre == "Eliminar":
+        elif nombre == "Eliminar":
             eliminar = 1
-    for permiso in permisos:
-        if permiso.permiso.nombre in ["Actualizar", "Editar", "Editor"]:
+        elif nombre in ["Actualizar", "Editar", "Editor"]:
             editar = 1 
-    for permiso in permisos:
-        if permiso.permiso.nombre == "Usuarios":
+        elif nombre == "Usuarios":
             usuarios = 1
     data={
         'crear':crear,
@@ -689,7 +686,7 @@ def crear_post_view(request):
         return redirect('index')
 
     # --- Lógica de la vista ---
-    post = Post.objects.order_by('-fecha_creacion')
+    post = Post.objects.select_related('author', 'categoria').order_by('-fecha_creacion')
     data = {
         'posts': post, 'empleado': empleado, 'usuario': emp,
         'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),

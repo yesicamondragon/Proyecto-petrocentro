@@ -22,9 +22,9 @@
 
      <!--Oferta de servicios-->
     <section class="servicios">
-        <div class="let" style="width: 100%; margin: 0; padding: 0; text-align: left;">
+        <div class="let" style="width: 100%; margin: 0; padding: 0; text-align: center;">
             <h1 style="margin-bottom: 15px;">Oferta de Servicios</h1>
-            <p style="text-align: justify; line-height: 1.6; color: #444;">En Petrocentro S.A.S. ofrecemos servicios de ingeniería, well testing, pruebas de producción, venta de equipos de superficie, así como operación y mantenimiento de campos petroleros. Nuestro equipo altamente capacitado garantiza resultados superiores con soluciones personalizadas que maximizan la productividad y la seguridad en cada proyecto.</p>
+            <p style="text-align: justify !important; line-height: 1.6; color: #444;">En Petrocentro S.A.S. ofrecemos servicios de ingeniería, well testing, pruebas de producción, venta de equipos de superficie, así como operación y mantenimiento de campos petroleros. Nuestro equipo altamente capacitado garantiza resultados superiores con soluciones personalizadas que maximizan la productividad y la seguridad en cada proyecto.</p>
         </div>   
     <!-- Categoría: Evaluación y Medición de Pozos -->
     
@@ -159,7 +159,7 @@
        
             <div class="card border-0 shadow-lg rounded-4 p-3 bg-white">
                 <h2 class="titulo-testimonios text-center mb-2" style="color: #333; font-weight: 800;">RESEÑAS DE NUESTROS CLIENTES</h2>
-                <p class="text-center text-muted mb-2" style="color: #666;">Validamos nuestra excelencia operativa a través de la voz de quienes confían en nosotros.</p>
+                <p class="text-muted mb-2" style="color: #666; text-align: justify !important; text-align-last: center !important;">Validamos nuestra excelencia operativa a través de la voz de quienes confían en nosotros.</p>
 
                 <!-- Botón para abrir el listado de reseñas -->
                 <div class="text-center mb-2">
@@ -358,7 +358,7 @@
             <h2 class="modal-titulo">Ciclo de Vida del Pozo</h2>
             <div class="modal-contenido" style="text-align: justify;">
                 <p>El ciclo de vida de un pozo de hidrocarburos es un proceso integral que abarca desde la exploración inicial hasta el abandono final. En Petrocentro, nos especializamos en la etapa crítica de <strong>Evaluación y Producción</strong>.</p>
-                <img src="{% static 'images/WT.webp' %}" alt="Ciclo de Vida del Pozo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <img src="{% static 'images/WT.webp' %}" alt="Ciclo de Vida del Pozo" class="img-fluid" style="width:100%; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" loading="lazy">
                 <p>Durante la fase de <strong>Well Testing</strong>, realizamos pruebas dinámicas para determinar la capacidad productiva del pozo, midiendo variables como presión, temperatura y caudales de flujo. Esta información es vital para diseñar las facilidades de superficie adecuadas y optimizar la recuperación de reservas, asegurando la viabilidad económica y técnica del proyecto a largo plazo.</p>
             </div>
         </div>
@@ -526,6 +526,11 @@
         .testimonios-filtrables .container::after {
             display: none !important;
             content: none !important;
+        }
+        .card__description {
+            text-align: justify !important;
+            hyphens: auto;
+            -webkit-hyphens: auto;
         }
         .resena-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;

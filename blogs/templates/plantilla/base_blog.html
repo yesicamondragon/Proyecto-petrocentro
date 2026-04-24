@@ -11,6 +11,14 @@
         <link rel="stylesheet" href="{% static 'css/suscribe.css' %}">
         <link rel="stylesheet" href="{% static 'css/post.css' %}">
         <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+        <style>
+            .descripcion-post-detail p, 
+            .contenido-post-detail, 
+            .noticias-contenido p {
+                text-align: justify !important;
+                hyphens: auto;
+            }
+        </style>
 
 
         <!-- Font AWesome-->
@@ -156,10 +164,10 @@
                     <div class="breadcrumb-container">
                         <a href="{% url 'index' %}" class="breadcrumb-link">Inicio</a>
                         <span class="breadcrumb-separator">&gt;</span>
-                        <span class="breadcrumb-current">Blog</span>
+                        <span class="breadcrumb-current">Noticias</span>
                     </div>
                     {% block titulo %}
-                    <h1>Blog Informativo <br> Petrocentro</h1>
+                    <h1>Portal de Noticias <br> Petrocentro</h1>
                     {% endblock titulo %}
                     
                 </div>
@@ -177,12 +185,12 @@
        
         <br><br>
         
-        <!-- Actualidad del Sector: Noticias automáticas de Google -->
-        <section class="blog-section" style="padding-bottom: 0; background-color: #fff;">
-            <div class="contenedor-blog">
-                <h2 class="titulo-blog">ACTUALIDAD DEL SECTOR OIL & GAS</h2>
-                <p class="subtitulo-blog">Noticias en tiempo real sobre hidrocarburos y energía.</p>
-                <div class="grid-blog" id="news-container">
+        <!-- Actualidad del Sector -->
+        <section class="noticias-section" style="padding-bottom: 0; background-color: #fff;">
+            <div class="contenedor-noticias">
+                <h2 class="titulo-noticias">ACTUALIDAD DEL SECTOR OIL & GAS</h2>
+                <p class="subtitulo-noticias">Noticias en tiempo real sobre hidrocarburos y energía.</p>
+                <div class="grid-noticias" id="news-container">
                     <div style="width: 100%; text-align: center; grid-column: 1/-1; padding: 20px;">
                         <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 30px; color: #0b6838;"></i>
                     </div>
@@ -209,7 +217,7 @@
                     const container = document.getElementById('news-container');
                     if(data.status === 'ok' && data.items.length > 0){
                         container.innerHTML = '';
-                        data.items.slice(0, 3).forEach((item, index) => {
+                        data.items.slice(0, 9).forEach((item, index) => {
                             const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
                             let title = item.title.split(' - ')[0];
                             
@@ -223,6 +231,15 @@
                                 if (img) imageUrl = img.src;
                             }
 
+                            // Extraer texto plano de la descripción para evitar que se repita el título
+                            const descriptionDoc = new DOMParser().parseFromString(item.description, 'text/html');
+                            let snippet = descriptionDoc.body.textContent.replace(title, '').trim();
+                            if (snippet.length > 160) {
+                                snippet = snippet.substring(0, 160) + '...';
+                            } else if (!snippet) {
+                                snippet = "Consulte más detalles sobre esta importante noticia del sector Oil & Gas.";
+                            }
+
                             // 3. Fallback Dinámico y Único: Si sigue sin haber imagen, generar una industrial variada
                             if (!imageUrl || imageUrl.includes('logo') || imageUrl.includes('icon')) {
                                 const industrialTags = ['oilwell', 'refinery', 'petroleum', 'drilling', 'gas-station', 'pipelines'];
@@ -233,20 +250,29 @@
                                 imageUrl = `https://loremflickr.com/800/500/${tag}?lock=${randomSeed}`;
                             }
 
-                            const mediaTag = `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                            const mediaTag = `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">`;
 
                             container.innerHTML += `
-                                <article class="blog-card">
-                                    <div class="blog-imagen">${mediaTag}</div>
-                                    <div class="blog-contenido">
-                                        <span class="blog-fecha">${date}</span>
-                                        <h3 style="font-size: 18px; margin-bottom: 10px;">${title}</h3>
+                                <article class="noticias-card">
+                                    <div class="noticias-imagen">${mediaTag}</div>
+                                    <div class="noticias-contenido">
+                                        <span class="noticias-fecha">${date}</span>
+                                        <h3 style="font-size: 18px; margin-bottom: 10px; text-align: center;">${title}</h3>
+                                        <p style="text-align: justify !important; hyphens: auto; font-size: 14px; color: #666; margin-bottom: 15px;">${snippet}</p>
                                         <a href="${item.link}" target="_blank" class="leer-mas">Leer noticia completa <i class="fa-solid fa-arrow-right"></i></a>
                                     </div>
                                 </article>`;
                         });
                     } else { container.innerHTML = '<p style="text-align:center; width:100%;">No hay noticias recientes.</p>'; }
                 }).catch(e => console.error(e));
+            });
+        </script>
+
+        <script>
+            // DESBLOQUEO DE INTERFAZ: Ocultar pantalla de carga inmediatamente
+            document.addEventListener('DOMContentLoaded', function() {
+                var loader = document.getElementById('loadingOverlay');
+                if (loader) loader.style.display = 'none';
             });
         </script>
 
@@ -257,10 +283,10 @@
                 <div class="post-articulo" onclick="window.location.href='{% url 'detail-post' post.slug %}' ">
                     <div class="post-articulo-completo">
                         {% if post.image %}
-                            <img class="image-post" src="{{ post.image.url }}" alt="{{ post.titulo }}">
+                            <img class="image-post" src="{{ post.image.url }}" alt="{{ post.titulo }}" loading="lazy">
                         {% else %}
-                            {# Fallback para posts propios: Usamos una semilla que cambia cada segundo para asegurar variedad total #}
-                            <img class="image-post" src="https://loremflickr.com/800/500/oil,industry?lock={{ post.id }}{{ 'now'|date:'U' }}" alt="{{ post.titulo }}">
+                            {# OPTIMIZACIÓN: Se elimina el timestamp para permitir caché del navegador #}
+                            <img class="image-post" src="https://loremflickr.com/800/500/oil,industry?lock={{ post.id }}" alt="{{ post.titulo }}" loading="lazy">
                         {% endif %}
 
                         <br>
@@ -316,13 +342,13 @@
         
         {% endblock posts %}
 <hr>
-{% block sucribirse_blog %}
+{% block sucribirse_noticias %}
 <div class="subscribe-container">
     <div class="oil-drop"></div>
     <div class="oil-drop"></div>
     <div class="oil-drop"></div>
-    <h2 class="subscribe-title">Suscríbete a Nuestro Blog</h2>
-    <p class="subscribe-description">Reciba contenido técnico exclusivo sobre optimización de producción y servicios petroleros en Colombia.</p>
+    <h2 class="subscribe-title">Suscríbete a Nuestras Noticias</h2>
+    <p class="subscribe-description" style="text-align: justify !important; hyphens: auto;">Reciba actualidad técnica exclusiva sobre optimización de producción y servicios petroleros en Colombia.</p>
     <form id="subscribeForm" class="subscribe-form" action="{% url 'suscribirse' %}" method="POST">
         {% csrf_token %}
         <input type="email" id="emailInput" name="correo" class="subscribe-input" placeholder="Tu correo electrónico" required>
@@ -330,15 +356,13 @@
     </form>
     <div id="messageBox" class="message" style="display: none;"></div>
 </div>
-{% endblock sucribirse_blog %}
+{% endblock sucribirse_noticias %}
 
         <footer >
 
                 <!-- Primer sección del pie de página-->
                  <section class="pie_pagina">
                 <div class="grupo1">
-                    <div class="box">
-                    </div>
                     <div class="box">
                       <figure>
                         
@@ -347,15 +371,38 @@
                               </a>
                         
                           <div class="red_social  ">
-                            <a href="#" > &nbsp; <i class="fa-brands fa-facebook"> &nbsp; </i></a>
-                            <a href="https://www.instagram.com/petrocentrosas/" > &nbsp; <i class="fa-brands fa-instagram"> &nbsp; </i></a>
+                            <a href="https://www.facebook.com/profile.php?id=61588063301788" target="_blank"> &nbsp; <i class="fa-brands fa-facebook"> &nbsp; </i></a>
+                            <a href="https://www.instagram.com/petro.centro/?hl=en" target="_blank"> &nbsp; <i class="fa-brands fa-instagram"> &nbsp; </i></a>
                             <a href="https://www.youtube.com/channel/UCUxezbHPb1e5seChlAnSb7A" > &nbsp; <i class="fa-brands fa-youtube"> &nbsp; </i></a>
-                            <a href="https://www.linkedin.com/company/petrocentro-sas/" > &nbsp; <i class="fa-brands fa-linkedin"></i>  </a>
+                            <a href="https://www.linkedin.com/in/petrocentro-petrocentro-2a93243b8/" target="_blank"> &nbsp; <i class="fa-brands fa-linkedin"></i>  </a>
                           </div>
                       </figure>
-                    
                     </div>
-              
+                    <div class="box2">
+                        <h3>CONTACTO</h3>
+                        <p><span>TEL:</span> +57 313 426 7179</p>
+                        <p><span>COMERCIAL:</span> <br><a href="mailto:gerenciaoperaciones@petrocentro.co">gerenciaoperaciones@petrocentro.co</a></p>
+                        <p><span>RRHH:</span> <br><a href="mailto:recursoshumanos@petrocentro.co">recursoshumanos@petrocentro.co</a></p>
+                        <p><span>UBICACIÓN:</span> <br>Av. Calle 127 #13-96, Oficina 204, Bogotá</p>
+                    </div>
+                    <div class="box3">
+                        <h3>CONTACTO RÁPIDO</h3>
+                        <p style="color: #0b6838; font-weight: 700; margin-bottom: 5px;">QR Unificado Petrocentro</p>
+                        <a href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" target="_blank">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3APetrocentro+S.A.S.%0ATEL%3BTYPE%3DCELL%3A%2B573134267179%0AEMAIL%3BTYPE%3DINTERNET%3Agerenciaoperaciones%40petrocentro.co%0AADR%3A%3B%3BAv.+Calle+127+%2313-96%2C+Oficina+204%3BBogot%C3%A1%3B%3B%3BColombia%0AEND%3AVCARD" alt="QR Contacto" style="width: 100px; height: 100px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
+                        </a>
+                        <p style="font-size: 12px; margin-top: 5px;">Clic o Escanea para Guardar</p>
+                    </div>
+                    <div class="box4">
+                        <h3>MAPA DEL SITIO</h3>
+                        <div class="mapa" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                            <a href="{% url 'index' %}" style="text-decoration: none; color: #009323; font-weight: 500;">INICIO</a>
+                            <a href="{% url 'servicios' %}" style="text-decoration: none; color: #009323; font-weight: 500;">SERVICIOS</a>
+                            <a href="{% url 'nosotros' %}" style="text-decoration: none; color: #009323; font-weight: 500;">NOSOTROS</a>
+                            <a href="{% url 'contacto' %}" style="text-decoration: none; color: #009323; font-weight: 500;">CONTACTO</a>
+                            <a href="{% url 'pqrs' %}" style="text-decoration: none; color: #009323; font-weight: 500;">PQRS</a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Segunda seccion del pie de pagina-->

@@ -106,10 +106,10 @@ body{
     to { transform: rotate(360deg); }
   }
   
-  .suscribirse-blog{
+  .suscribirse-noticias{
     margin-top: 20px;
 }
-.suscribirse-blog-informativo{
+.suscribirse-noticias-informativo{
 
     text-align: center;
     color: #000000;
@@ -120,25 +120,25 @@ body{
     margin-top: 50px;
     margin: auto;       
 }
-.suscribirse-blog-informativo h3{
+.suscribirse-noticias-informativo h3{
     font-size: 28px;
     font-weight: 500;
 }
-.suscribirse-blog-informativo p{
+.suscribirse-noticias-informativo p{
     font-size: 20px;
     font-weight: 500;
 }
 
-.suscribirse-blog-informativo form{
+.suscribirse-noticias-informativo form{
     width: 80%;
     margin: auto;
 }
-.suscribirse-blog-informativo form input{
+.suscribirse-noticias-informativo form input{
     margin-bottom: 10px;
     font-size: 15px;
 
 }
-.suscribirse-blog-informativo form .btn{
+.suscribirse-noticias-informativo form .btn{
     font-size: 18px;
     width: 50%;
     background-color: #4CAF50;
@@ -146,7 +146,7 @@ body{
     border-radius:2px ;
 
 }
-.suscribirse-blog-informativo form .btn:hover{
+.suscribirse-noticias-informativo form .btn:hover{
     background-color: #3a803c;
 
 }
@@ -339,7 +339,7 @@ body{
     text-align: center;
 }
 .l p{
-    text-align: justify;
+    text-align: justify !important;
 }
 
 /* Clientes */
@@ -355,7 +355,7 @@ body{
 }
 .l p{
         
-    text-align: justify;
+    text-align: justify !important;
     width: 724px;
     font-family: 'Helvetica';
     font-style: normal;
@@ -451,7 +451,7 @@ body{
     padding-top: 100px;
 }
 .servicios .let p{
-    text-align: justify;
+    text-align: left;
     width: 724px;
     font-family: 'Helvetica';
     font-style: normal;
@@ -557,7 +557,7 @@ body{
     color: #161C2D;
 }
 .ambiente .texto p {
-    text-align: center;
+    text-align: left;
     width: 100%;
     padding-top:50px;
     margin: 0 auto;
@@ -642,11 +642,9 @@ body{
     margin: auto;
     width: 90%;
     max-width: 1300px;
-    width: 100%;
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 1fr 1fr;
+    grid-template-columns: 1.2fr 1.8fr 1.1fr 1fr;
     gap: 20px;
-    grid-template-columns: repeat(3, 1fr);
     text-align: center;
     align-items: start;
 }   
@@ -701,6 +699,10 @@ body{
 .box2 ul li a {
     word-break: break-word; /* Evita que correos largos empujen el ancho */
     line-height: 1.2;
+}
+.box4 h3 {
+    color: var(--color-1);
+    margin-bottom: 15px;
 }
 
 .box3 h3{
@@ -1142,7 +1144,7 @@ body{
     color: #161C2D;
 }
 .quien .texto1 p {
-    text-align: center;
+    text-align: left;
     width: 100%;
     padding-top:50px;
     margin: 0 auto;
@@ -2691,20 +2693,20 @@ svg{
     line-height: 1.5;
 }
 
-/* Blog Integrado */
-.blog-section {
+/* Noticias Integradas */
+.noticias-section {
     padding: 80px 0;
     background-color: #f8f9fa;
     margin-bottom: 50px;
 }
 
-.contenedor-blog {
+.contenedor-noticias {
     width: 85%;
     margin: auto;
     text-align: center;
 }
 
-.titulo-blog {
+.titulo-noticias {
     font-family: 'Helvetica';
     font-weight: 700;
     font-size: 36px;
@@ -2713,7 +2715,7 @@ svg{
     text-transform: uppercase;
 }
 
-.subtitulo-blog {
+.subtitulo-noticias {
     font-family: 'Helvetica';
     font-size: 18px;
     color: #555;
@@ -2723,14 +2725,14 @@ svg{
     margin-right: auto;
 }
 
-.grid-blog {
+.grid-noticias {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
     margin-bottom: 40px;
 }
 
-.blog-card {
+.noticias-card {
     background: white;
     border-radius: 15px;
     overflow: hidden;
@@ -2741,36 +2743,36 @@ svg{
     flex-direction: column;
 }
 
-.blog-card:hover {
+.noticias-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 
-.blog-imagen {
+.noticias-imagen {
     height: 200px;
     overflow: hidden;
     background-color: #ddd;
 }
 
-.blog-imagen img {
+.noticias-imagen img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
 }
 
-.blog-card:hover .blog-imagen img {
+.noticias-card:hover .noticias-imagen img {
     transform: scale(1.1);
 }
 
-.blog-contenido {
+.noticias-contenido {
     padding: 25px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.blog-fecha {
+.noticias-fecha {
     font-size: 14px;
     color: var(--color-1);
     margin-bottom: 10px;
@@ -2779,7 +2781,7 @@ svg{
     text-transform: uppercase;
 }
 
-.blog-contenido h3 {
+.noticias-contenido h3 {
     font-family: 'Helvetica';
     font-weight: 700;
     font-size: 20px;
@@ -2788,7 +2790,7 @@ svg{
     line-height: 1.4;
 }
 
-.blog-contenido p {
+.noticias-contenido p {
     font-family: 'Helvetica';
     font-size: 16px;
     color: #666;
@@ -2813,7 +2815,7 @@ svg{
     color: #095530;
 }
 
-.boton-blog-container {
+.boton-noticias-container {
     margin-top: 20px;
 }
 
@@ -3059,7 +3061,7 @@ svg{
     margin-bottom: 12px;
     line-height: 1.4;
     display: block;
-    text-align: center;
+    text-align: justify !important;
     font-weight: 400;
 }
 
@@ -3496,7 +3498,7 @@ svg{
         color: #161C2D;
     }
     .ambiente .texto p {
-        text-align: justify;
+        text-align: left;
         width: 100%;
 
         margin: 0 auto;
@@ -3677,6 +3679,7 @@ svg{
     margin-left: auto;
     margin-right: auto;
     line-height: 1.5;
+    text-align: justify !important;
 }
 
 .grid-beneficios {
@@ -4592,6 +4595,7 @@ svg{
         color: #161C2D;
     }
     .ambiente .texto p{
+        text-align: justify;
         width: 100%;
         padding-top: 5px;
 
@@ -4717,6 +4721,7 @@ svg{
         font-size: 35px;
     }
     .quien .texto1 p{
+        text-align: justify;
         padding-top: 20px;
         font-size: 19px;
         letter-spacing: -0.2;
@@ -4743,6 +4748,9 @@ svg{
     .mision .parrafo-mision{
         margin: auto;
         text-align: center;
+    }
+    .mision .parrafo-mision p{
+        text-align: justify;
         width: 90%;
         padding-bottom: 25px;
         padding-top: 25px;
@@ -4942,6 +4950,9 @@ svg{
         margin: auto;
         text-align: center;
     }
+    .l-pqrs p, .l-pqrs .txt-pr{
+        text-align: justify;
+    }
     .l-pqrs h1{
         width: 100%;
         font-size: 30px;
@@ -5093,6 +5104,7 @@ svg{
         margin: auto;
     }
     .ambiente .texto p{
+        text-align: justify;
         width: 90%;
         padding-top:30px;
         margin: 0 auto;
@@ -5925,5 +5937,23 @@ svg{
     .form-trabaja {
         margin: -40px auto 30px;
         padding: 20px;
+/* OPTIMIZACIÓN DE MENÚ: Hardware Acceleration */
+#hidden-menu .expanded {
+    will-change: transform;
+    transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1) !important;
+    backface-visibility: hidden;
+    transform: translateX(-100%); /* Estado inicial optimizado */
+}
+
+#hidden-menu #menu-open:checked ~ .expanded {
+    transform: translateX(0) !important;
+}
+
+/* Elimina el retraso de respuesta táctil en botones y enlaces */
+.nav-2 a, .nav-2 button, #hidden-menu label, .links a, .boton {
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
     }
 }

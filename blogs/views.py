@@ -36,7 +36,7 @@ def blog_view(request):
     busqueda = request.GET.get('busqueda')
 
     # --- CAMBIO CLAVE: Obtenemos todos los posts activos sin filtrar por categoría ---
-    post = Post.objects.filter(estado=True)
+    post = Post.objects.select_related('author', 'categoria').filter(estado=True)
     
     # Filtro de seguridad para contenido exclusivo de empleados
     if not context.get('empleado'):
@@ -91,12 +91,12 @@ def post_detail_view(request, slug):
 
         if is_empleado:
                 # Si es empleado, muestra todos los posts
-                post = get_object_or_404(Post, slug=slug, estado=True)
-                posts_relacionados = Post.objects.filter(estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                post = get_object_or_404(Post.objects.select_related('author', 'categoria'), slug=slug, estado=True)
+                posts_relacionados = Post.objects.select_related('author').filter(estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
         else:
                 # Si no es empleado, muestra solo los posts públicos
-                post = get_object_or_404(Post, slug=slug, empleado=False)
-                posts_relacionados = Post.objects.filter(empleado=False, estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
+                post = get_object_or_404(Post.objects.select_related('author', 'categoria'), slug=slug, empleado=False)
+                posts_relacionados = Post.objects.select_related('author').filter(empleado=False, estado=True).exclude(id=post.id).order_by('-fecha_creacion')[:2]
 
         context['post'] = post
         context['posts'] = posts_relacionados
@@ -115,7 +115,7 @@ def get_filtered_posts(request, category_name):
     is_empleado = context.get('empleado') is not None
 
     # Filtro base
-    posts = Post.objects.filter(estado=True, categoria__nombre__iexact=category_name).order_by('-fecha_creacion')
+    posts = Post.objects.select_related('author', 'categoria').filter(estado=True, categoria__nombre__iexact=category_name).order_by('-fecha_creacion')
     
     # Visibilidad
     if not is_empleado:

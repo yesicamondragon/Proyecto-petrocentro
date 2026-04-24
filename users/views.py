@@ -63,11 +63,11 @@ def listar_empleados(request):
     # LÓGICA DE ACCESO:
     # Si tiene permiso 'usuarios' (Admin/Gestor), ve todos los empleados y puede registrar nuevos.
     if permisos.get('usuarios') == 1:
-            lista_empleados = Empleado.objects.all()
+            lista_empleados = Empleado.objects.select_related('user_id', 'id_rol', 'id_cargo', 'id_ubicacion').all()
             users_para_registro = Usuario.objects.all()
     else:
             # Si es empleado regular, entra a la ruta pero SOLO ve su propia información.
-            lista_empleados = Empleado.objects.filter(id=usuario_profile.id)
+            lista_empleados = Empleado.objects.select_related('user_id', 'id_rol', 'id_cargo', 'id_ubicacion').filter(id=usuario_profile.id)
             users_para_registro = Usuario.objects.none() # No puede registrar a otros
         
     #----------------------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ def listar_empleados(request):
             Q(id_rol__nombre__icontains = busqueda)|
             Q(id_cargo__nombre__icontains = busqueda)|
             Q(id_ubicacion__nombre__icontains = busqueda)
-        ).select_related('user_id', 'id_rol', 'id_cargo', 'id_ubicacion')
+        )
  
     if fecha: 
         lista_empleados = lista_empleados.filter(Q(fecha_ingreso__icontains = fecha)).distinct()
@@ -103,21 +103,23 @@ def listar_empleados(request):
         lista_empleados = lista_empleados.filter(id_ubicacion_id=filtro_ubicacion)
 
     #----------------------------------------------------------------------------------------------------------------   
-    
+
+    # Optimizamos la consulta con anotaciones para evitar consultas dentro del bucle
+    lista_empleados = lista_empleados.annotate(
+        total_cursos_count=Count('empleadocurso', distinct=True),
+        aprobados_count=Count('empleadocurso', filter=Q(empleadocurso__estado='APROBADO'), distinct=True),
+        total_tareas_count=Count('tarea', distinct=True),
+        completadas_count=Count('tarea', filter=Q(tarea__completada=True), distinct=True)
+    )
+
     p = Paginator(lista_empleados, 5)
     page_number = request.GET.get('page')
     pagina= p.get_page(page_number)
 
     # Calcular nivel de cumplimiento para los empleados mostrados
     for emp in pagina:
-        total_cursos = EmpleadoCurso.objects.filter(empleado=emp).count()
-        aprobados = EmpleadoCurso.objects.filter(empleado=emp, estado='APROBADO').count()
-        emp.cumplimiento = int((aprobados / total_cursos) * 100) if total_cursos > 0 else 0
-
-        # Calcular nivel de cumplimiento de TAREAS
-        total_tareas = Tarea.objects.filter(empleado=emp).count()
-        completadas = Tarea.objects.filter(empleado=emp, completada=True).count()
-        emp.cumplimiento_tareas = int((completadas / total_tareas) * 100) if total_tareas > 0 else 0
+        emp.cumplimiento = int((emp.aprobados_count / emp.total_cursos_count) * 100) if emp.total_cursos_count > 0 else 0
+        emp.cumplimiento_tareas = int((emp.completadas_count / emp.total_tareas_count) * 100) if emp.total_tareas_count > 0 else 0
 
         
     data ={
@@ -1003,14 +1005,16 @@ def agenda_personal(request):
     ranking = 0
     total_area = 0
     if empleado_profile.id_ubicacion:
-        coleagas = Empleado.objects.filter(id_ubicacion=empleado_profile.id_ubicacion)
+        # Optimizamos el cálculo del ranking usando anotaciones para evitar el problema N+1
+        coleagas = Empleado.objects.filter(id_ubicacion=empleado_profile.id_ubicacion).annotate(
+            c_ok=Count('cursos_asignados', filter=Q(cursos_asignados__estado='APROBADO'), distinct=True),
+            t_ok=Count('tarea', filter=Q(tarea__completada=True), distinct=True)
+        )
         total_area = coleagas.count()
         # Calculamos puntaje simple: (Cursos Aprobados * 10) + (Tareas Completadas * 5)
         scores = []
         for col in coleagas:
-            c_ok = EmpleadoCurso.objects.filter(empleado=col, estado='APROBADO').count()
-            t_ok = Tarea.objects.filter(empleado=col, completada=True).count()
-            puntos = (c_ok * 10) + (t_ok * 5)
+            puntos = (col.c_ok * 10) + (col.t_ok * 5)
             scores.append(puntos)
         
         scores.sort(reverse=True) # Ordenar descendente
@@ -1986,18 +1990,19 @@ def reporte_rrhh(request):
         messages.error(request, "Acceso restringido.")
         return redirect('index')
 
-    empleados = Empleado.objects.select_related('id_cargo', 'id_ubicacion').all()
+    # Optimizamos reporte RRHH con anotaciones masivas en una sola consulta
+    empleados = Empleado.objects.select_related('id_cargo', 'id_ubicacion').annotate(
+        total_c=Count('cursos_asignados', distinct=True),
+        aprob_c=Count('cursos_asignados', filter=Q(cursos_asignados__estado='APROBADO'), distinct=True),
+        total_t=Count('tarea', distinct=True),
+        aprob_t=Count('tarea', filter=Q(tarea__completada=True), distinct=True)
+    )
     reporte = []
     
     for emp in empleados:
-        # Calcular métricas
-        total_c = EmpleadoCurso.objects.filter(empleado=emp).count()
-        aprob_c = EmpleadoCurso.objects.filter(empleado=emp, estado='APROBADO').count()
-        perc_c = (aprob_c / total_c * 100) if total_c > 0 else 0
-        
-        total_t = Tarea.objects.filter(empleado=emp).count()
-        aprob_t = Tarea.objects.filter(empleado=emp, completada=True).count()
-        perc_t = (aprob_t / total_t * 100) if total_t > 0 else 0
+        # Usamos los datos ya calculados por la base de datos
+        perc_c = (emp.aprob_c / emp.total_c * 100) if emp.total_c > 0 else 0
+        perc_t = (emp.aprob_t / emp.total_t * 100) if emp.total_t > 0 else 0
         
         reporte.append({'empleado': emp, 'curso_pct': round(perc_c,1), 'tarea_pct': round(perc_t,1), 'promedio': round((perc_c+perc_t)/2, 1)})
     

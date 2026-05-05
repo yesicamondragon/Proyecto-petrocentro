@@ -5880,7 +5880,7 @@ svg{
 
 /* Estilos Trabaja con Nosotros */
 .trabaja-header {
-    background: linear-gradient(rgba(11, 104, 56, 0.8), rgba(0,0,0,0.6)), url('/static/img/banner-carrera.jpg');
+background: linear-gradient(rgba(11, 104, 56, 0.8), rgba(0,0,0,0.6));
     background-size: cover;
     color: white;
     padding: 100px 0;

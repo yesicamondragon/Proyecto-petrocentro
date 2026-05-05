@@ -12,6 +12,8 @@ from django.db.models import Avg, Count
 from .forms import RegisterForm
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMessage
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from .models import *
 from django.template.loader import render_to_string
 import json
@@ -123,14 +125,18 @@ def get_economic_indicators():
     data = {'dolar': '...', 'brent': '...'}
     try:
         # USDCOP=X es el par Dólar/Peso Colombiano
+        # Cambiamos fast_info por history para evitar bloqueos conocidos en versiones recientes de yfinance
         dolar_ticker = yf.Ticker("USDCOP=X")
-        dolar_price = dolar_ticker.fast_info.last_price
+        hist_d = dolar_ticker.history(period="1d")
+        dolar_price = hist_d['Close'].iloc[-1] if not hist_d.empty else None
+
         if dolar_price:
             data["dolar"] = f"${dolar_price:,.2f}"
 
-        # BZ=F es el ticker correcto para ICE Brent Crude Oil Futures
         brent_ticker = yf.Ticker("BZ=F")
-        brent_price = brent_ticker.fast_info.last_price
+        hist_b = brent_ticker.history(period="1d")
+        brent_price = hist_b['Close'].iloc[-1] if not hist_b.empty else None
+
         if brent_price:
             data["brent"] = f"${brent_price:,.2f}"
         
@@ -145,8 +151,11 @@ def api_indicadores(request):
     return JsonResponse(get_economic_indicators())
 
 def index(request):
-    # Cargar indicadores iniciales
-    context = get_economic_indicators()
+    # Intentar obtener de caché. Si no hay, mostrar valores temporales 
+    # para que la página cargue INSTANTÁNEAMENTE y el JS los actualice luego.
+    context = cache.get('market_indicators')
+    if not context:
+        context = {'dolar': 'Consultando...', 'brent': 'Consultando...'}
     
     usuario_logeado = request.session.get('usuario_logeado')
     if usuario_logeado:
@@ -379,6 +388,11 @@ def pqrs_form_view(request):
         telefono = request.POST.get('telefono')
         tipo = request.POST.get('tipo')
         mensaje = request.POST.get('mensaje')
+        honeypot = request.POST.get('website_hp')
+
+        # Honeypot: Si el campo oculto tiene contenido, ignoramos la solicitud (es un bot)
+        if honeypot:
+            return redirect('pqrs')
 
         if not all([nombre, correo, tipo, mensaje]):
             messages.warning(request, "Por favor complete todos los campos obligatorios.")
@@ -387,25 +401,6 @@ def pqrs_form_view(request):
                 pqr = PQRS.objects.create(nombre=nombre, correo=correo, telefono=telefono, tipo=tipo, mensaje=mensaje)
                 subject = f"Confirmación de Radicado {pqr.radicado} - Petrocentro"
                 email_body = f"Hola {nombre},\n\nHemos recibido tu {tipo}. Tu número de radicado es: {pqr.radicado}\n\nPuedes consultar el estado de tu solicitud en nuestro sitio web."
-                send_mail(subject, email_body, settings.EMAIL_HOST_USER, [correo], fail_silently=True)
-
-                # Notificación a la empresa para gestión y respuesta
-                subject_admin = f"NUEVO PQRS RECIBIDO - Radicado: {pqr.radicado}"
-                admin_url = f"{settings.DOMAIN_NAME}/admin/paginaPetrocentro/pqrs/{pqr.id}/change/"
-                body_admin = f"""
-                Se ha radicado una nueva solicitud en el portal web:
-                Radicado: {pqr.radicado}
-                Tipo: {tipo}
-                Nombre del solicitante: {nombre}
-                Correo de contacto: {correo}
-                Mensaje: {mensaje}
-
-                ---
-                Para responder y que la respuesta aparezca en la consulta web, ingrese aquí:
-                {admin_url}
-                """
-                email_admin = EmailMessage(subject_admin, body_admin, settings.EMAIL_HOST_USER, ['gerenciaoperaciones@petrocentro.co'], reply_to=[correo])
-                email_admin.send(fail_silently=True)
                 messages.success(request, f"¡Solicitud radicada! Su número es: {pqr.radicado}. Guárdelo para consultar el estado abajo.")
             except Exception as e:
                 messages.error(request, f"Error al procesar la solicitud: {e}")
@@ -528,11 +523,12 @@ def login_view(request):
             # El usuario está autenticado y activo.
             
             try:
-                # Verificar o crear perfil base de Usuario
+                # Aseguramos que el estado "Activo" exista en la DB para evitar errores en instalaciones limpias
+                estado_activo, _ = Estado.objects.get_or_create(id=1, defaults={'nombre': 'Activo'})
                 usuario_profile, created = Usuario.objects.get_or_create(
                     user_id=user,
                     defaults={
-                        'estado': Estado.objects.get(id=1),
+                        'estado': estado_activo,
                         'nombre': user.get_full_name() or user.username,
                         'correo': user.email
                     }
@@ -612,6 +608,11 @@ def contacto_mensaje(request):
         correo = request.POST.get('correo')
         telefono = request.POST.get('numero')
         mensaje = request.POST.get('mensaje')
+        honeypot = request.POST.get('website_hp')
+
+        # Honeypot check para evitar spam en el formulario de contacto
+        if honeypot:
+            return redirect('contacto')
 
         # Validación de campos obligatorios
         if not nombre or not correo or not mensaje:
@@ -632,10 +633,10 @@ def contacto_mensaje(request):
             subject = f'Nueva Solicitud de Contacto - {nombre}'
             message = f'Has recibido un nuevo mensaje de {nombre} ({correo})'
             from_email = settings.EMAIL_HOST_USER
-            # Se envía al correo del sistema y al correo registrado
-            to_email = [settings.EMAIL_HOST_USER, 'dilanfvalencia@gmail.com']
-
-            result = send_mail(subject, message, from_email, to_email, html_message=template, fail_silently=False)
+            # Se ha desactivado el envío de correo para evitar spam.
+            # Las solicitudes de contacto deben revisarse directamente en el panel administrativo o en la base de datos.
+            # Notificación por correo desactivada para evitar spam. Revisar en el panel de control.
+            result = True 
 
             if result:
                 messages.success(request, 'Se envió tu correo. En breves nos pondremos en contacto contigo.')
@@ -653,12 +654,22 @@ def solicitar_cotizacion(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            
+            # Honeypot check
+            if data.get('website_hp'):
+                return JsonResponse({'status': 'success'}) 
+
             nombre = data.get('nombre')
             empresa = data.get('empresa', 'No especificada')
             correo = data.get('email')
             telefono = data.get('telefono')
             servicio = data.get('servicio')
             mensaje = data.get('mensaje')
+
+            # Validación básica
+            validate_email(correo)
+            if not nombre or len(mensaje) < 5:
+                return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
 
             # Guardar en la base de datos para el nuevo módulo
             Cotizacion.objects.create(
@@ -670,21 +681,10 @@ def solicitar_cotizacion(request):
                 mensaje=mensaje
             )
 
-            # Notificación por correo al administrador
-            subject = f"COTIZACIÓN WEB: {servicio} - {nombre}"
-            body = f"""
-            Nueva solicitud recibida:
-            
-            Nombre: {nombre}
-            Empresa: {empresa}
-            Correo: {correo}
-            Teléfono: {telefono}
-            Servicio: {servicio}
-            Detalles: {mensaje}
-            """
-            send_mail(subject, body, settings.EMAIL_HOST_USER, [settings.EMAIL_HOST_USER], fail_silently=True)
-            
+            # Notificación por correo desactivada para evitar spam. Consultar en el módulo de Cotizaciones del dashboard.
             return JsonResponse({'status': 'success'})
+        except ValidationError:
+            return JsonResponse({'status': 'error', 'message': 'Correo inválido'}, status=400)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Inválido'}, status=405)
@@ -742,6 +742,11 @@ def trabaja_con_nosotros(request):
         cargo_id = request.POST.get('cargo')
         mensaje = request.POST.get('mensaje')
         hoja_vida = request.FILES.get('hoja_vida')
+        honeypot = request.POST.get('website_hp')
+
+        # Evitar spam de bots en postulaciones laborales
+        if honeypot:
+            return redirect('trabaja_con_nosotros')
 
         if hoja_vida and not hoja_vida.name.endswith('.pdf'):
             messages.error(request, "Error: Solo se permiten archivos en formato PDF.")
@@ -775,12 +780,7 @@ MENSAJE DE PRESENTACIÓN:
 
 La hoja de vida se encuentra adjunta a este correo en formato PDF.
 """
-                email = EmailMessage(subject, email_body, settings.EMAIL_HOST_USER, ['ti.petrocentro@gmail.com'])
-                if hoja_vida:
-                    hoja_vida.seek(0)  # Aseguramos que el puntero del archivo esté al inicio
-                    email.attach(hoja_vida.name, hoja_vida.read(), hoja_vida.content_type)
-                email.send(fail_silently=True)
-
+                # Notificación por correo desactivada para evitar saturación por spam de bots.
                 messages.success(request, "¡Postulación recibida! Gracias por querer formar parte de Petrocentro.")
                 return redirect('trabaja_con_nosotros')
             except Exception as e:

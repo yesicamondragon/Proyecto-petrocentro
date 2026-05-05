@@ -90,7 +90,7 @@
                     </ul>
                 </div>
             </div>
-            <hr>
+            <hr>pqrs para que realices el cambio y agrega 
             <div class="paso-item">
                 <div class="paso-icono"><i class="fa-solid fa-sitemap"></i></div>
                 <div class="paso-contenido">
@@ -179,6 +179,10 @@
                     </div>
                     <form method="POST" action="{% url 'pqrs_form_view' %}">
                         {% csrf_token %}
+                        <!-- Campo Honeypot Oculto para Bots -->
+                        <div style="display:none !important;">
+                            <input type="text" name="website_hp" tabindex="-1" autocomplete="off">
+                        </div>
                         <div class="modal-body p-4">
                             <p class="text-muted small mb-4">Complete los campos obligatorios (*) para radicar su requerimiento.</p>
                             <div class="row">

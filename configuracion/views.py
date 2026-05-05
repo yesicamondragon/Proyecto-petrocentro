@@ -21,6 +21,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 import uuid
 from django.utils.text import slugify
+from django.core.paginator import Paginator
 from django.core.mail import send_mail
 
 
@@ -387,12 +388,19 @@ def roles(request):
             return redirect('index')
 
     # --- Lógica de la vista ---
+    lista_empleados_qs = Empleado.objects.select_related('id_rol', 'id_cargo', 'id_ubicacion').all().order_by('nombre')
+    
+    p = Paginator(lista_empleados_qs, 10) # Paginar, por ejemplo, 10 empleados por página
+    page_number = request.GET.get('page')
+    pagina_empleados = p.get_page(page_number)
+
     data = {
         'empleado': empleado, 'roles': Rol.objects.prefetch_related('permiso').all(),
         'permisos': Permisos.objects.all(), 'rol_permisos': Rol_permiso.objects.all(),
         'crear': permisos.get('crear', 0), 'editar': permisos.get('editar', 0),
         'usuarios': permisos.get('usuarios', 0), 'eliminar': permisos.get('eliminar', 0),
-        'lista_empleados': Empleado.objects.all().order_by('nombre'), # Para modal de asignación
+        'lista_empleados': pagina_empleados, # Usar la lista paginada
+        'paginator_empleados': p, # Pasar el objeto Paginator para controles en el template
         'nombre_rol': nombre_rol, 'usuario': emp,
     }
     return render(request, 'configuracion/roles.html', data)

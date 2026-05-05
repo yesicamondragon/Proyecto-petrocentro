@@ -313,6 +313,10 @@
             <h2 class="modal-titulo">Solicitar Cotización</h2>
             <div class="modal-contenido">
                 <form id="quotation-form">
+                    <!-- Campo Honeypot Oculto para Bots -->
+                    <div style="display:none !important;">
+                        <input type="text" id="q-website-hp" name="website_hp" tabindex="-1" autocomplete="off">
+                    </div>
                     <div class="mb-3">
                         <input type="text" id="q-name" class="form-control" placeholder="Nombre completo*" required>
                     </div>
@@ -876,6 +880,7 @@
         const email = document.getElementById('q-email').value;
         const phone = document.getElementById('q-phone').value;
         let service = document.getElementById('q-service').value;
+        const hp_field = document.getElementById('q-website-hp').value;
         const otherService = document.getElementById('q-other-service').value;
         const message = document.getElementById('q-message').value;
 
@@ -901,7 +906,7 @@
         fetch('/solicitar-cotizacion/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-            body: JSON.stringify({ nombre: name, empresa: company, email: email, telefono: phone, servicio: service, mensaje: message })
+            body: JSON.stringify({ nombre: name, empresa: company, email: email, telefono: phone, servicio: service, mensaje: message, website_hp: hp_field })
         });
 
         // Redirigir a WhatsApp

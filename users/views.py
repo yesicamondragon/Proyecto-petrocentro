@@ -106,8 +106,8 @@ def listar_empleados(request):
 
     # Optimizamos la consulta con anotaciones para evitar consultas dentro del bucle
     lista_empleados = lista_empleados.annotate(
-        total_cursos_count=Count('empleadocurso', distinct=True),
-        aprobados_count=Count('empleadocurso', filter=Q(empleadocurso__estado='APROBADO'), distinct=True),
+        total_cursos_count=Count('cursos_asignados', distinct=True),
+        aprobados_count=Count('cursos_asignados', filter=Q(cursos_asignados__estado='APROBADO'), distinct=True),
         total_tareas_count=Count('tarea', distinct=True),
         completadas_count=Count('tarea', filter=Q(tarea__completada=True), distinct=True)
     )

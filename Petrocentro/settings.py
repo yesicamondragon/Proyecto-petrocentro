@@ -9,17 +9,17 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-r9%9vu)tf(0r_k-!z84&b_1kuhpk8rm)18le5(l)7*f54c^wiu') # ¡IMPORTANTE! Usar variable de entorno en producción
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Por defecto True para desarrollo local. En producción se debe cambiar a False.
-DEBUG = True  
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True' # En producción, debe ser False
 
 
-ALLOWED_HOSTS = ['petrocentro.co', 'www.petrocentro.co', '127.0.0.1', 'localhost','72.167.141.51']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') # Configurar dominios de producción
 
 
 # Application definition
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'blogs',
     'configuracion',
     'django.contrib.sitemaps',
+
+    # 'channels_redis', # Descomentar y configurar para Channel Layers en producción (pip install channels_redis)
 ]
 PASSWORD_RESET_TIMEOUT_DAYS = 1 
 
@@ -105,12 +107,18 @@ CSRF_TRUSTED_ORIGINS = ['https://petrocentro.co', 'https://www.petrocentro.co']
 WSGI_APPLICATION = 'Petrocentro.wsgi.application'
 
 
-# Configuración de Channels y Chat
+# Configuración de Channels y Chat (para WebSockets)
 ASGI_APPLICATION = 'Petrocentro.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        # En producción, se recomienda usar un backend basado en Redis para Channel Layers.
+        # Para usarlo, descomentar 'channels_redis' en INSTALLED_APPS y esta configuración:
+        # 'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        # 'CONFIG': {
+        #     "hosts": [os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')], # Usar variable de entorno para la URL de Redis
+        # },
     },
 }
 
@@ -120,11 +128,11 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'petrocentro',
-        'USER': 'petrocentro_user',
-        'PASSWORD': 'petrocentro@2026',
-        'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'NAME': os.environ.get('DB_NAME', 'petrocentro'),
+        'USER': os.environ.get('DB_USER', 'petrocentro_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'petrocentro@2026'), # ¡IMPORTANTE! Usar variable de entorno en producción
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '3307'),
         'OPTIONS': {
             'ssl': {'disabled': True},
         },
@@ -175,11 +183,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.googlemail.com'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ti.petrocentro@gmail.com'
-EMAIL_HOST_PASSWORD = 'zcqu ujkp hinr dlck'
+EMAIL_USE_TLS = True # Siempre True para SMTP seguro
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'ti.petrocentro@gmail.com') # ¡IMPORTANTE! Usar variable de entorno en producción
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zcqu ujkp hinr dlck') # ¡IMPORTANTE! Usar variable de entorno en producción
 
-DOMAIN_NAME= "https://petrocentro.co"
+DOMAIN_NAME = os.environ.get('DJANGO_DOMAIN_NAME', 'http://127.0.0.1:8000') # Configurar dominio de producción
 DEFAULT_FROM_EMAIL = 'ti.petrocentro@gmail.com'
 
 STATIC_URL = '/static/'
@@ -227,3 +235,7 @@ LOGGING = {
 },
 },
 }
+
+# Configuración de Google reCAPTCHA v2
+RECAPTCHA_PUBLIC_KEY = '6LfOTNksAAAAAHq5Np-82UxctfY2GYcroJsI7V4A'
+RECAPTCHA_PRIVATE_KEY = '6LfOTNksAAAAAG9RBYAn9VXaUfmb4QkbVzNyKMHz'

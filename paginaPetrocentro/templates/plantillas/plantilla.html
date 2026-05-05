@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="mobile-web-app-capable" content="yes">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo%} {%endblock%}</title>
@@ -326,6 +327,16 @@
       AOS.init();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // DESBLOQUEO DE INTERFAZ: Ocultar pantalla de carga de forma infalible
+        function forzarOcultarCargadorPlantilla() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+        window.addEventListener('load', forzarOcultarCargadorPlantilla);
+        document.addEventListener('DOMContentLoaded', forzarOcultarCargadorPlantilla);
+        setTimeout(forzarOcultarCargadorPlantilla, 2000); // Kill-switch: si después de 2 segundos sigue el loader, lo removemos
+    </script>
     <script>
 
           // OPTIMIZACIÓN: Ocultar pantalla de carga inmediatamente

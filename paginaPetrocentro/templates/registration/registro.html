@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Registro </title>
     <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
   
@@ -67,5 +68,26 @@
       <!-- sweet alert-->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'js/script.js'%}"></script>
+    <script>
+        // Kill-switch agresivo para el cargador en la página de registro
+        function forzarOcultarCargadorRegistro() {
+        function ocultarCargadorRegistro() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                console.log("Cargador ocultado por seguridad en registro.html.");
+                console.trace("Pila de llamadas al ocultar cargador desde registro.html"); // Para depuración
+                // Evitamos logs excesivos en producción, solo confirmamos desbloqueo
+                if(window.location.hash === '#debug') console.log("Interfaz desbloqueada en registro.html.");
+            }
+        }
+        
+        window.addEventListener('load', forzarOcultarCargadorRegistro);
+        document.addEventListener('DOMContentLoaded', forzarOcultarCargadorRegistro);
+        setTimeout(forzarOcultarCargadorRegistro, 3000); // Si a los 3 seg sigue ahí, lo quitamos sí o sí.
+        window.addEventListener('load', ocultarCargadorRegistro);
+        document.addEventListener('DOMContentLoaded', ocultarCargadorRegistro);
+        setTimeout(ocultarCargadorRegistro, 2000); // Kill-switch: si después de 2 segundos sigue el loader, lo removemos
+    </script>
 </body>
 </html>

@@ -87,7 +87,7 @@
         </ul>
         <div class="card-body" style="display: flex; justify-content: space-between; gap: 5px;">
                 {% if editar == 1%}
-                <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modal_editar{{rol.nombre}}" onclick="filtrarPermisos('{{ rol.id_rol }}' ,'{{ rol.nombre }}')">Editar</button>
+                <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modal_editar{{rol.id_rol}}" onclick="filtrarPermisos('{{ rol.id_rol }}')">Editar</button>
                 {% else %}
                 <button type="button" class="btn btn-secondary" disabled>Editar</button>
 
@@ -100,7 +100,7 @@
                 {% endif %}
         </div>
       </div>
-      <div class="modal fade" id="modal_editar{{rol.nombre}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal fade" id="modal_editar{{rol.id_rol}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog ">
           <div class="modal-content">
             <div class="modal-header">
@@ -118,20 +118,20 @@
                 </div>
                 <div class="formulario-perfil" >
                     
-                        <div class="mb-3"  id="crearPermiso{{rol.nombre}}" >            
+                        <div class="mb-3"  id="crearPermiso{{rol.id_rol}}" >            
                         </div>
                    
-                        <div class="mb-3"  id="consultarPermiso{{rol.nombre}}" >
+                        <div class="mb-3"  id="consultarPermiso{{rol.id_rol}}" >
                         </div>
                  
-                        <div class="mb-3 " id="editarPermiso{{rol.nombre}}">
+                        <div class="mb-3 " id="editarPermiso{{rol.id_rol}}">
                         </div>
                 
-                        <div class="mb-3"  id="eliminarPermiso{{rol.nombre}}" >
+                        <div class="mb-3"  id="eliminarPermiso{{rol.id_rol}}" >
                         </div>
                   
 
-                        <div class="mb-3"  id="usuariosPermiso{{rol.nombre}}" >
+                        <div class="mb-3"  id="usuariosPermiso{{rol.id_rol}}" >
                         </div>
                   
                     
@@ -203,22 +203,25 @@
         }
         
         
-        // Simulando una petición fetch para eliminar la fotofub
-        function filtrarPermisos(id,nombre) {
-            // Simulando una petición fetch para eliminar la foto
-            const modal = document.getElementById('modal_editar'+nombre)
+        // Función para filtrar permisos por rol
+        function filtrarPermisos(id) {
+            // Mostrar el cargador antes de la petición AJAX
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
+            const modal = document.getElementById('modal_editar' + id)
         
-            const crearPermiso = document.getElementById('crearPermiso'+nombre);
+            const crearPermiso = document.getElementById('crearPermiso' + id);
         
-            const consultarPermiso = document.getElementById('consultarPermiso'+nombre);
+            const consultarPermiso = document.getElementById('consultarPermiso' + id);
             console.log(consultarPermiso);
         
-            const editarPermiso = document.getElementById('editarPermiso'+nombre);
+            const editarPermiso = document.getElementById('editarPermiso' + id);
         
-            const eliminarPermiso = document.getElementById('eliminarPermiso'+nombre);
+            const eliminarPermiso = document.getElementById('eliminarPermiso' + id);
         
         
-            const usuariosPermiso = document.getElementById('usuariosPermiso'+nombre);
+            const usuariosPermiso = document.getElementById('usuariosPermiso' + id);
         
 
         
@@ -315,10 +318,23 @@
         
                 }
         })
-        .catch(error => console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error));
+        .catch(error => {
+            console.error('ESTÁ ENTRANDO AL ERROR, ES ESTE: :', error);
+            Swal.fire({
+                icon:'error',
+                title: 'Error de Conexión',
+                text: 'No se pudo obtener la información de permisos. Intente de nuevo.',
+            });
+        })
+        .finally(() => {
+            // Asegurarse de que el cargador se oculte SIEMPRE al finalizar la petición
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+        });
         
         }
-
-
+</script>
+<script>
+    // El script de ocultamiento del cargador se maneja en la plantilla base (dashboard.html)
+    // para evitar redundancia y asegurar que se ejecute una sola vez por carga de página.
 </script>
 {% endblock %}

@@ -151,12 +151,10 @@ def api_indicadores(request):
     return JsonResponse(get_economic_indicators())
 
 def index(request):
-    # Intentar obtener de caché. Si no hay, mostrar valores temporales 
-    # para que la página cargue INSTANTÁNEAMENTE y el JS los actualice luego.
-    context = cache.get('market_indicators')
-    if not context:
-        context = {'dolar': 'Consultando...', 'brent': 'Consultando...'}
-    
+    # Obtener indicadores (usa caché internamente para que la carga sea rápida)
+    market_data = get_economic_indicators()
+    context = market_data.copy()
+
     usuario_logeado = request.session.get('usuario_logeado')
     if usuario_logeado:
         usuario = Usuario.objects.get(id = usuario_logeado)

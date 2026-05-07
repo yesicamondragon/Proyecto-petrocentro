@@ -28,8 +28,8 @@
         </div>
     </div>
     
-    <div class="dolar-hoy" style="height: auto !important; min-height: 60px; display: block !important;">
-        <p id="dolar" style="margin-bottom: 5px; font-weight: 600; font-size: 0.95rem;"> Dólar hoy: {{ dolar }} </p>
+    <div class="dolar-hoy">
+        <p id="dolar-val" style="margin-bottom: 5px; font-weight: 600; font-size: 0.95rem;"> Dólar hoy: {{ dolar }} </p>
         <p id="brent-val" style="margin-top: 5px; font-weight: 600; font-size: 0.95rem; display: block !important;"> 
             Petróleo  Brent: {{ brent }} 
         </p>
@@ -419,9 +419,9 @@
             .then(data => {
                 // Actualizar elementos flotantes e indicadores estáticos
                 if (document.getElementById('dolar-float')) document.getElementById('dolar-float').innerText = "Dólar hoy: " + data.dolar;
-                if (document.getElementById('brent-float')) document.getElementById('brent-float').innerText = "Barril Brent: " + data.brent;
-                if (document.getElementById('dolar')) document.getElementById('dolar').innerText = "Dólar hoy: " + data.dolar;
-                if (document.getElementById('brent-val')) document.getElementById('brent-val').innerText = "Barril Brent: " + data.brent;
+                if (document.getElementById('brent-float')) document.getElementById('brent-float').innerText = "Petróleo Brent: " + data.brent;
+                if (document.getElementById('dolar-val')) document.getElementById('dolar-val').innerText = "Dólar hoy: " + data.dolar;
+                if (document.getElementById('brent-val')) document.getElementById('brent-val').innerText = "Petróleo Brent: " + data.brent;
             })
             .catch(error => console.error('Error al actualizar indicadores:', error));
     }
@@ -455,6 +455,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        updateEconomicIndicators(); // Actualizar inmediatamente al entrar
         startAutoSlide('slider-propuesta');
         startAutoSlide('slider-gestion');
     });

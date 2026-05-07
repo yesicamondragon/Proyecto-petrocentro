@@ -16,10 +16,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-r9%9vu)tf(0r_k
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Por defecto True para desarrollo local. En producción se debe cambiar a False.
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True' # En producción, debe ser False
+DEBUG = True
 
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') # Configurar dominios de producción
+ALLOWED_HOSTS = ['petrocentro.co','www.petrocentro.co', '127.0.0.1','localhost']
 
 
 # Application definition
@@ -191,6 +191,7 @@ DOMAIN_NAME = os.environ.get('DJANGO_DOMAIN_NAME', 'http://127.0.0.1:8000') # Co
 DEFAULT_FROM_EMAIL = 'ti.petrocentro@gmail.com'
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración moderna de almacenamiento (Django 4.2+)

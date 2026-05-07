@@ -1,3 +1,9 @@
+@font-face {
+    font-family: "Helvetica ";
+  
+
+
+}
 .swal2-popup{
     width: 30%;
 }
@@ -86,7 +92,7 @@ body{
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.7);
-    display: none; /* Oculto por defecto */
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -106,10 +112,10 @@ body{
     to { transform: rotate(360deg); }
   }
   
-  .suscribirse-noticias{
+  .suscribirse-blog{
     margin-top: 20px;
 }
-.suscribirse-noticias-informativo{
+.suscribirse-blog-informativo{
 
     text-align: center;
     color: #000000;
@@ -120,25 +126,25 @@ body{
     margin-top: 50px;
     margin: auto;       
 }
-.suscribirse-noticias-informativo h3{
+.suscribirse-blog-informativo h3{
     font-size: 28px;
     font-weight: 500;
 }
-.suscribirse-noticias-informativo p{
+.suscribirse-blog-informativo p{
     font-size: 20px;
-    font-weight: 500;
+    font-weight: 5  00;
 }
 
-.suscribirse-noticias-informativo form{
+.suscribirse-blog-informativo form{
     width: 80%;
     margin: auto;
 }
-.suscribirse-noticias-informativo form input{
+.suscribirse-blog-informativo form input{
     margin-bottom: 10px;
     font-size: 15px;
 
 }
-.suscribirse-noticias-informativo form .btn{
+.suscribirse-blog-informativo form .btn{
     font-size: 18px;
     width: 50%;
     background-color: #4CAF50;
@@ -146,7 +152,7 @@ body{
     border-radius:2px ;
 
 }
-.suscribirse-noticias-informativo form .btn:hover{
+.suscribirse-blog-informativo form .btn:hover{
     background-color: #3a803c;
 
 }
@@ -164,58 +170,69 @@ body{
         cursor: pointer;
         height: 50px;
     }
-.lista-perfil {
-    margin: 15px 15px 15px 15px;
-    opacity: 0;
-    visibility: hidden;
-    width: 260px;
-    position: relative;
-    right: 250px;
-    bottom: 15px;
-    ;
-    background-color: rgb(255, 255, 255);
-    height: 0px;
-    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.5);
-    padding: 10px 10px 10px 10px;
-    border-radius: 8px;
-    transition: all 400ms linear;
-    animation-name: subir;
-    animation-duration: 400ms;
-    z-index: 99;
+
+    .lista-perfil{       
+        margin:15px 15px 15px 15px;
+        opacity: 0;
+        visibility: hidden;
+        width: 260px;
+        position: relative;
+        right:250px;
+        bottom: 15px;;
+        background-color: rgb(255, 255, 255);
+        height: 0px;
+        box-shadow: 2px 4px 8px rgba(0,0,0,0.5);  
+        padding: 10px 10px 10px 10px;
+        border-radius: 8px;
+        transition: all 400ms linear;
+        animation-name: subir;
+        animation-duration: 400ms;
+        z-index: 99;
+
+        li{
+        
+            list-style: none;
+        }
+        a{
+            padding-left: 0;
+            text-decoration: none;
+            color: black;
+        }
+
+        .informacion-perfil h4{
+            font-size: 24px;
+            margin-top: 10px;
+            text-align: center;
+            margin-bottom: 0;
+
+        }
+        .correo-perfil p{
+            margin-top: 0;
+            text-align: center;
+        }
+
+    .perfil-cerrar{
+        display: grid;
+        grid-template-columns: repeat(2,50% 50%);
+        
+        i{
+            color: var(--color-1);
+            font-size: 17px;
+        }
+    }
+        
+    
+    .imagen-perfil{
+        position: relative;
+        width: 75px;
+        height: 70px;
+        left: 80px;
+        object-fit: cover;
+    }
 }
-.lista-perfil li {
-    list-style: none;
-}
-.lista-perfil a {
-    padding-left: 0;
-    text-decoration: none;
-    color: black;
-}
-.lista-perfil .informacion-perfil h4 {
-    font-size: 24px;
-    margin-top: 10px;
-    text-align: center;
-    margin-bottom: 0;
-}
-.lista-perfil .correo-perfil p {
-    margin-top: 0;
-    text-align: center;
-}
-.lista-perfil .perfil-cerrar {
-    display: grid;
-    grid-template-columns: repeat(2, 50% 50%);
-}
-.lista-perfil .perfil-cerrar i {
-    color: var(--color-1);
-    font-size: 17px;
-}
-.lista-perfil .imagen-perfil {
-    position: relative;
-    width: 75px;
-    height: 70px;
-    left: 80px;
-    object-fit: cover;
-}
+
+    
+        
 .active-perfil{
     
     height: 200px;
@@ -339,7 +356,7 @@ body{
     text-align: center;
 }
 .l p{
-    text-align: justify !important;
+    text-align: justify;
 }
 
 /* Clientes */
@@ -355,7 +372,7 @@ body{
 }
 .l p{
         
-    text-align: justify !important;
+    text-align: justify;
     width: 724px;
     font-family: 'Helvetica';
     font-style: normal;
@@ -451,7 +468,7 @@ body{
     padding-top: 100px;
 }
 .servicios .let p{
-    text-align: left;
+    text-align: justify;
     width: 724px;
     font-family: 'Helvetica';
     font-style: normal;
@@ -557,7 +574,7 @@ body{
     color: #161C2D;
 }
 .ambiente .texto p {
-    text-align: left;
+    text-align: center;
     width: 100%;
     padding-top:50px;
     margin: 0 auto;
@@ -640,20 +657,16 @@ body{
 
 .grupo1{
     margin: auto;
-    width: 90%;
-    max-width: 1300px;
+    width: 100%;
     display: grid;
-    grid-template-columns: 1.2fr 1.8fr 1.1fr 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
     text-align: center;
-    align-items: start;
 }   
 
 .box .red_social{
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
 }
 
 .box .red_social a {
@@ -662,7 +675,6 @@ body{
     font-size: 30px;
     color: var(--color-1);
     transition: all 300ms ease-in;
-    padding: 0 8px;
 }
 .box .red_social a:hover {
     
@@ -685,25 +697,6 @@ body{
     text-align: start;
     color:var(--color-1)
 } 
-.box2 a {
-    color: #009323;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-.box2 a:hover { color: var(--color-1); text-decoration: underline; }
-
-.box4 h3 {
-    color: var(--color-1);
-    margin-bottom: 15px;
-}
-.box2 ul li a {
-    word-break: break-word; /* Evita que correos largos empujen el ancho */
-    line-height: 1.2;
-}
-.box4 h3 {
-    color: var(--color-1);
-    margin-bottom: 15px;
-}
 
 .box3 h3{
     color: var(--color-1);
@@ -855,7 +848,7 @@ body{
 .con .telefono{
       
     font-size: 17px;
-    display: flex !important; /* Asegura que flexbox se aplique */
+    display: flex;
     flex-direction: row;
     align-items: center;
     padding: 0px;
@@ -863,7 +856,6 @@ body{
   
 }
 .con .email{
-    height: auto !important; /* Asegura que el email no se corte en escritorio si el texto es largo */
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -1144,7 +1136,7 @@ body{
     color: #161C2D;
 }
 .quien .texto1 p {
-    text-align: left;
+    text-align: center;
     width: 100%;
     padding-top:50px;
     margin: 0 auto;
@@ -1415,18 +1407,24 @@ body{
 
 .images-carousel{
     margin: auto;
-}
-.images-carousel .carousel-inner {
-    border-radius: 15px;
-    max-height: 700px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    object-fit: cover;
-}
-.images-carousel .carousel-inner img {
-    object-fit: cover;
-    transition: transform 0.5s ease-in-out;
+
+    .carousel-inner{
+        border-radius: 15px;
+        max-height: 700px;
+        display: flex;
+        max-height: 700px;
+        align-items: center;
+        justify-content: center;
+        
+        object-fit: cover;
+
+        img{
+            
+            object-fit: cover;
+            transition: transform 0.5s ease-in-out;
+           
+        }
+    }
 }
 
 /* Certificaciones */
@@ -2693,20 +2691,20 @@ svg{
     line-height: 1.5;
 }
 
-/* Noticias Integradas */
-.noticias-section {
+/* Blog Integrado */
+.blog-section {
     padding: 80px 0;
     background-color: #f8f9fa;
     margin-bottom: 50px;
 }
 
-.contenedor-noticias {
+.contenedor-blog {
     width: 85%;
     margin: auto;
     text-align: center;
 }
 
-.titulo-noticias {
+.titulo-blog {
     font-family: 'Helvetica';
     font-weight: 700;
     font-size: 36px;
@@ -2715,7 +2713,7 @@ svg{
     text-transform: uppercase;
 }
 
-.subtitulo-noticias {
+.subtitulo-blog {
     font-family: 'Helvetica';
     font-size: 18px;
     color: #555;
@@ -2725,14 +2723,14 @@ svg{
     margin-right: auto;
 }
 
-.grid-noticias {
+.grid-blog {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
     margin-bottom: 40px;
 }
 
-.noticias-card {
+.blog-card {
     background: white;
     border-radius: 15px;
     overflow: hidden;
@@ -2743,36 +2741,36 @@ svg{
     flex-direction: column;
 }
 
-.noticias-card:hover {
+.blog-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 
-.noticias-imagen {
+.blog-imagen {
     height: 200px;
     overflow: hidden;
     background-color: #ddd;
 }
 
-.noticias-imagen img {
+.blog-imagen img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
 }
 
-.noticias-card:hover .noticias-imagen img {
+.blog-card:hover .blog-imagen img {
     transform: scale(1.1);
 }
 
-.noticias-contenido {
+.blog-contenido {
     padding: 25px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.noticias-fecha {
+.blog-fecha {
     font-size: 14px;
     color: var(--color-1);
     margin-bottom: 10px;
@@ -2781,7 +2779,7 @@ svg{
     text-transform: uppercase;
 }
 
-.noticias-contenido h3 {
+.blog-contenido h3 {
     font-family: 'Helvetica';
     font-weight: 700;
     font-size: 20px;
@@ -2790,7 +2788,7 @@ svg{
     line-height: 1.4;
 }
 
-.noticias-contenido p {
+.blog-contenido p {
     font-family: 'Helvetica';
     font-size: 16px;
     color: #666;
@@ -2815,7 +2813,7 @@ svg{
     color: #095530;
 }
 
-.boton-noticias-container {
+.boton-blog-container {
     margin-top: 20px;
 }
 
@@ -3048,11 +3046,6 @@ svg{
     transition: transform 0.3s ease;
 }
 
-/* Asegura que la tarjeta con esta clase se posicione siempre al final del grid */
-.card-final {
-    order: 99;
-}
-
 .card__description {
     font-family: 'Helvetica';
     font-size: 14px;
@@ -3061,7 +3054,7 @@ svg{
     margin-bottom: 12px;
     line-height: 1.4;
     display: block;
-    text-align: justify !important;
+    text-align: center;
     font-weight: 400;
 }
 
@@ -3498,7 +3491,7 @@ svg{
         color: #161C2D;
     }
     .ambiente .texto p {
-        text-align: left;
+        text-align: justify;
         width: 100%;
 
         margin: 0 auto;
@@ -3679,7 +3672,6 @@ svg{
     margin-left: auto;
     margin-right: auto;
     line-height: 1.5;
-    text-align: justify !important;
 }
 
 .grid-beneficios {
@@ -3749,18 +3741,6 @@ svg{
         font-size: 30px;
     }
     .subtitulo-beneficios {
-        font-size: 15px;
-    }
-    .indicadores-experiencia {
-        padding: 40px 0;
-    }
-    .indicador-item .contador {
-        font-size: 40px;
-    }
-    .indicador-item i {
-        font-size: 40px;
-    }
-    .indicador-item p {
         font-size: 15px;
     }
 }
@@ -4250,8 +4230,8 @@ svg{
     .formulario h1{
         /* CONTÁCTANOS */
 
-        width: 100%;
-        height: auto;
+        width: 50%;
+        height: 64px;
 
         font-family: 'Helvetica';
         font-style: normal;
@@ -4269,7 +4249,7 @@ svg{
     .formulario p{
         
         width: 100%;
-        height: auto;
+        height: 48px;
 
         font-family: 'Helvetica';
         font-style: normal;
@@ -4595,7 +4575,6 @@ svg{
         color: #161C2D;
     }
     .ambiente .texto p{
-        text-align: justify;
         width: 100%;
         padding-top: 5px;
 
@@ -4609,7 +4588,6 @@ svg{
 
     .pie_pagina .grupo1{
         width:80%;
-        grid-template-columns: 1fr;
         grid-template-columns: repeat(1, 1fr);
         grid-gap:30px;
         padding: 35px 0px;
@@ -4721,7 +4699,6 @@ svg{
         font-size: 35px;
     }
     .quien .texto1 p{
-        text-align: justify;
         padding-top: 20px;
         font-size: 19px;
         letter-spacing: -0.2;
@@ -4748,9 +4725,6 @@ svg{
     .mision .parrafo-mision{
         margin: auto;
         text-align: center;
-    }
-    .mision .parrafo-mision p{
-        text-align: justify;
         width: 90%;
         padding-bottom: 25px;
         padding-top: 25px;
@@ -4950,9 +4924,6 @@ svg{
         margin: auto;
         text-align: center;
     }
-    .l-pqrs p, .l-pqrs .txt-pr{
-        text-align: justify;
-    }
     .l-pqrs h1{
         width: 100%;
         font-size: 30px;
@@ -5104,7 +5075,6 @@ svg{
         margin: auto;
     }
     .ambiente .texto p{
-        text-align: justify;
         width: 90%;
         padding-top:30px;
         margin: 0 auto;
@@ -5875,86 +5845,5 @@ svg{
     }
     .form-consulta button {
         width: 100%;
-    }
-}
-
-/* Estilos Trabaja con Nosotros */
-.trabaja-header {
-background: linear-gradient(rgba(11, 104, 56, 0.8), rgba(0,0,0,0.6)), url('../img/banner-carrera.jpg');
-background-size: cover;
-color: white;
-padding: 100px 0;
-text-align: center;
-}
-
-
-.form-trabaja {
-    max-width: 600px;
-    width: 95%;
-    margin: -50px auto 50px;
-    background: white;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    position: relative;
-    z-index: 5;
-}
-
-.file-input-wrapper {
-    border: 2px dashed var(--color-1);
-    padding: 20px;
-    text-align: center;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.file-input-wrapper input[type="file"] {
-    cursor: pointer;
-}
-
-/* --- Mobile Responsiveness Adjustments (max-width: 768px) --- */
-@media (max-width: 768px) {
-    /* Corrección de alturas fijas para evitar texto encimado en PQRS */
-    .letras-pqrs, .l-pqrs {
-        height: auto !important;
-        min-height: 180px;
-        padding-bottom: 20px;
-    }
-    
-    .l-pqrs h1 {
-        margin-right: 0 !important;
-        text-align: center;
-        font-size: 26px;
-        line-height: 1.3;
-        padding: 0 15px;
-    }
-
-    /* Trabaja con Nosotros: Ajuste de cabecera y formulario */
-    .trabaja-header { padding: 60px 0 90px 0; }
-    .trabaja-header h1 {
-        font-size: 28px;
-        line-height: 1.2;
-    }
-    .form-trabaja {
-        margin: -40px auto 30px;
-        padding: 20px;
-/* OPTIMIZACIÓN DE MENÚ: Hardware Acceleration */
-#hidden-menu .expanded {
-    will-change: transform;
-    transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1) !important;
-    backface-visibility: hidden;
-    transform: translateX(-100%); /* Estado inicial optimizado */
-}
-
-#hidden-menu #menu-open:checked ~ .expanded {
-    transform: translateX(0) !important;
-}
-
-/* Elimina el retraso de respuesta táctil en botones y enlaces */
-.nav-2 a, .nav-2 button, #hidden-menu label, .links a, .boton {
-    touch-action: manipulation;
-    cursor: pointer;
-}
-
     }
 }

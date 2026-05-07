@@ -191,6 +191,7 @@ DOMAIN_NAME = os.environ.get('DJANGO_DOMAIN_NAME', 'http://127.0.0.1:8000') # Co
 DEFAULT_FROM_EMAIL = 'ti.petrocentro@gmail.com'
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración moderna de almacenamiento (Django 4.2+)

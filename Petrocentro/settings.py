@@ -203,6 +203,9 @@ STORAGES = {
     },
 }
 
+# Evita que el servidor falle si falta un archivo en el manifiesto de estáticos
+WHITENOISE_MANIFEST_STRICT = False
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

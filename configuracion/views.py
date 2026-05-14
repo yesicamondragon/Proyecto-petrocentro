@@ -750,108 +750,90 @@ def crear_post(request):
     }
     return render(request, 'configuracion/crear_post.html', data)
 
+@login_required
 def guardar_post(request):
-        usuario_logeado = request.session.get('usuario_logeado')
-        usuario_logeado = Usuario.objects.get(id = usuario_logeado)
-        try:
-            if request.method == 'POST':
-                    form = Form_post(request.POST, request.FILES)
-                    
-                    if form.is_valid():
-                            cleaned_data = form.cleaned_data
-                            titulo = cleaned_data.get('titulo')
-                            descripcion = cleaned_data.get('descripcion')
-                            contenido = cleaned_data.get('contenido')
-                            image = cleaned_data.get('image')
-                            categoria = cleaned_data.get('categoria')
-                            empleado = cleaned_data.get('empleado')
-                            slug = slugify(titulo)
-                            original_slug = slug
-                            queryset = Post.objects.filter(slug__startswith=slug)
-                            if queryset.exists():
-                                    while queryset.exists():
-                                            slug = f"{original_slug}-{uuid.uuid4().hex[:8]}"
-                                            queryset = Post.objects.filter(slug__startswith=slug)
-                                            
-                            post = Post(
-                                    titulo=titulo, 
-                                    descripcion=descripcion, 
-                                    contenido=contenido, 
-                                    empleado = empleado,
-                                    image=image, 
-                                    categoria= categoria,
-                                    author = Usuario.objects.get(id =usuario_logeado.id ),
-                                    slug=slug,
-                                    
-                            )
-                            post.save()
-                            creador = Usuario.objects.get(id =usuario_logeado.id )
-                            url = reverse('detail-post', kwargs={'slug': post.slug})
-                            full_url = f"{settings.DOMAIN_NAME.rstrip('/')}{url}"
-                            if empleado == True:
-                                empleados = Empleado.objects.all()
-                                for empleado in empleados:
-                                    try:
-                                        send_email_post(empleado.correo, creador.nombre, post.fecha_creacion, full_url, titulo)
-                                    except Exception as e:
-                                        print(f"Error enviando a empleado {empleado.correo}: {e}")
-                            else:
-                                suscriptores = Suscriptores.objects.all()
-                                if not suscriptores.exists():
-                                    print("No hay suscriptores para notificar.")
-                                    
-                                for suscriptor in suscriptores:
-                                    try:
-                                        send_email_post(suscriptor.correo, creador.nombre, post.fecha_creacion, full_url, titulo)
-                                    except Exception as e:
-                                        print(f"Error enviando a suscriptor {suscriptor.correo}: {e}")
-                                        
-                            return redirect('blog')
-                        
-        except Exception as e:
-            messages.error(request, f'Error: {e}')
-            return redirect('crear_post')
-                        
+    usuario_id = request.session.get('usuario_logeado')
+    usuario_perfil = get_object_or_404(Usuario, id=usuario_id)
+
+    if request.method == 'POST':
+        form = Form_post(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                cleaned_data = form.cleaned_data
+                titulo = cleaned_data.get('titulo')
+                es_para_empleado = cleaned_data.get('empleado')
+
+                # Generación de Slug único
+                slug = slugify(titulo)
+                original_slug = slug
+                while Post.objects.filter(slug=slug).exists():
+                    slug = f"{original_slug}-{uuid.uuid4().hex[:8]}"
+
+                post = Post(
+                    titulo=titulo,
+                    descripcion=cleaned_data.get('descripcion'),
+                    contenido=cleaned_data.get('contenido'),
+                    empleado=es_para_empleado,
+                    image=cleaned_data.get('image'),
+                    categoria=cleaned_data.get('categoria'),
+                    author=usuario_perfil,
+                    slug=slug,
+                    estado=cleaned_data.get('estado', True)
+                )
+                post.save()
+
+                # Envío de notificaciones
+                url = reverse('detail-post', kwargs={'slug': post.slug})
+                full_url = f"{settings.DOMAIN_NAME.rstrip('/')}{url}"
+                
+                # Si es para empleados, notificar a empleados; si no, a suscriptores
+                if es_para_empleado:
+                    destinatarios = list(Empleado.objects.values_list('correo', flat=True))
+                else:
+                    destinatarios = list(Suscriptores.objects.values_list('correo', flat=True))
+
+                for email_dest in destinatarios:
+                    try:
+                        send_email_post(email_dest, usuario_perfil.nombre, post.fecha_creacion, full_url, titulo)
+                    except Exception as e:
+                        print(f"Error enviando correo a {email_dest}: {e}")
+
+                messages.success(request, 'Post creado y notificaciones enviadas correctamente.')
+                return redirect('crear_post_view')
+            except Exception as e:
+                messages.error(request, f'Error al guardar el post: {e}')
+    return redirect('crear_post_view')
 
 @login_required
 def editar_post_view(request, slug):
     post = get_object_or_404(Post, slug=slug)
     usuario_logeado_id = request.session.get('usuario_logeado')
     user = request.user
+    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
 
     # --- Obtener perfil de usuario y permisos ---
     permisos = {}
-    emp = get_object_or_404(Usuario, id=usuario_logeado_id)
     empleado = None
     nombre_rol = "Usuario"
 
     if user.is_superuser:
         permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
         nombre_rol = "Administrador"
-        try:
-            empleado = Empleado.objects.get(id=emp.id)
-        except Empleado.DoesNotExist:
-            pass # Superuser might not be an employee
+        empleado = Empleado.objects.filter(id=emp.id).first()
     else:
         try:
             empleado = Empleado.objects.get(id=emp.id)
             if empleado.id_rol:
-                rol_nom = empleado.id_rol.nombre
-                nombre_rol = rol_nom
+                nombre_rol = empleado.id_rol.nombre
                 permisos_qs = Rol_permiso.objects.filter(rol=empleado.id_rol)
                 permisos = obtener_permisos(permisos_qs)
-            else:
-                nombre_rol = "Empleado (Sin Rol)"
         except Empleado.DoesNotExist:
-            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
             return redirect('index')
 
-    # --- Verificación de autorización para editar ---
     if not permisos.get('editar'):
         messages.error(request, 'No tienes permisos para editar posts.')
         return redirect('crear_post_view')
 
-    # --- Lógica de la vista ---
     if request.method == 'POST':
         form = Form_post(request.POST, request.FILES, instance=post)
         if form.is_valid():

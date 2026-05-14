@@ -111,51 +111,6 @@ body{
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
-  
-  .suscribirse-blog{
-    margin-top: 20px;
-}
-.suscribirse-blog-informativo{
-
-    text-align: center;
-    color: #000000;
-    background: rgba(0, 0, 0, 0.055); 
-    border-radius: 15px;
-    padding: 20px;
-    width: 1200px;
-    margin-top: 50px;
-    margin: auto;       
-}
-.suscribirse-blog-informativo h3{
-    font-size: 28px;
-    font-weight: 500;
-}
-.suscribirse-blog-informativo p{
-    font-size: 20px;
-    font-weight: 5  00;
-}
-
-.suscribirse-blog-informativo form{
-    width: 80%;
-    margin: auto;
-}
-.suscribirse-blog-informativo form input{
-    margin-bottom: 10px;
-    font-size: 15px;
-
-}
-.suscribirse-blog-informativo form .btn{
-    font-size: 18px;
-    width: 50%;
-    background-color: #4CAF50;
-    color:white;
-    border-radius:2px ;
-
-}
-.suscribirse-blog-informativo form .btn:hover{
-    background-color: #3a803c;
-
-}
     div.buton-cerrar{
         object-fit: cover;
         height: 40px;
@@ -2722,12 +2677,14 @@ svg{
     margin-left: auto;
     margin-right: auto;
 }
-
-.grid-blog {
+.grid-blog, .grid-noticias {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    width: 100%;
     gap: 30px;
     margin-bottom: 40px;
+    justify-items: stretch;
 }
 
 .blog-card {
@@ -2739,6 +2696,7 @@ svg{
     text-align: left;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .blog-card:hover {
@@ -4333,6 +4291,10 @@ svg{
         grid-template-columns: repeat(auto-fill, minmax(400px,1fr));
         grid-row-gap: 15px;
     }
+    .grid-blog, .grid-noticias {
+        grid-template-columns: repeat(3, 1fr); /* Mantener 3 columnas en móviles */
+        gap: 15px;
+    }
 
     /* Ajuste responsivo para el esquema de servicios */
     .timeline-servicios {
@@ -4515,6 +4477,9 @@ svg{
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
         grid-row-gap: 15px;
+    }
+    .grid-blog, .grid-noticias { /* Forzar 3 columnas en todos los tamaños */
+        grid-template-columns: repeat(3, 1fr);
     }
     .certificaciones .certificacion h3{
         font-size: 28px;

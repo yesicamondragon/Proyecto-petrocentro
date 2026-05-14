@@ -107,18 +107,11 @@ body{
   }
   
   .suscribirse-blog{
-    margin-top: 20px;
+    display: none !important; /* Eliminación completa por solicitud */
+    /* Eliminado por solicitud del usuario */
 }
 .suscribirse-blog-informativo{
-
-    text-align: center;
-    color: #000000;
-    background: rgba(0, 0, 0, 0.055); 
-    border-radius: 15px;
-    padding: 20px;
-    width: 1200px;
-    margin-top: 50px;
-    margin: auto;       
+    display: none !important; /* Eliminación completa por solicitud */
 }
 .suscribirse-blog-informativo h3{
     font-size: 28px;
@@ -2723,10 +2716,13 @@ svg{
     margin-right: auto;
 }
 
-.grid-blog {
+.grid-blog, .grid-noticias {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
+    width: 90%;
+    max-width: 950px;
+    margin: 0 auto;
+    gap: 20px;
     margin-bottom: 40px;
 }
 
@@ -2739,6 +2735,8 @@ svg{
     text-align: left;
     display: flex;
     flex-direction: column;
+    height: 100%; /* Uniformidad en la altura */
+    background: #fff;
 }
 
 .blog-card:hover {
@@ -2747,7 +2745,7 @@ svg{
 }
 
 .blog-imagen {
-    height: 200px;
+    height: 150px;
     overflow: hidden;
     background-color: #ddd;
 }
@@ -2755,7 +2753,7 @@ svg{
 .blog-imagen img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Centrado y recorte perfecto de imagen */
     transition: transform 0.5s ease;
 }
 
@@ -2764,7 +2762,7 @@ svg{
 }
 
 .blog-contenido {
-    padding: 25px;
+    padding: 15px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2782,7 +2780,7 @@ svg{
 .blog-contenido h3 {
     font-family: 'Helvetica';
     font-weight: 700;
-    font-size: 20px;
+    font-size: 18px;
     color: #161C2D;
     margin-bottom: 15px;
     line-height: 1.4;

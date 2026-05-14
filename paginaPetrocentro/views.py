@@ -155,6 +155,9 @@ def index(request):
     market_data = get_economic_indicators()
     context = market_data.copy()
 
+    # Obtener noticias de sector en tiempo real
+    context['noticias'] = obtener_noticias_rss()
+
     usuario_logeado = request.session.get('usuario_logeado')
     if usuario_logeado:
         usuario = Usuario.objects.get(id = usuario_logeado)

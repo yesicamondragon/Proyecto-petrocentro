@@ -22,43 +22,52 @@ from django.conf import settings
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-#------------------------------------------------------EMPLEADOS Y USUARIOS----------------------------------------------
-@login_required
-def listar_empleados(request):
-    usuario_logeado_id = request.session.get('usuario_logeado')
+# --- UTILIDADES ---
+def obtener_contexto_usuario(request):
+    """
+    Centraliza la obtención del perfil de usuario, empleado y permisos
+    para evitar repetición de código en las vistas.
+    """
+    usuario_id = request.session.get('usuario_logeado')
     user = request.user
- 
-    # --- Obtener perfil de usuario y permisos ---
+    
     permisos = {}
-    usuario_profile = get_object_or_404(Usuario, id=usuario_logeado_id)
+    usuario_profile = get_object_or_404(Usuario, id=usuario_id)
     empleado_profile = None
     nombre_rol = "Usuario"
- 
+
     if user.is_superuser:
         permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
         nombre_rol = "Administrador"
-        try:
-            empleado_profile = Empleado.objects.get(id=usuario_profile.id)
-        except Empleado.DoesNotExist:
-            pass # Superuser might not be an employee
+        empleado_profile = Empleado.objects.filter(id=usuario_profile.id).first()
     else:
         try:
             empleado_profile = Empleado.objects.get(id=usuario_profile.id)
             if empleado_profile.id_rol:
-                rol_nom = empleado_profile.id_rol.nombre
-                nombre_rol = rol_nom
+                nombre_rol = empleado_profile.id_rol.nombre
                 permisos_qs = Rol_permiso.objects.filter(rol=empleado_profile.id_rol)
                 permisos = obtener_permisos(permisos_qs)
             else:
                 nombre_rol = "Empleado (Sin Rol)"
         except Empleado.DoesNotExist:
-            messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
-            return redirect('index')
-                
-    # Configuración de datos comunes para la vista
-    cargo = Cargo.objects.all()
-    ubicacion = Ubicacion.objects.all()
-    rol_list = Rol.objects.all()
+            pass
+            
+    return {
+        'usuario': usuario_profile,
+        'empleado': empleado_profile,
+        'permisos': permisos,
+        'nombre_rol': nombre_rol
+    }
+
+#------------------------------------------------------EMPLEADOS Y USUARIOS----------------------------------------------
+@login_required
+def listar_empleados(request):
+    ctx = obtener_contexto_usuario(request)
+    if not ctx['empleado'] and not request.user.is_superuser:
+        messages.error(request, 'No tienes un perfil de empleado para acceder a esta página.')
+        return redirect('index')
+
+    permisos = ctx['permisos']
  
     # LÓGICA DE ACCESO:
     # Si tiene permiso 'usuarios' (Admin/Gestor), ve todos los empleados y puede registrar nuevos.
@@ -67,7 +76,7 @@ def listar_empleados(request):
             users_para_registro = Usuario.objects.all()
     else:
             # Si es empleado regular, entra a la ruta pero SOLO ve su propia información.
-            lista_empleados = Empleado.objects.select_related('user_id', 'id_rol', 'id_cargo', 'id_ubicacion').filter(id=usuario_profile.id)
+            lista_empleados = Empleado.objects.select_related('user_id', 'id_rol', 'id_cargo', 'id_ubicacion').filter(id=ctx['usuario'].id)
             users_para_registro = Usuario.objects.none() # No puede registrar a otros
         
     #----------------------------------------------------------------------------------------------------------------
@@ -123,16 +132,16 @@ def listar_empleados(request):
 
         
     data ={
-        'cargos': cargo,
+        'cargos': Cargo.objects.all(),
         'cursos': Curso.objects.all(), # Para el modal de asignar curso
-        'ubicaciones': ubicacion,
-        'roles': rol_list,
+        'ubicaciones': Ubicacion.objects.all(),
+        'roles': Rol.objects.all(),
         'users': users_para_registro, # Lista de usuarios para el modal de registro                  
         'paginas': pagina,
         'paginator': p,
-        'nombre_rol': nombre_rol,
-        'usuario': usuario_profile,
-        'empleado': empleado_profile,
+        'nombre_rol': ctx['nombre_rol'],
+        'usuario': ctx['usuario'],
+        'empleado': ctx['empleado'],
         'crear':permisos.get('crear', 0),
         'consultar': permisos.get('consultar', 0),
         'editar': permisos.get('editar', 0),

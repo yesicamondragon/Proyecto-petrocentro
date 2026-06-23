@@ -33,25 +33,29 @@ def obtener_permisos(permisos):
     editar = 0
     consultar = 0
     usuarios = 0 
+    inventario = 0
    
     for permiso in permisos:
-        nombre = permiso.permiso.nombre
-        if nombre == "Crear":
+        nombre = permiso.permiso.nombre.lower() # Convertir a minúsculas para comparar
+        if nombre == "crear":
             crear = 1
-        elif nombre in ["Consultar", "Consultor"]:
+        elif nombre in ["consultar", "consultor"]:
             consultar = 1
-        elif nombre == "Eliminar":
+        elif nombre == "eliminar":
             eliminar = 1
-        elif nombre in ["Actualizar", "Editar", "Editor"]:
+        elif nombre in ["actualizar", "editar", "editor"]:
             editar = 1 
-        elif nombre == "Usuarios":
+        elif nombre == "usuarios":
             usuarios = 1
+        elif nombre == "inventario":
+            inventario = 1
     data={
         'crear':crear,
         'consultar': consultar,
         'editar': editar,
         'eliminar': eliminar,
         'usuarios': usuarios,
+        'inventario': inventario,
     }
     return data
 
@@ -78,6 +82,7 @@ def perfil(request):
         'usuarios': 0,
         'editar': 0,
         'eliminar': 0,
+        'inventario': 0,
     }
 
     # Ahora, intentamos obtener el perfil de Empleado y sus permisos.
@@ -101,7 +106,7 @@ def perfil(request):
     # Si es superusuario, sobreescribimos los permisos para darle acceso total.
     if request.user.is_superuser:
         context['nombre_rol'] = "Administrador"
-        context.update({'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1})
+        context.update({'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1})
 
     return render(request, 'configuracion/perfil.html', context)
 
@@ -215,7 +220,7 @@ def configuracion_nosotros (request):
     nombre_rol = "Usuario"
 
     if user.is_superuser:
-        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1}
         nombre_rol = "Administrador"
         try:
             empleado = Empleado.objects.get(id=emp.id)
@@ -241,6 +246,7 @@ def configuracion_nosotros (request):
         'fotos': fotos, 'empleado': empleado, 'nombre_rol': nombre_rol, 'usuario': emp,
         'crear': permisos.get('crear', 0), 'usuarios': permisos.get('usuarios', 0),
         'editar': permisos.get('editar', 0), 'eliminar': permisos.get('eliminar', 0),
+        'inventario': permisos.get('inventario', 0),
     }
     return render(request, 'configuracion/nosotros_conf.html', data)
 
@@ -367,7 +373,7 @@ def roles(request):
     nombre_rol = "Usuario"
 
     if user.is_superuser:
-        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1}
         nombre_rol = "Administrador"
         try:
             empleado = Empleado.objects.get(id=emp.id)
@@ -400,6 +406,7 @@ def roles(request):
         'crear': permisos.get('crear', 0), 'editar': permisos.get('editar', 0),
         'usuarios': permisos.get('usuarios', 0), 'eliminar': permisos.get('eliminar', 0),
         'lista_empleados': pagina_empleados, # Usar la lista paginada
+        'inventario': permisos.get('inventario', 0),
         'paginator_empleados': p, # Pasar el objeto Paginator para controles en el template
         'nombre_rol': nombre_rol, 'usuario': emp,
     }
@@ -619,7 +626,7 @@ def eliminar_rol(request, id):
 
         # Protección para roles del sistema
         # Evitamos borrar roles críticos
-        if rol.nombre in ['Administrador', 'Empleado']:
+        if rol.nombre in ['Administrador', 'Empleado', 'Supervisor']:
             messages.error(request, f'El rol "{rol.nombre}" es fundamental para el sistema y no puede ser eliminado.')
             return redirect('asignar_roles')
 
@@ -665,7 +672,7 @@ def crear_post_view(request):
     nombre_rol = "Usuario"
 
     if user.is_superuser:
-        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1}
         nombre_rol = "Administrador"
         try:
             empleado = Empleado.objects.get(id=emp.id)
@@ -699,6 +706,7 @@ def crear_post_view(request):
         'posts': post, 'empleado': empleado, 'usuario': emp,
         'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
         'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'inventario': permisos.get('inventario', 0),
         'eliminar': permisos.get('eliminar', 0),
     }
     return render(request, 'configuracion/post_view.html', data)
@@ -715,7 +723,7 @@ def crear_post(request):
     nombre_rol = "Usuario"
 
     if user.is_superuser:
-        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1}
         nombre_rol = "Administrador"
         try:
             empleado = Empleado.objects.get(id=emp.id)
@@ -746,6 +754,7 @@ def crear_post(request):
         'form': form, 'empleado': empleado, 'usuario': emp,
         'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
         'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'inventario': permisos.get('inventario', 0),
         'eliminar': permisos.get('eliminar', 0),
     }
     return render(request, 'configuracion/crear_post.html', data)
@@ -817,7 +826,7 @@ def editar_post_view(request, slug):
     nombre_rol = "Usuario"
 
     if user.is_superuser:
-        permisos = {'crear': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1}
+        permisos = {'crear': 1, 'consultar': 1, 'editar': 1, 'eliminar': 1, 'usuarios': 1, 'inventario': 1}
         nombre_rol = "Administrador"
         empleado = Empleado.objects.filter(id=emp.id).first()
     else:
@@ -847,6 +856,7 @@ def editar_post_view(request, slug):
         'form': form, 'post': post, 'empleado': empleado, 'usuario': emp,
         'nombre_rol': nombre_rol, 'crear': permisos.get('crear', 0),
         'editar': permisos.get('editar', 0), 'usuarios': permisos.get('usuarios', 0),
+        'inventario': permisos.get('inventario', 0),
         'eliminar': permisos.get('eliminar', 0),
     }
     return render(request, 'configuracion/editar_post_view.html', data)

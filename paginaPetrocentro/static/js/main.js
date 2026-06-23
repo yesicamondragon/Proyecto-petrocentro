@@ -40,3 +40,33 @@ async function fetchDataAndRenderTable(url, params = {}) {
 // document.addEventListener('DOMContentLoaded', () => {
 //     fetchDataAndRenderTable('/ruta/a/tu/api/datos/', { buscar: 'ejemplo', estado: '1' });
 // });
+
+// Función para ver detalles
+function verDetallesEquipo(data) {
+    console.log("Detalles del equipo:", data);
+    // Aquí deberías abrir el modal de detalles y llenar los campos
+    const modal = document.getElementById("modalDetails");
+    if (modal) {
+        modal.style.display = "block";
+        // Ejemplo: document.getElementById("det-project").innerText = data.project;
+    }
+}
+
+// Función para abrir modal de edición
+function abrirModalEditar(data) {
+    console.log("Editar equipo:", data);
+    const modal = document.getElementById("modalEdit");
+    if (modal) {
+        modal.style.display = "block";
+        // Aquí llenas los inputs del modal con los valores de "data"
+        // Ejemplo: document.getElementById("edit-name").value = data.name;
+    }
+}
+
+// Función para confirmar eliminación
+function confirmarEliminacion(id, name) {
+    if (confirm(`¿Seguro que quieres eliminar ${name}?`)) {
+        // Redirige a la ruta de eliminación en Django
+        window.location.href = `/inventario/${id}/eliminar/`;
+    }
+}

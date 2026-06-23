@@ -32,21 +32,32 @@
     <style>
         /* Hace que la barra lateral se quede fija */
         .sidebar {
+            width: 280px; /* Ancho fijo para consistencia */
             position: sticky;
             top: 0;
             height: 100vh;
             overflow-y: auto;
+            flex-shrink: 0; /* Evita que el menú se encoja */
             z-index: 1000;
+            transition: margin-left 0.3s ease, left 0.3s ease;
         }
         body {
             display: flex;
             min-height: 100vh;
             margin: 0;
+            padding: 0 !important;
+            gap: 0 !important;
         }
         .main-content {
-            flex: 1;
+            flex: 1; /* Ocupa todo el espacio restante */
             display: flex;
             flex-direction: column;
+            margin-left: 0 !important;
+            padding: 0 !important;
+            min-width: 0; /* Crucial para que el contenido flexible ocupe el espacio restante sin desbordar */
+        }
+        .dash-relleno {
+            padding: 0 !important;
         }
         /* Estilo para el botón del menú activo */
         .menu-items .item.active {
@@ -63,6 +74,38 @@
         }
         .menu-items .item.active i {
             color: #ffffff !important; /* Iconos blancos */
+        }
+
+        /* Fuerza la visibilidad del botón de menú en Desktop */
+        .toggle-sidebar {
+            display: block !important;
+            padding-left: 15px;
+        }
+        /* Ajusta la cuadrícula de la navbar para 3 elementos (Botón - Título - Ajustes) */
+        .items-navbar {
+            grid-template-columns: auto 1fr auto !important;
+        }
+
+        /* Botón Atrás */
+        .back-btn {
+            background: none;
+            border: none;
+            color: #198754; /* Verde corporativo */
+            font-size: 1.8rem;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .back-btn:hover {
+            color: #146c43;
+            transform: translateX(-3px); /* Pequeño efecto visual de retroceso */
+        }
+
+        /* Estado colapsado para Desktop */
+        .sidebar.collapsed {
+            margin-left: -280px;
         }
 
         /* Responsividad: Menú colapsable en móviles */
@@ -88,7 +131,10 @@
     <!-- Barra de navegacion lateral izquierda -->
     <nav class="sidebar" id="sidebar">
         <!-- Logo-->
-        <a href=""> <img src="{% static 'images/logo.webp'%}" alt=""></a>
+        <div class="text-center pt-3">
+            <a href="{% url 'index' %}"> <img src="{% static 'images/logo.webp'%}" alt="Petrocentro" style="max-width: 80%;"></a>
+            <h4 class="text-white mt-2 fw-bold" style="letter-spacing: 2px; font-size: 1.1rem;">PETROCENTRO</h4>
+        </div>
         <button class="x" onclick="toggleSidebar()" ><i class="fa-solid fa-angle-left"></i></button>
         <!-- Acciones de menu -->
         <div class="menu-content">
@@ -99,111 +145,124 @@
                 </li>
 
                 <!-- INICIO -->
+                {% if menu_inicio_visible %}
                 <li class="item">
-                    <i class="fa-solid fa-house icons"></i>
-                    <a href="{% url 'index' %}"> &nbsp;Inicio</a>
+                    <a href="{% url 'index' %}"><i class="fa-solid fa-house icons"></i> &nbsp;Inicio</a>
                 </li>
+                {% endif %}
 
-                <!-- INICIO / AGENDA -->
-                <li class="item {% if request.resolver_match.url_name == 'perfil_admin' or request.resolver_match.url_name == 'perfil_empleado' or request.resolver_match.url_name == 'agenda_personal' %}active{% endif %}">
-                    {% if nombre_rol == "Administrador" %}
-                        <i class="fa-solid fa-chart-pie icons"></i>
-                        <a href="{% url 'perfil_admin' %}"> &nbsp;Dashboard</a>
-                    {% else %}
-                        <i class="fa-solid fa-calendar-days icons"></i>
-                        <a href="{% url 'perfil_empleado' %}"> &nbsp;Agenda y Cursos
-                            <!-- Notificación visual en el menú -->
-                            {% if total_notificaciones > 0 %}
-                                <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7em;">{{ total_notificaciones }}</span>
-                            {% endif %}
-                        </a>
-                    {% endif %}
+                <!-- DASHBOARD -->
+                {% if menu_dashboard_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'perfil_admin' %}active{% endif %}">
+                    <a href="{% url 'perfil_admin' %}"><i class="fa-solid fa-chart-pie icons"></i> &nbsp;Dashboard</a>
                 </li>
-
-                <!-- GESTIÓN PARA ADMIN -->
-                {% if usuarios == 1 %}
-                    <li class="item {% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}">
-                        <i class="fa-solid fa-users icons"></i>
-                        <a href="{% url 'usuarios' %}"> &nbsp;Usuarios</a>
-                    </li>
                 {% endif %}
 
-                {% if usuarios == 1 or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
-                    <li class="item {% if request.resolver_match.url_name == 'empleados' or request.resolver_match.url_name == 'ver_agenda_empleado' %}active{% endif %}">
-                        <i class="fa-solid fa-helmet-safety icons"></i>
-                        <a href="{% url 'empleados' %}"> &nbsp;Empleados</a>
-                    </li>
+                <!-- USUARIOS -->
+                {% if menu_usuarios_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'usuarios' %}active{% endif %}">
+                    <a href="{% url 'usuarios' %}"><i class="fa-solid fa-users icons"></i> &nbsp;Usuarios</a>
+                </li>
                 {% endif %}
 
-                {% if usuarios == 1 %}
-                    <li class="item {% if request.resolver_match.url_name == 'asignar_roles' %}active{% endif %}">
-                        <i class="fa-solid fa-user-shield icons"></i>
-                        <a href="{% url 'asignar_roles' %}"> &nbsp;Roles</a>
-                    </li>
+                <!-- EMPLEADOS -->
+                {% if menu_empleados_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'empleados' or request.resolver_match.url_name == 'ver_agenda_empleado' %}active{% endif %}">
+                    <a href="{% url 'empleados' %}"><i class="fa-solid fa-helmet-safety icons"></i> &nbsp;Empleados</a>
+                </li>
                 {% endif %}
 
-                <!-- TAREAS (Admin y Empleados) -->
-                {% if nombre_rol == "Administrador" or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
+                <!-- ROLES -->
+                {% if menu_roles_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'asignar_roles' %}active{% endif %}">
+                    <a href="{% url 'asignar_roles' %}"><i class="fa-solid fa-user-shield icons"></i> &nbsp;Roles</a>
+                </li>
+                {% endif %}
+
+                <!-- INVENTARIO -->
+                {% if menu_inventario_visible %}
+                <li class="item {% if 'inventario' in request.path %}active{% endif %}">
+                    <a href="{% url 'gestion_inventario' %}"><i class="fa-solid fa-boxes-stacked icons"></i> &nbsp;Inventario</a>
+                </li>
+                {% endif %}
+
+                <!-- TAREAS -->
+                {% if menu_tareas_visible %}
                 <li class="item {% if request.resolver_match.url_name == 'gestion_tareas' %}active{% endif %}">
+                    <a href="{% url 'gestion_tareas' %}">
                     <i class="fa-solid fa-list-check icons"></i>
-                    <a href="{% url 'gestion_tareas' %}"> &nbsp;Tareas</a>
+                    &nbsp;Tareas
+                    </a>
                 </li>
                 {% endif %}
 
-                <!-- Gestión de Cursos (SOLO ADMIN O USUARIOS CON PERMISOS) -->
-                {% if usuarios == 1 or nombre_rol == "Administrador" %}
-                    <li class="item {% if request.resolver_match.url_name == 'gestion_cursos' or request.resolver_match.url_name == 'editar_curso' %}active{% endif %}">
-                        <i class="fa-solid fa-graduation-cap icons"></i>
-                        <a href="{% url 'gestion_cursos' %}"> &nbsp;Gestión de Cursos Obligatorios</a>
-                    </li>
+                <!-- GESTIÓN DE CURSOS -->
+                {% if menu_cursos_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'gestion_cursos' or request.resolver_match.url_name == 'editar_curso' %}active{% endif %}">
+                    <a href="{% url 'gestion_cursos' %}"><i class="fa-solid fa-graduation-cap icons"></i> &nbsp;Gestión de Cursos</a>
+                </li>
                 {% endif %}
 
-                <!-- Publicaciones (Admin y Empleados) -->
-                {% if nombre_rol == "Administrador" or nombre_rol == "Empleado" or nombre_rol == "Empleado (Sin Rol)" %}
-                    <li class="item {% if request.resolver_match.url_name == 'crear_post_view' or request.resolver_match.url_name == 'crear_post' or request.resolver_match.url_name == 'editar_post_view' or 'post' in request.path %}active{% endif %}">
-                        <i class="fa-solid fa-newspaper icons"></i>
-                        <a href="{% url 'crear_post_view' %}"> &nbsp;Publicaciones</a>
-                    </li>
-                    {% if usuarios == 1 %}
-                    <!-- SECCIÓN DE CONTROL Y AUDITORÍA -->
-                    <li class="item {% if request.resolver_match.url_name == 'panel_auditoria' %}active{% endif %}">
-                        <i class="fa-solid fa-file-shield icons"></i>
-                        <a href="{% url 'panel_auditoria' %}"> &nbsp;Auditoría</a>
-                    </li>
-                    <li class="item {% if request.resolver_match.url_name == 'reporte_rrhh' %}active{% endif %}">
-                        <i class="fa-solid fa-chart-line icons"></i>
-                        <a href="{% url 'reporte_rrhh' %}"> &nbsp;Reportes RRHH</a>
-                    </li>
-                    <!-- FIN SECCIÓN CONTROL -->
+                <!-- PUBLICACIONES -->
+                {% if menu_publicaciones_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'crear_post_view' or 'post' in request.path %}active{% endif %}">
+                    <a href="{% url 'crear_post_view' %}"><i class="fa-solid fa-newspaper icons"></i> &nbsp;Publicaciones</a>
+                </li>
+                {% endif %}
 
-                    <li class="item {% if request.resolver_match.url_name == 'gestion_pqrs' %}active{% endif %}">
-                        <i class="fa-solid fa-headset icons"></i>
-                        <a href="{% url 'gestion_pqrs' %}"> &nbsp;Gestión PQRS</a>
-                    </li>
+                <!-- AUDITORÍA -->
+                {% if menu_auditoria_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'panel_auditoria' %}active{% endif %}">
+                    <a href="{% url 'panel_auditoria' %}"><i class="fa-solid fa-file-shield icons"></i> &nbsp;Auditoría</a>
+                </li>
+                {% endif %}
 
-                    <li class="item {% if request.resolver_match.url_name == 'gestion_cotizaciones' %}active{% endif %}">
-                        <i class="fa-solid fa-file-invoice-dollar icons text-success"></i>
-                        <a href="{% url 'gestion_cotizaciones' %}"> &nbsp;Gestión Cotizaciones
-                            {% if total_cotizaciones > 0 %}
-                                <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7em;">{{ total_cotizaciones }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    
-                    <li class="item {% if request.resolver_match.url_name == 'nosotros_conf' %}active{% endif %}">
-                        <i class="fa-solid fa-images icons"></i>
-                        <a href="{% url 'nosotros_conf' %}"> &nbsp;Pág. Nosotros</a>
-                    </li>
-                    {% endif %}
+                <!-- REPORTE RRHH -->
+                {% if menu_rrhh_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'reporte_rrhh' %}active{% endif %}">
+                    <a href="{% url 'reporte_rrhh' %}"><i class="fa-solid fa-chart-line icons"></i> &nbsp;Reportes RRHH</a>
+                </li>
+                {% endif %}
+
+                <!-- PQRS -->
+                {% if menu_pqrs_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'gestion_pqrs' %}active{% endif %}">
+                    <a href="{% url 'gestion_pqrs' %}"><i class="fa-solid fa-headset icons"></i> &nbsp;Gestión PQRS</a>
+                </li>
+                {% endif %}
+
+                <!-- COTIZACIONES -->
+                {% if menu_cotizaciones_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'gestion_cotizaciones' %}active{% endif %}">
+                    <a href="{% url 'gestion_cotizaciones' %}">
+                        <i class="fa-solid fa-file-invoice-dollar icons text-success"></i> &nbsp;Gestión Cotizaciones
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- PÁG. NOSOTROS -->
+                {% if menu_nosotros_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'nosotros_conf' %}active{% endif %}">
+                    <a href="{% url 'nosotros_conf' %}"><i class="fa-solid fa-images icons"></i> &nbsp;Pág. Nosotros</a>
+                </li>
+                {% endif %}
+
+                <!-- AGENDA Y CURSOS (Para Empleados) -->
+                {% if not is_admin and menu_agenda_visible %}
+                <li class="item {% if request.resolver_match.url_name == 'perfil_empleado' %}active{% endif %}">
+                    <a href="{% url 'perfil_empleado' %}"><i class="fa-solid fa-calendar-days icons"></i> &nbsp;Agenda y Cursos</a>
+                </li>
                 {% endif %}
            
                 <!-- PERFIL (para todos) -->
                 <li class="item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
-                    <i class="fa-solid fa-user-cog icons"></i>
-                    <a href="{% url 'perfil' %}">&nbsp; Mi Perfil</a>
+                    <a href="{% url 'perfil' %}"><i class="fa-solid fa-user-cog icons"></i> &nbsp; Mi Perfil</a>
                 </li>
-                <li class="item2">
-                    <a href="{% url 'logout_view' %} ">&nbsp;Cerrar Sesion</a>
+                <li class="item" style="margin-top: 20px;">
+                    <a href="{% url 'logout_view' %}" class="text-danger fw-bold">
+                        <i class="fa-solid fa-right-from-bracket icons"></i>
+                        &nbsp; Cerrar Sesión
+                    </a>
                 </li>
                 <li class="item2 ">
                     <br>
@@ -216,23 +275,31 @@
                     <img src="{% static 'images/sin_foto.webp' %}" alt="">
                     {% endif %}
                   </div>
+                  <div class="text-center mt-2">
+                      <small class="text-white fw-bold d-block" style="font-size: 0.7rem;">{{ user.username|upper }}</small>
+                      <span class="badge bg-success" style="font-size: 0.5rem; letter-spacing: 1px;">
+                          {{ nombre_rol|default:"ADMINISTRADOR" }}
+                      </span>
+                  </div>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="main-content">
+    <div class="main-content" style="flex: 1; min-width: 0;">
     <!-- Barra de navegación superior -->
-    <nav class="navbar">
+    <nav class="navbar shadow-sm" style="background: white; z-index: 999;">
         
         <!--Acciones de Menú -->
         <div class="items-navbar">
-            <div class="toggle-sidebar" >
-                <button class="toggle-bar" id="toggle-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i> </button>
+            <div class="toggle-sidebar" title="Ocultar/Mostrar Menú">
+                <button class="toggle-bar" id="toggle-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-angles-left" id="toggle-icon"></i> </button>
             </div>
-            <div class="nombre">
-               
-                <h2> &nbsp; {% block nombre_pagina %}{% endblock %}</h2>
+            <div class="nombre d-flex align-items-center">
+                <button class="back-btn" onclick="window.history.back()" title="Volver a la página anterior">
+                    <i class="fa-solid fa-circle-chevron-left"></i>
+                </button>
+                <h2 class="m-0">{% block nombre_pagina %}{% endblock %}</h2>
             </div>
             <div class="ajustes">
                 
@@ -370,16 +437,37 @@
        function perfil(){
         document.getElementById("lista-perfil").classList.toggle("active-perfil");
         }        
-        //Funcioon para desplegar la barra lateral 
-        function toggleSidebar(){
-            document.getElementById("sidebar").classList.toggle("active-sidebar");
-        }
-        
-        // Al presionar el boton de desplegar, va a poner en funcionamiento las funciones declaradas anteriormente
+        /**
+         * Alterna la visibilidad del menú lateral.
+         * En móviles (<= 768px) usa 'active-sidebar' para el posicionamiento fixed.
+         * En desktop (> 768px) usa 'collapsed' para ocultar con margen negativo.
+         */
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const icon = document.getElementById("toggle-icon");
 
-        document.getElementById("toggle-sidebar").onclick = function(){
-                toggleSidebar();
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle("active-sidebar");
+                sidebar.classList.remove("collapsed");
+                
+                // En móvil alternamos entre 'X' y flechas
+                if (sidebar.classList.contains("active-sidebar")) {
+                    icon.className = "fa-solid fa-xmark";
+                } else {
+                    icon.className = "fa-solid fa-angles-left";
+                }
+            } else {
+                sidebar.classList.toggle("collapsed");
+                sidebar.classList.remove("active-sidebar");
+
+                // En escritorio alternamos la dirección de las flechas
+                if (sidebar.classList.contains("collapsed")) {
+                    icon.className = "fa-solid fa-angles-right";
+                } else {
+                    icon.className = "fa-solid fa-angles-left";
+                }
             }
+        }
         
 
     </script>

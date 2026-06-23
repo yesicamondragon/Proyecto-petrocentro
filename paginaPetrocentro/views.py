@@ -6,8 +6,8 @@ from django.contrib import messages
 
 from django.urls import reverse_lazy
 from Petrocentro import settings
-from configuracion.models import Nosotros
-from users.models import Empleado
+from configuracion.models import Nosotros, Rol
+from users.models import Empleado, Cargo, Ubicacion
 from django.db.models import Avg, Count
 from .forms import RegisterForm
 from django.contrib.auth.models import User
@@ -167,6 +167,10 @@ def index(request):
             context['empleado'] = empleado
         except Exception as e:
             pass
+        
+        # Asegurar visibilidad de menús administrativos en el index para Superusuarios
+        if request.user.is_superuser:
+            context.update({'usuarios': 1, 'inventario': 1})
     
     return render(request, 'paginas/index.html', context)
    
@@ -463,6 +467,22 @@ def registro(request):
             )
             usuario.save()
             
+            # --- CREACIÓN AUTOMÁTICA DE PERFIL DE EMPLEADO ---
+            rol_empleado, _ = Rol.objects.get_or_create(nombre="Empleado")
+            Empleado.objects.create(
+                id=usuario.id,
+                user_id=user,
+                identificacion=0,
+                telefono="0",
+                id_rol=rol_empleado,
+                fecha_ingreso=datetime.now().date(),
+                id_cargo=Cargo.objects.first(),
+                id_ubicacion=Ubicacion.objects.first(),
+                estado=usuario.estado,
+                nombre=usuario.nombre,
+                correo=usuario.correo
+            )
+            
             email= form.cleaned_data.get('correo_electronico')
             
             
@@ -543,19 +563,25 @@ def login_view(request):
                 # LÓGICA DE ROLES
                 es_empleado = False
                 es_admin = False
+                es_supervisor = False
                 
                 # Verificar si es superusuario (Django Admin)
                 if user.is_superuser:
                     es_admin = True
                     es_empleado = True # Superusuario puede entrar como empleado también
+                    es_supervisor = True
                 else:
                     # Verificar en tabla Empleado
                     try:
                         empleado_profile = Empleado.objects.get(id=usuario_profile.id)
                         es_empleado = True
                         # Verificar si su rol asignado en BD es Administrador
-                        if empleado_profile.id_rol and empleado_profile.id_rol.nombre == "Administrador":
-                            es_admin = True
+                        if empleado_profile.id_rol:
+                            rol_nombre_db = empleado_profile.id_rol.nombre.strip().upper()
+                            if rol_nombre_db == "ADMINISTRADOR":
+                                es_admin = True
+                            elif rol_nombre_db == "SUPERVISOR":
+                                es_supervisor = True
                     except Empleado.DoesNotExist:
                         es_empleado = False
 
@@ -568,6 +594,15 @@ def login_view(request):
                         return redirect('perfil_admin') # Redirige al perfil de administrador (Gestión)
                     else:
                         messages.error(request, 'No tienes permisos de Administrador.')
+                
+                elif rol_seleccionado == "Supervisor":
+                    if es_supervisor:
+                        login(request, user)
+                        request.session['usuario_logeado'] = usuario_profile.id
+                        messages.success(request, f'Bienvenido Supervisor, {usuario_profile.nombre}')
+                        return redirect('perfil_empleado')
+                    else:
+                        messages.error(request, 'No tienes permisos de Supervisor asignados.')
                 
                 elif rol_seleccionado == "Empleado":
                     if es_empleado:

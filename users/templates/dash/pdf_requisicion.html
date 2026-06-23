@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: letter; margin: 1cm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9px; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 0px; }
+        td, th { border: 1px solid #000; padding: 4px; }
+        .header-title { font-size: 11px; font-weight: bold; text-align: center; background-color: #f2f2f2; }
+        .label { font-weight: bold; background-color: #e9e9e9; width: 100px; }
+        .value { text-align: center; }
+        .section-header { background-color: #d9d9d9; font-weight: bold; text-align: center; text-transform: uppercase; }
+        .table-items th { background-color: #f2f2f2; text-align: center; font-size: 8px; }
+        .footer-table td { height: 60px; vertical-align: top; width: 33.3%; }
+        .signature-cursive { font-family: 'Times-Roman'; font-style: italic; color: #00008b; font-size: 20px; text-align: center; margin-top: 5px; }
+        .signature-line { border-bottom: 0.5px solid #000; width: 80%; margin: 0 auto; margin-top: 10px; }
+        .justificacion { border: 1px solid black; padding: 8px; min-height: 50px; margin-top: -1px; }
+        .check-box { display: inline-block; width: 12px; height: 12px; border: 1px solid black; text-align: center; line-height: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <!-- ENCABEZADO GCL-FR-04 -->
+    <table>
+        <tr>
+            <td rowspan="4" style="width: 20%; text-align: center; vertical-align: middle;">
+                <strong style="color: #0b6838; font-size: 14px;">PETROCENTRO</strong><br><small>S.A.S</small>
+            </td>
+            <td rowspan="4" class="header-title" style="width: 50%;">REQUISICIÓN DE COMPRA O SERVICIO</td>
+            <td class="label">Código:</td>
+            <td style="width: 15%;">GCL-FR-04</td>
+        </tr>
+        <tr>
+            <td class="label">Versión:</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td class="label">Página:</td>
+            <td>1 de 1</td>
+        </tr>
+        <tr>
+            <td class="label">Fecha Aprob:</td>
+            <td>{{ fecha_aprobacion|date:"d/m/Y" }}</td>
+        </tr>
+    </table>
+
+    <!-- CUERPO DE LA REQUISICIÓN -->
+    <table style="margin-top: 10px;">
+        <tr>
+            <td class="label">COMPRA:</td>
+            <td class="value" style="width: 30px;">{% if es_compra %}X{% endif %}</td>
+            <td class="label">SERVICIO:</td>
+            <td class="value" style="width: 30px;">{% if not es_compra %}X{% endif %}</td>
+            <td class="label">FECHA SOLICITUD:</td>
+            <td class="value" colspan="3">{{ base_req.created_at|date:"Y / m / d" }}</td>
+            <td class="label">FECHA LIMITE:</td>
+            <td class="value" colspan="3">-- / -- / --</td>
+            <td class="label">CONSECUTIVO:</td>
+            <td class="value" style="font-weight: bold; color: #d32f2f;">{{ consecutivo }}</td>
+        </tr>
+        <tr>
+            <td class="label">PRIORIDAD:</td>
+            <td colspan="13">
+                NORMAL <span class="check-box">X</span> &nbsp;&nbsp;&nbsp; 
+                URGENTE <span class="check-box"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" class="section-header">AREA SOLICITANTE</td>
+            <td colspan="7" class="section-header">PROYECTO o base</td>
+        </tr>
+        <tr>
+            <td colspan="7" style="text-align: center; height: 25px; vertical-align: middle;">OPERACIONES PETROCENTRO</td>
+            <td colspan="7" style="text-align: center; height: 25px; vertical-align: middle; font-weight: bold;">
+                {% if base_req.destination_base %}
+                    {{ base_req.destination_base.nombre|upper }}
+                {% elif base_req.destination_project %}
+                    {{ base_req.destination_project.name|upper }}
+                {% else %}
+                    PROSPERIDAD
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- TABLA DE DETALLE DE ÍTEMS -->
+    <table class="table-items" style="margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>ÍTEM</th>
+                <th style="width: 35%;">ARTÍCULO O SERVICIO</th>
+                <th>CANTIDAD</th>
+                <th>UNIDAD</th>
+                <th>DESTINO</th>
+                <th>AFE / Centro de Costo</th>
+                <th style="width: 25%;">OBSERVACIONES TÉCNICAS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td style="text-align: center;">{{ forloop.counter }}</td>
+                <td>{{ req.item.description|default:req.item.name }}</td>
+                <td style="text-align: center; font-weight: bold;">{{ req.quantity }}</td>
+                <td style="text-align: center;">{{ req.item.unit_of_measure }}</td>
+                <td style="text-align: center;">{{ req.destination_base.nombre|default:"CAMPO" }}</td>
+                <td style="text-align: center;">{{ req.item.ods_order|default:"-" }}</td>
+                <td style="font-size: 7px;">{{ req.item.technical_spec|default:"N/A"|truncatechars:120 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 10px;">
+        <div class="section-header">Justificación</div>
+        <div class="justificacion">{{ base_req.reason|default:"Requerimiento para continuidad operativa de proyectos." }}</div>
+    </div>
+
+    <table class="footer-table" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <strong>Elaborado por:</strong><br><br>
+                Nombre: {% if base_req.processed_by %}{{ base_req.processed_by.nombre }}{% else %}SISTEMA{% endif %}<br>
+                Cargo: ADMINISTRACIÓN<br>
+                Fecha: {{ fecha_aprobacion|date:"d/m/Y" }}
+            </td>
+            <td>
+                <strong>Solicitado por:</strong><br><br>
+                Nombre: {{ base_req.supervisor.nombre|default:"-" }}<br>
+                Cargo: SUPERVISOR<br>
+                Fecha: {{ base_req.created_at|date:"d/m/Y" }}
+            </td>
+            <td>
+                <strong>Aprobado por:</strong><br>
+                <div style="text-align: center; height: 50px; padding-top: 2px;">
+                    {% if base_req.processed_by %}
+                        <!-- Firma Generada Digitalmente (Nombre en Cursiva) -->
+                        <div class="signature-cursive">
+                            {{ base_req.processed_by.nombre }}
+                        </div>
+                        <div class="signature-line"></div>
+                    {% else %}
+                        <br><br>
+                    {% endif %}
+                </div>
+                Nombre: {% if base_req.processed_by %}{{ base_req.processed_by.nombre }}{% else %}SISTEMA{% endif %}<br>
+                Cargo: COORD. OPERACIONES<br>
+                Fecha: {{ fecha_aprobacion|date:"d/m/Y" }}
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

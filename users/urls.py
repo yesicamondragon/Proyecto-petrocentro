@@ -56,4 +56,32 @@ urlpatterns = [
         path('api/chat/', views.chat_api, name='chat_api'),
         path('auditoria/', views.panel_auditoria, name='panel_auditoria'),
         path('reporte_rrhh/', views.reporte_rrhh, name='reporte_rrhh'),
+
+        # URLs de PQRS y Cotizaciones
+        path('gestion-pqrs/', views.gestion_pqrs, name='gestion_pqrs'),
+        path('responder-pqrs/<int:id_pqr>/', views.responder_pqrs, name='responder_pqrs'),
+        path('gestion-cotizaciones/', views.gestion_cotizaciones, name='gestion_cotizaciones'),
+
+        # URLs de Inventario
+        path('inventario/', views.gestion_inventario, name='gestion_inventario'),
+        path('inventario/lista/', views.gestion_inventario, name='new_inventory_list'), # Alias para evitar errores de reversión
+        path('inventario/importar/', views.importar_inventario_excel, name='importar_inventario_excel'),
+        path('inventario/crear/', views.crear_item_inventario, name='crear_item_inventario'),
+        path('inventario/editar/<int:pk>/', views.editar_equipo_inventario, name='editar_equipo_inventario'),
+        path('inventario/proyectos/crear/', views.crear_proyecto, name='crear_proyecto'),
+        path('inventario/proyectos/editar/<int:pk>/', views.editar_proyecto, name='editar_proyecto'),
+        path('inventario/proyectos/eliminar/<int:pk>/', views.eliminar_proyecto, name='eliminar_proyecto'),
+        path('inventario/exportar/excel/', views.exportar_inventario_excel, name='exportar_inventario_excel'),
+        path('inventario/exportar/pdf/', views.descargar_pdf_inventario_general, name='descargar_pdf_inventario_general'),
+        path('inventario/movimientos/exportar/', views.exportar_movimientos_excel, name='exportar_movimientos_excel'),
+        path('inventario/eliminar/<int:pk>/', views.eliminar_equipo_inventario, name='eliminar_equipo_inventario'),
+        path('inventario/movimiento/', views.new_record_stock_movement, name='new_record_stock_movement'),
+        path('inventario/transferir/', views.transferir_item_inventario, name='transferir_item_inventario'),
+        path('inventario/solicitar/', views.solicitar_transferencia, name='solicitar_transferencia'),
+        path('inventario/procesar/<int:request_id>/', views.procesar_transferencia, name='procesar_transferencia'),
+        path('inventario/recibir/<int:request_id>/', views.recibir_transferencia, name='recibir_transferencia'),
+        path('inventario/requisicion/pdf/<str:batch_id>/', views.descargar_requisicion_pdf, name='descargar_requisicion_pdf'),
+        path('inventario/reset-total/', views.reiniciar_inventario_data, name='reiniciar_inventario_data'),
+        path('inventario/recibir/<int:request_id>/', views.recibir_transferencia, name='recibir_transferencia'),
+
     ]

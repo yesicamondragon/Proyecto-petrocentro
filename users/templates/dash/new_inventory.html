@@ -1,0 +1,3180 @@
+{% extends "plantillas/dashboard.html" %}
+{% load static %}
+
+{% block titulo %}Inventario | Petrocentro{% endblock %}
+{% block nombre_pagina %}Gestión de Inventario{% endblock %}
+
+{% block links_css %}
+<style>
+    /* Eliminar cualquier espacio entre el sidebar y el contenido */
+    .container-fluid { width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .dash-relleno { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+    /* Margen mínimo de seguridad para el texto interno */
+    .mt-4, .breadcrumb, .row, .nav-pills, .tab-content { padding-left: 5px !important; padding-right: 5px !important; }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <h1 class="mt-4">{{ title_page }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active text-secondary"><i class="fas fa-warehouse me-1"></i>Gestión de Equipos e Inventario</li>
+    </ol>
+
+    {% include 'plantillas/mensajes.html' %}
+
+    <!-- Centro de Alertas Automáticas -->
+    {% if critical_items_count > 0 or calibration_alerts_count > 0 or maintenance_alerts_count > 0 %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center py-3" role="alert">
+                <i class="fas fa-bell fa-2x me-3 text-dark"></i>
+                <div>
+                    <h6 class="alert-heading fw-bold mb-1">Centro de Notificaciones</h6>
+                    <p class="mb-0 small">
+                        {% if critical_items_count > 0 %}<span class="me-3"><i class="fas fa-exclamation-triangle text-danger me-1"></i> <strong>{{ critical_items_count }}</strong> equipos con poco stock.</span>{% endif %}
+                        {% if consumables_critical_count > 0 %}<span class="me-3"><i class="fas fa-pump-soap text-primary me-1"></i> <strong>{{ consumables_critical_count }}</strong> consumibles agotándose.</span>{% endif %}
+                        {% if calibration_alerts_count > 0 %}<span class="me-3"><i class="fas fa-wrench text-dark me-1"></i> <strong>{{ calibration_alerts_count }}</strong> con calibración vencida o próxima.</span>{% endif %}
+                        {% if maintenance_alerts_count > 0 %}<span><i class="fas fa-tools text-dark me-1"></i> <strong>{{ maintenance_alerts_count }}</strong> requieren mantenimiento técnico.</span>{% endif %}
+                    </p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navegación por Pestañas (Tabs) -->
+    <ul class="nav nav-pills mb-4" id="inventoryTabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active fw-bold" id="sede-tab" data-bs-toggle="pill" data-bs-target="#tab-sede" type="button" role="tab"><i class="fas fa-warehouse me-2"></i>Inventario General</button></li>
+        {% if crear or request.user.is_superuser %}
+        <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="crear-tab" data-bs-toggle="pill" data-bs-target="#tab-crear" type="button" role="tab"><i class="fas fa-plus-circle me-2"></i>Creación de Artículos</button></li>
+        {% endif %}
+        {% if consultar or request.user.is_superuser %}
+        <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="movimientos-tab" data-bs-toggle="pill" data-bs-target="#tab-movimientos" type="button" role="tab"><i class="fas fa-exchange-alt me-2"></i>Movimientos de Stock</button></li>
+        {% endif %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold position-relative" id="requests-tab" data-bs-toggle="pill" data-bs-target="#tab-requests" type="button" role="tab">
+                <i class="fas fa-paper-plane me-2"></i>Solicitudes
+                {% if notificaciones_inventario > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="z-index: 1; font-size: 0.65rem;">
+                    {{ notificaciones_inventario }}
+                </span>
+                {% endif %}
+            </button>
+        </li>
+        {% if request.user.is_superuser or nombre_rol == "ADMINISTRADOR" %}
+        <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="reports-tab" data-bs-toggle="pill" data-bs-target="#tab-reports" type="button" role="tab"><i class="fas fa-file-alt me-2"></i>Reportes Admin</button></li>
+        {% endif %}
+        {% if nombre_rol == "ADMINISTRADOR" or request.user.is_superuser %}
+        <li class="nav-item ms-auto" role="presentation">
+            <a href="{% url 'reiniciar_inventario_data' %}" class="btn btn-outline-danger btn-sm fw-bold border-2" onclick="return confirm('¡ADVERTENCIA CRÍTICA!\n\nEsto eliminará permanentemente todos los equipos (692+), transacciones e historial para empezar de cero.\n\n¿Desea continuar?');"><i class="fas fa-trash-alt me-1"></i>VACIAR INVENTARIO</a>
+        </li>
+        {% endif %}
+    </ul>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-white-50">Equipos Existentes</div>
+                        <div class="fs-4 fw-bold">{{ total_physical_units|default:0 }} <span class="fs-6 fw-normal">unidades</span></div>
+                    </div>
+                    <i class="fas fa-boxes fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4"> {# KPI: Equipos Disponibles #}
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-white-50">Equipos Disponibles</div>
+                        <div class="fs-4 fw-bold">{{ available_units|default:0 }}</div>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-white-50">Equipos en Proyecto</div>
+                        <div class="fs-4 fw-bold">{{ project_units|default:0 }}</div>
+                    </div>
+                    <i class="fas fa-project-diagram fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-white-50">En Mantenimiento</div>
+                        <div class="fs-4 fw-bold">{{ maintenance_units|default:0 }}</div>
+                    </div>
+                    <i class="fas fa-tools fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido de las Pestañas -->
+    <div class="tab-content" id="inventoryTabsContent">
+        
+        <!-- PESTAÑA 1: CONTROL POR SEDE (Vista Operativa) -->
+        <div class="tab-pane fade show active" id="tab-sede" role="tabpanel">
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i> Filtros y Gestión por Ubicación</h5>
+                    <div>
+                        {% if crear %}
+                        <button type="button" class="btn btn-success btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalAddItem">
+                            <i class="fas fa-plus me-1"></i> Nuevo Equipo
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalImportExcel">
+                            <i class="fas fa-file-excel me-1"></i> Importar Excel
+                        </button>
+                        {% endif %}
+                        {% if is_supervisor %}
+                        <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalRequestTransfer">
+                            <i class="fas fa-paper-plane me-1"></i> Solicitar Traslado
+                        </button>
+                        {% endif %}
+                        {% if crear or request.user.is_superuser %}
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalRecordMovement">
+                            <i class="fas fa-arrow-up-down me-1"></i> E/S Stock
+                        </button>
+                        {% endif %}
+                        {% if request.user.is_superuser or nombre_rol == "ADMINISTRADOR" %}
+                        <button type="button" class="btn btn-dark btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalTransferItem">
+                            <i class="fas fa-truck-moving me-1"></i> Trasladar
+                        </button>
+                        {% endif %}
+                        {% if crear or request.user.is_superuser %}
+                        <button type="button" class="btn btn-info btn-sm rounded-pill px-3 text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#modalReturnProject">
+                            <i class="fas fa-undo me-1"></i> Retorno de Proyecto
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{% url 'gestion_inventario' %}" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="search" class="form-label small text-muted">Buscar (Nombre/SKU/Serial/TAG)</label>
+                            <input type="text" class="form-control form-control-sm" id="search" name="search" value="{{ filters.search|default:'' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="category" class="form-label small text-muted">Categoría</label>
+                            <select class="form-select form-select-sm" id="category" name="category">
+                                <option value="0">Todas</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if filters.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="owner_filter" class="form-label small text-muted">Proveedor / Propiedad</label>
+                            <input list="filter_owners_list" class="form-control form-control-sm" id="owner_filter" name="owner" value="{{ filters.owner|default:'' }}" placeholder="Seleccione o manual..." onfocus="this.value=''">
+                            <datalist id="filter_owners_list">
+                                <option value="Petrocentro">
+                                <option value="NL Contapa">
+                                <option value="Sepein">
+                                <option value="Tradesering">
+                            </datalist>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label small text-muted">Estado Equipo</label>
+                            <select class="form-select form-select-sm" id="status" name="status">
+                                <option value="">Todos</option>
+                                <option value="OPERATIVO" {% if filters.status == 'OPERATIVO' %}selected{% endif %}>OPERATIVO</option>
+                                <option value="FUERA DE SERVICIO" {% if filters.status == 'FUERA DE SERVICIO' %}selected{% endif %}>FUERA DE SERVICIO</option>
+                                <option value="DADO DE BAJA" {% if filters.status == 'DADO DE BAJA' %}selected{% endif %}>DADO DE BAJA</option>
+                                {# <option value="ALQUILADO" {% if filters.status == 'ALQUILADO' %}selected{% endif %}>ALQUILADO</option> #}
+                                <option value="VENDIDO" {% if filters.status == 'VENDIDO' %}selected{% endif %}>VENDIDO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="base" class="form-label small text-muted">Base / Sede</label>
+                            <select class="form-select form-select-sm" id="base" name="base">
+                                <option value="0">Todas las bases</option>
+                                {% for b in bases %}
+                                    <option value="{{ b.idUbicacion }}" {% if filters.base == b.idUbicacion|stringformat:"s" %}selected{% endif %}>{{ b.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="project_filter" class="form-label small text-muted">Proyecto</label>
+                            <select class="form-select form-select-sm" id="project_filter" name="project">
+                                <option value="0">Todos los proyectos</option>
+                                {% for p in proyectos %}
+                                    <option value="{{ p.id }}" {% if filters.project == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="critical" class="form-label small text-muted">Estado</label>
+                            <select class="form-select form-select-sm" id="critical" name="critical">
+                                <option value="">Todos</option>
+                                <option value="1" {% if filters.critical == '1' %}selected{% endif %}>Crítico</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-secondary btn-sm w-100"><i class="fas fa-search me-1"></i> Filtrar</button>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_from" class="form-label small text-muted">Fecha Creación Desde</label>
+                            <input type="date" class="form-control form-control-sm" id="date_from" name="date_from" value="{{ filters.date_from|default:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_to" class="form-label small text-muted">Fecha Creación Hasta</label>
+                            <input type="date" class="form-control form-control-sm" id="date_to" name="date_to" value="{{ filters.date_to|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="fas fa-calendar-alt me-1"></i> Filtrar por Fecha</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0" style="max-height: 75vh; overflow-y: auto; font-size: 0.75rem;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light text-muted text-uppercase" style="position: sticky; top: 0; z-index: 1020; background-color: #f8f9fa; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); font-size: 0.65rem;">
+                                <tr>
+                                    <th class="ps-2">Tipo de equipo</th>
+                                    <th>Fecha de creación</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción del artículo</th>
+                                    <th>Especificación técnica</th>
+                                    <th>Marca</th>
+                                    <th>Serial</th>
+                                    <th>TAG</th>
+                                    <th>Unidad de medida</th>
+                                    <th>Largo</th>
+                                    <th>Ancho</th>
+                                    <th>Alto</th>
+                                    <th>Peso</th>
+                                    <th>Stock total</th>
+                                    <th>Proveedor / Propiedad</th>
+                                    <th>Stock disponible</th>
+                                    <th>Estado</th>
+                                    <th>Observaciones</th>
+                                    <th>Ubicación</th>
+                                    <th>Proyecto</th>
+                                    <th>Fecha de última modificación</th>
+                                    <th class="text-end pe-2">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                   <script src="{% static 'js/main.js' %}"></script>
+                                    <td class="ps-2">
+                                        <span class="text-dark fw-bold" style="font-size: 0.65rem;">{{ item.equipment_type|default:"ACTIVO" }}</span>
+                                    </td>
+                                    <td class="small">{{ item.created_at|date:"d/m/y" }}</td>
+                                    <td class="text-truncate" style="max-width: 90px;">{{ item.category.name }}</td>
+                                    <td class="text-truncate" style="max-width: 160px;"><strong>{{ item.name }}</strong></td>
+                                    <td class="text-muted text-truncate" style="max-width: 100px;">{{ item.technical_spec|default:"-" }}</td>
+                                    <td class="text-truncate" style="max-width: 75px;">{{ item.brand|default:"-" }}</td>
+                                    <td class="text-truncate" style="max-width: 85px;"><code>{{ item.serial|default:"-" }}</code></td>
+                                    <td class="text-truncate" style="max-width: 80px;"><code>{{ item.tag|default:item.sku }}</code></td>
+                                    <td>{{ item.unit_of_measure|truncatechars:8 }}</td>
+                                    <td class="text-center">{{ item.length|floatformat:1 }}</td>
+                                    <td class="text-center">{{ item.width|floatformat:1 }}</td>
+                                    <td class="text-center">{{ item.height|floatformat:1 }}</td>
+                                    <td class="text-center">{{ item.weight|floatformat:0 }}</td>
+                                    <td class="text-center fw-bold">{{ item.current_stock }}</td>
+                                    <td class="text-truncate" style="max-width: 60px;">{{ item.owner|default:"Petrocentro" }}</td>
+                                    <td class="fw-bold text-center text-primary">
+                                        <span class="{% if item.needs_reorder %}text-danger animate-pulse{% endif %}">
+                                            {{ item.current_stock }}
+                                    </td>
+                                    <td>
+                                        <span class="badge p-1
+                                            {% if item.status == 'OPERATIVO' %}bg-success
+                                            {% elif item.status == 'FUERA DE SERVICIO' %}bg-warning
+                                            {% elif item.status == 'ALQUILADO' %}bg-info
+                                            {% elif item.status == 'VENDIDO' %}bg-secondary
+                                            {% else %}bg-danger{% endif %}" style="font-size: 0.65rem;"> {# Default to bg-danger for unknown/other statuses #}
+                                            {{ item.status|default:"OPERATIVO" }}
+                                        </span>
+                                    </td>
+                                    <td class="text-truncate" style="max-width: 120px;"><small class="text-muted">{{ item.description|default:"-" }}</small></td>
+                                    <td><span class="badge bg-light text-dark border" style="font-size: 0.6rem;">{{ item.base.nombre|default:"-" }}</span></td>
+                                    <td class="text-truncate" style="max-width: 80px;"><small>{{ item.project.name|default:"-" }}</small></td>
+                                    <td class="small">{{ item.last_updated|date:"d/m/y H:i" }}</td>
+                                    <td class="text-end pe-2">
+                                        <button class="btn btn-sm btn-outline-info" title="Ver Detalles" 
+                                            onclick="verDetallesEquipo({
+                                                'type': '{{ item.equipment_type|default:"ACTIVO"|escapejs }}',
+                                                'created_at': '{{ item.created_at|date:"d/m/Y H:i" }}',
+                                                'category': '{{ item.category.name|default:"-"|escapejs }}',
+                                                'name': '{{ item.name|escapejs }}',
+                                                'spec': '{{ item.technical_spec|default:"-"|escapejs }}',
+                                                'brand': '{{ item.brand|default:"-"|escapejs }}',
+                                                'serial': '{{ item.serial|default:"-"|escapejs }}',
+                                                'tag': '{{ item.tag|default:item.sku|escapejs }}',
+                                                'uom': '{{ item.unit_of_measure|escapejs }}',
+                                                'length': '{{ item.length|floatformat:2 }}',
+                                                'width': '{{ item.width|floatformat:2 }}',
+                                                'height': '{{ item.height|floatformat:2 }}',
+                                                'weight': '{{ item.weight|floatformat:2 }}',
+                                                'cost': '{{ item.cost|floatformat:2 }}',
+                                                'calib_cost': '{{ item.calibration_cost|floatformat:2 }}',
+                                                'owner': '{{ item.owner|default:"Petrocentro"|escapejs }}',
+                                                'stock': '{{ item.current_stock }}',
+                                                'status': '{{ item.status|escapejs }}',
+                                                'project': '{{ item.project.name|default:"-"|escapejs }}',
+                                                'ods': '{{ item.ods_order|default:"-"|escapejs }}',
+                                                'warranty': '{{ item.warranty|default:"-"|escapejs }}',
+                                                'calib_date': '{{ item.calibration_date|date:"d/m/Y"|default:"-" }}',
+                                                'maint_date': '{{ item.maintenance_date|date:"d/m/Y"|default:"-" }}',
+                                                'rented': '{{ item.rented_quantity }}',
+                                                'manufacturing': '{{ item.manufacturing_quantity }}',
+                                                'desc': '{{ item.description|default:"-"|escapejs }}'
+                                            })">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if editar %}
+                                        <button class="btn btn-sm btn-outline-warning" title="Editar Equipo"
+                                            onclick="abrirModalEditar({
+                                                'id': '{{ item.id }}', 
+                                                'type': '{{ item.equipment_type|default:"ACTIVO"|escapejs }}',
+                                                'created_at': '{{ item.created_at|date:"Y-m-d\TH:i" }}',
+                                                'category_id': '{{ item.category.id|default:"" }}',
+                                                'name': '{{ item.name|escapejs }}',
+                                                'spec': '{{ item.technical_spec|default:""|escapejs }}',
+                                                'brand': '{{ item.brand|default:""|escapejs }}',
+                                                'serial': '{{ item.serial|default:""|escapejs }}',
+                                                'tag': '{{ item.tag|default:item.sku|escapejs }}',
+                                                'uom': '{{ item.unit_of_measure|escapejs }}',
+                                                'sku': '{{ item.sku|escapejs }}',
+                                                'length': '{{ item.length|floatformat:2 }}', 'width': '{{ item.width|floatformat:2 }}', 'height': '{{ item.height|floatformat:2 }}',
+                                                'weight': '{{ item.weight|floatformat:2 }}', 'cost': '{{ item.cost|floatformat:2 }}', 'calib_cost': '{{ item.calibration_cost|floatformat:2 }}',
+                                                'owner': '{{ item.owner|default:"Petrocentro"|escapejs }}',
+                                                'stock': '{{ item.current_stock }}',
+                                                'status': '{{ item.status|escapejs }}',
+                                                'project_id': '{{ item.project.id|default:"" }}',
+                                                'ods': '{{ item.ods_order|default:""|escapejs }}',
+                                                'warranty': '{{ item.warranty|default:""|escapejs }}',
+                                                'min_stock': '{{ item.min_stock }}',
+                                                'max_stock': '{{ item.max_stock|default:100 }}',
+                                                'calib_date': '{{ item.calibration_date|date:"Y-m-d"|default:"" }}',
+                                                'maint_date': '{{ item.maintenance_date|date:"Y-m-d"|default:"" }}',
+                                                'rented': '{{ item.rented_quantity }}',
+                                                'manufacturing': '{{ item.manufacturing_quantity }}',
+                                                'desc': '{{ item.description|default:""|escapejs }}',
+                                                'base_id': '{{ item.base.idUbicacion|default:"" }}',
+                                                'unit_price': '{{ item.unit_price }}'
+                                            })">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        {% endif %}
+                                        {% if eliminar %}
+                                        <button class="btn btn-sm btn-outline-danger" title="Eliminar Equipo"
+                                            onclick="confirmarEliminacion('{{ item.id }}', '{{ item.name|escapejs }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">No se encontraron equipos en esta base.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {# CONTENIDO UNIFICADO: Dashboard ahora debajo de la Lista de Sección #}
+
+            <!-- BOTÓN PARA DESPLEGAR RESUMEN GLOBAL -->
+            <div class="mb-4">
+                <button class="btn btn-primary fw-bold shadow-sm w-100 py-3 rounded-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResumenStock" aria-expanded="false" aria-controls="collapseResumenStock">
+                    <i class="fas fa-boxes me-2"></i> VER RESUMEN DE EQUIPOS CATEGORIZADOS (STOCK GLOBAL)
+                </button>
+            </div>
+
+            <!-- 1. RESUMEN DE STOCK CON DESGLOSE POR BASE (CONTENEDOR COLAPSABLE) -->
+            <div class="collapse mb-4" id="collapseResumenStock">
+                <div class="card shadow-sm border-0 border-top border-4 border-dark" id="card-resumen-stock">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-dark fw-bold"><i class="fas fa-boxes me-2 text-primary"></i> Resumen de Equipos Categorizados</h5>
+                    <p class="text-muted small mb-0">Haga clic en el número de stock para ver la cantidad en cada base (Chichimene, Mocoa, Sibaté).</p>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="ps-4 py-3" style="width: 65%;">Total de equipos ya categorizados</th>
+                                    <th class="text-center py-3">Cantidad de Stock (Click para detalle)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for g in global_summary %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">{{ g.description|default:"Equipo sin descripción" }}</div>
+                                        <small class="text-muted">{{ g.category__name }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-primary fw-bold rounded-pill px-4" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#qty-breakdown-{{ forloop.counter }}" 
+                                                aria-expanded="false">
+                                            {{ g.total_empresa }}
+                                        </button>
+                                        <div class="collapse" id="qty-breakdown-{{ forloop.counter }}">
+                                            <div class="mt-2 p-2 border-start border-4 border-primary bg-light rounded text-start mx-auto" style="max-width: 250px; font-size: 0.75rem;">
+                                                <div class="d-flex justify-content-between mb-1 border-bottom pb-1 align-items-center">
+                                                    <span>Sede Chichimene: <span class="fw-bold">{{ g.stock_chichimene }}</span></span>
+                                                    {% if is_supervisor and g.id_chichimene or is_admin %}<button class="btn btn-sm btn-link p-0 text-success" title="Añadir a mi solicitud" onclick="agregarAlCarrito('{{ g.id_chichimene }}', '{{ g.description|escapejs }}', 'Chichimene')"><i class="fas fa-cart-plus"></i></button>{% endif %}
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-1 border-bottom pb-1 align-items-center">
+                                                    <span>Sede Mocoa: <span class="fw-bold">{{ g.stock_mocoa }}</span></span>
+                                                    {% if is_supervisor and g.id_mocoa or is_admin %}<button class="btn btn-sm btn-link p-0 text-success" title="Añadir a mi solicitud" onclick="agregarAlCarrito('{{ g.id_mocoa }}', '{{ g.description|escapejs }}', 'Mocoa')"><i class="fas fa-cart-plus"></i></button>{% endif %}
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Sede Sibaté: <span class="fw-bold">{{ g.stock_sibate }}</span></span>
+                                                    {% if is_supervisor and g.id_sibate or is_admin %}<button class="btn btn-sm btn-link p-0 text-success" title="Añadir a mi solicitud" onclick="agregarAlCarrito('{{ g.id_sibate }}', '{{ g.description|escapejs }}', 'Sibaté')"><i class="fas fa-cart-plus"></i></button>{% endif %} 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- 2. MÉTRICAS DASHBOARD -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white fw-bold"><i class="fas fa-fire me-2 text-warning"></i>Más movidos (30d)</div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                {% for tm in top_moved %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center small">
+                                    {{ tm.item__name }} <span class="badge bg-primary rounded-pill">{{ tm.total_qty }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100 border-start border-success border-4 text-center py-3">
+                        <h6 class="text-muted small">Equipos Entrantes (30d)</h6>
+                        <div class="display-6 fw-bold text-success">{{ total_entries_30d }}</div>
+                        <p class="mb-0 small text-muted">Incluye entradas, retornos y ajustes positivos.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100 border-start border-danger border-4 text-center py-3">
+                        <h6 class="text-muted small">Equipos Salientes (30d)</h6>
+                        <div class="display-6 fw-bold text-danger">{{ total_exits_30d }}</div>
+                        <p class="mb-0 small text-muted">Incluye salidas, bajas y ajustes negativos.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100 border-start border-danger border-4 text-center py-3">
+                        <h6 class="text-muted small">Equipos Stock 0</h6>
+                        <div class="display-6 fw-bold text-danger">{{ faltantes_count }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100 border-start border-primary border-4 text-center py-3">
+                        <h6 class="text-muted small">Rotación del Mes</h6>
+                        <div class="display-6 fw-bold text-primary">{{ movimientos_mes }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. INVENTARIOS INDEPENDIENTES POR SEDE -->
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <h5 class="text-dark fw-bold mb-3"><i class="fas fa-map-marked-alt me-2 text-primary"></i>Inventarios Independientes por Sede</h5>
+                </div>
+                {% for b_sum in base_inventory_summary %}
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 border-top border-4 border-dark">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-uppercase mb-3 text-dark">Sede {{ b_sum.nombre }}</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Equipos Diferentes:</span>
+                                <span class="fw-bold text-dark">{{ b_sum.total_items }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Unidades en Stock:</span>
+                                <span class="fw-bold text-primary">{{ b_sum.total_units|default:0 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold text-success">${{ b_sum.total_value|default:0|floatformat:2 }}</span>
+                            </div>
+                            <hr class="my-2 opacity-25">
+                            <div class="text-center">
+                                <button class="btn btn-sm btn-link text-decoration-none fw-bold" 
+                                    onclick="document.getElementById('base').value='{{ b_sum.idUbicacion }}'; document.getElementById('search').value=''; document.querySelector('#tab-sede form').submit();">
+                                    <i class="fas fa-external-link-alt me-1"></i> Ir al Inventario de {{ b_sum.nombre }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 4. RESUMEN CONSOLIDADO POR CATEGORÍA -->
+            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                <h5 class="text-dark fw-bold mb-0">Resumen Consolidado por Categoría</h5>
+                <div>
+                    <a href="{% url 'exportar_inventario_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm me-2">
+                        <i class="fas fa-file-excel me-1"></i> Exportar Valorizado
+                    </a>
+                    <a href="{% url 'descargar_pdf_inventario_general' %}?{{ request.GET.urlencode }}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-file-pdf me-1"></i> Reporte PDF
+                    </a>
+                </div>
+            </div>
+            <div class="accordion accordion-flush shadow-sm rounded" id="accordionGeneral">
+                {% for cat in category_summary %}
+                <div class="accordion-item mb-2 border rounded">
+                    <h2 class="accordion-header" id="headingCat{{ cat.id }}">
+                        <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCat{{ cat.id }}" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-center w-100 pe-4">
+                                <span>
+                                    <i class="fas fa-folder-open me-3 text-primary"></i>
+                                    <span class="fw-bold text-dark">{{ cat.name }}</span>
+                                </span>
+                                <span class="badge bg-primary rounded-pill px-3 py-2">
+                                    {{ cat.total_tipos }} Equipos Diferentes | {{ cat.total_unidades|default:0 }} Unidades Totales
+                                </span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapseCat{{ cat.id }}" class="accordion-collapse collapse" aria-labelledby="headingCat{{ cat.id }}" data-bs-parent="#accordionGeneral">
+                        <div class="accordion-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">SKU/TAG</th>
+                                            <th>Nombre del Equipo</th>
+                                            <th class="text-center">Stock Empresa</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for g_item in global_summary %}
+                                            {% if g_item.category__name == cat.name %}
+                                            <tr>
+                                                <td class="ps-4"><code>{{ g_item.sku|default:g_item.description|truncatechars:10 }}</code></td>
+                                                <td><strong>{{ g_item.description }}</strong></td>
+                                                <td class="text-center fw-bold text-primary">{{ g_item.total_empresa }}</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-link" onclick="document.getElementById('search').value='{{ g_item.description|escapejs }}'; document.querySelector('form').submit();">Ver ubicaciones</button>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 5. LISTADO MAESTRO DETALLADO -->
+            <div class="mt-5 pt-4 border-top">
+                <h5 class="text-dark fw-bold mb-3"><i class="fas fa-table me-2 text-secondary"></i>Listado Maestro Detallado</h5>
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th class="ps-3">SERIAL / TAG</th>
+                                        <th>CATEGORÍA</th>
+                                        <th>DESCRIPCIÓN</th>
+                                        <th>ESTADO</th>
+                                        <th>UBICACIÓN</th>
+                                        <th class="text-center">STOCK</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td class="ps-3"><code>{{ item.tag|default:item.serial|default:item.sku }}</code></td>
+                                        <td>{{ item.category.name }}</td>
+                                        <td><strong>{{ item.name }}</strong></td>
+                                        <td><span class="badge {% if item.status == 'OPERATIVO' %}bg-success{% else %}bg-secondary{% endif %}">{{ item.status }}</span></td>
+                                        <td>{{ item.base.nombre }}</td>
+                                        <td class="text-center fw-bold">{{ item.current_stock }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA: CREACIÓN DE ARTÍCULOS -->
+        <div class="tab-pane fade" id="tab-crear" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Registro de Nuevo Equipo / Material</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'crear_item_inventario' %}" method="POST" onsubmit="return confirm('¿Confirma el registro de este nuevo artículo en el sistema?');">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">TIPO DE EQUIPO</label>
+                                <select name="equipment_type" class="form-select">
+                                    <option value="ACTIVO">ACTIVO</option>
+                                    <option value="ACCESORIO">ACCESORIO</option>
+                                    <option value="SUMINISTRO">SUMINISTRO</option>
+                                    <option value="OTROS">OTROS</option>
+                                    <option value="VENDIDO">VENDIDO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">FECHA DE CREACIÓN</label>
+                                <input type="datetime-local" name="created_at" class="form-control" value="{{ now|date:'Y-m-d\TH:i' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">CATEGORÍA</label>
+                                <select name="category" class="form-select" required>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">DESCRIPCIÓN DEL ARTÍCULO (Nombre)</label>
+                                <input type="text" name="name" class="form-control" placeholder="Ej: Tanque 500 Bls" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">ESPECIFICACIÓN TÉCNICA</label>
+                                <textarea name="technical_spec" class="form-control" rows="1"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">MARCA</label>
+                                <input type="text" name="brand" class="form-control">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">SERIAL</label>
+                                <input type="text" name="serial" class="form-control">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">TAG</label>
+                                <input type="text" name="tag" class="form-control">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">SKU/Código</label>
+                                <input type="text" name="sku" class="form-control" placeholder="Ej: TQ-001" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">UNIDAD DE MEDIDA</label>
+                                <select name="unit_of_measure" class="form-select">
+                                    <option value="UNIDAD">UNIDAD</option>
+                                    <option value="GALONES">GALONES</option>
+                                    <option value="BARRILES">BARRILES</option>
+                                    <option value="LITROS">LITROS</option>
+                                    <option value="METROS">METROS</option>
+                                    <option value="PULGADAS">PULGADAS</option>
+                                    <option value="PIES">PIES</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">LARGO (m/ft)</label>
+                                <input type="number" name="length" class="form-control" step="0.01" value="0.00">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">ANCHO (m)</label>
+                                <input type="number" name="width" class="form-control" step="0.01" value="0.00">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">ALTO (m)</label>
+                                <input type="number" name="height" class="form-control" step="0.01" value="0.00">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">PESO (kg)</label>
+                                <input type="number" name="weight" class="form-control" step="0.01" value="0.00">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">COSTO</label>
+                                <input type="number" name="cost" class="form-control" step="0.01" value="0.00">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">COSTO CALIBRACIÓN</label>
+                                <input type="number" name="calibration_cost" class="form-control" step="0.01" value="0.00">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">PROPIEDAD / PROVEEDOR</label>
+                                <input list="owners_list_tab" name="owner" class="form-control" placeholder="Seleccione o escriba manual..." onfocus="this.value=''">
+                                <datalist id="owners_list_tab">
+                                    <option value="Petrocentro">
+                                    <option value="NL Contapa">
+                                    <option value="Sepein">
+                                    <option value="Tradesering">
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold text-primary">STOCK</label>
+                                <input type="number" name="current_stock" class="form-control border-primary" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">ESTADO</label>
+                                <select name="status" class="form-select">
+                                    <option value="OPERATIVO">OPERATIVO</option>
+                                    <option value="FUERA DE SERVICIO">FUERA DE SERVICIO</option>
+                                    <option value="DADO DE BAJA">DADO DE BAJA</option>
+                                    {# <option value="ALQUILADO">ALQUILADO</option> #}
+                                    <option value="VENDIDO">VENDIDO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">BASE / SEDE</label>
+                                <select name="base" class="form-select" required>
+                                    {% for b in bases %}
+                                        <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">PROYECTO</label>
+                                <select name="project" class="form-select">
+                                    <option value="">Sin Proyecto</option>
+                                    {% for p in proyectos %}
+                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">ORDEN ODS</label>
+                                <input type="text" name="ods_order" class="form-control" placeholder="Referencia ODS">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">GARANTÍA</label>
+                                <input type="text" name="warranty" class="form-control" placeholder="Ej: 12 meses">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">STOCK MÍNIMO</label>
+                                <input type="number" name="min_stock" class="form-control" value="5">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">FECHA CALIBRACIÓN</label>
+                                <input type="date" name="calibration_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">FECHA MANTENIMIENTO</label>
+                                <input type="date" name="maintenance_date" class="form-control">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">CANT. ALQUILADA</label>
+                                <input type="number" name="rented_quantity" class="form-control" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">CANT. FABRICANDO</label>
+                                <input type="number" name="manufacturing_quantity" class="form-control" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label fw-bold">PRECIO UNITARIO</label>
+                                <input type="number" name="unit_price" class="form-control" step="0.01" value="0.00">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">OBSERVACIONES / DESCRIPCIÓN</label>
+                                <textarea name="description" class="form-control" rows="1" placeholder="Detalles adicionales..."></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" name="max_stock" value="100">
+                        <button type="submit" class="btn btn-success px-5 fw-bold mt-2"><i class="fas fa-save me-2"></i> Guardar Equipo</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: GESTIÓN DE PROYECTOS (Integrada) -->
+            <div class="mt-5 pt-4 border-top">
+                <h5 class="text-dark fw-bold mb-4"><i class="fas fa-project-diagram me-2 text-primary"></i>Catálogo de Proyectos</h5>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-primary text-white fw-bold">Nuevo Proyecto</div>
+                            <div class="card-body">
+                                <form action="{% url 'crear_proyecto' %}" method="POST" onsubmit="return confirm('¿Está seguro de registrar este nuevo proyecto?');">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label small">Nombre Corto</label>
+                                        <input type="text" name="name" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small">Observaciones/Nombre Real</label>
+                                        <textarea name="observations" class="form-control form-control-sm" rows="2"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Registrar Proyecto</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-0">
+                                <table class="table table-hover table-sm mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Proyecto</th>
+                                            <th>Descripción</th>
+                                            <th class="text-end pe-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in proyectos %}
+                                        <tr>
+                                            <td class="ps-3 fw-bold">{{ p.name }}</td>
+                                            <td>{{ p.observations|default:"-" }}</td>
+                                            <td class="text-end pe-3">
+                                                <button class="btn btn-sm btn-link text-warning" onclick="abrirModalEditarProyecto('{{ p.id }}', '{{ p.name|escapejs }}', '{{ p.observations|escapejs }}')"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-link text-danger" onclick="eliminarProyectoAjax('{{ p.id }}', '{{ p.name|escapejs }}')"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> {# Cierre de mt-5 pt-4 border-top #}
+        </div> {# Cierre de tab-crear #}
+
+        <!-- PESTAÑA: MOVIMIENTOS DE STOCK (Consolidada) -->
+        <div class="tab-pane fade" id="tab-movimientos" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-primary"><i class="fas fa-exchange-alt me-2"></i>Historial de Entradas y Salidas</h5>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalRecordMovement">
+                            <i class="fas fa-arrow-up-down me-1"></i> Nuevo Movimiento Manual
+                        </button>
+                        <a href="{% url 'exportar_movimientos_excel' %}" class="btn btn-success btn-sm rounded-pill px-3">
+                            <i class="fas fa-file-excel me-1"></i> Exportar Trazabilidad
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Equipo</th>
+                                    <th>Ubicación</th>
+                                    <th>Proyecto</th>
+                                    <th>Cantidad</th>
+                                    <th>Responsable</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in entries_exits %}
+                                <tr>
+                                    <td class="small">{{ m.date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <span class="badge {% if m.movement_type in 'ENTRY,RETURN,ADJUST_IN' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ m.get_movement_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ m.item.name }}</td>
+                                    <td>{{ m.item.base.nombre }}</td>
+                                    <td>
+                                        {% if m.movement_type == 'EXIT' and m.destination_project %}
+                                            <span class="text-primary fw-bold"><i class="fas fa-arrow-right me-1"></i>{{ m.destination_project.name }}</span>
+                                        {% elif m.movement_type == 'RETURN' and m.origin_project %}
+                                            <span class="text-success fw-bold"><i class="fas fa-arrow-left me-1"></i>{{ m.origin_project.name }}</span>
+                                        {% else %}
+                                            {{ m.item.project.name|default:"Inventario" }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bold">{{ m.quantity }}</td>
+                                    <td>{{ m.responsible.nombre }}</td>
+                                    <td class="small text-muted">{{ m.reason|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="7" class="text-center py-4">No hay registros de entradas o salidas.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-truck-moving me-2"></i>Trazabilidad de Traslados entre Sedes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Equipo</th>
+                                    <th>Sede Origen</th>
+                                    <th>Proyecto Origen</th>
+                                    <th>Sede Destino</th>
+                                    <th>Proyecto Destino</th>
+                                    <th>Cant.</th>
+                                    <th>Responsable</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in change_control %}
+                                <tr>
+                                    <td class="small">{{ c.date|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ c.item.name }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ c.origin_base.nombre }}</span></td>
+                                    <td><small>{{ c.origin_project.name|default:"General" }}</small></td>
+                                    <td><span class="badge bg-light text-dark border">{{ c.destination_base.nombre }}</span></td>
+                                    <td><small>{{ c.destination_project.name|default:"General" }}</small></td>
+                                    <td class="fw-bold">{{ c.quantity }}</td>
+                                    <td>{{ c.responsible.nombre }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center py-4">No hay registros de traslados realizados.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> {# Cierre del card de traslados #}
+        </div> {# Cierre de la pestaña tab-movimientos #}
+
+        <!-- PESTAÑA: SOLICITUDES (Nueva) -->
+        <div class="tab-pane fade" id="tab-requests" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-tasks me-2"></i>Gestión de Pedidos de Supervisión</h5>
+                        
+                        <div>
+                            {% if is_supervisor or is_admin %}
+                            <button type="button" class="btn btn-warning btn-sm fw-bold rounded-pill px-4 me-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalRequestTransfer">
+                                <i class="fas fa-plus-circle me-1"></i> Nueva Solicitud
+                            </button>
+                            {% endif %}
+                        </div> {# Cierre del div de botones #}
+
+                        {% if notificaciones_inventario > 0 and is_admin %}
+                        <div class="alert alert-danger py-2 px-4 mb-0 border-0 shadow-sm animate-pulse">
+                            <i class="fas fa-exclamation-circle me-2"></i><strong>Atención:</strong> Tienes {{ notificaciones_inventario }} solicitudes esperando tu aprobación
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 0. Solicitudes Entrantes (NUEVA: Para recibir equipos que vienen de otra base) -->
+                    {% if grouped_incoming %}
+                    <div class="mb-5 pb-3 border-bottom">
+                        <h6 class="fw-bold text-success mb-3"><i class="fas fa-truck-loading me-2"></i>Solicitudes Entrantes (Equipos en Camino)</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle table-hover">
+                                <thead class="table-light">
+                                    <tr class="small text-uppercase">
+                                        <th>Fecha Envío</th>
+                                        <th>Origen</th>
+                                        <th>Equipos</th>
+                                        <th>Motivo</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for batch_id, data in grouped_incoming.items %}
+                                    <tr>
+                                        <td class="small text-muted">{{ data.date|date:"d/m/Y H:i" }}</td>
+                                        <td><span class="badge bg-light text-dark border">{{ data.processed_by.nombre|default:"Administración" }}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-link p-0 fw-bold text-decoration-none" onclick="verDetalleLote('{{ batch_id }}')">
+                                                <i class="fas fa-eye me-1"></i> Ver detalle
+                                            </button>
+                                        </td>
+                                        <td class="text-muted small"><em>"{{ data.reason }}"</em></td>
+                                        <td class="text-center">
+                                            {% if is_supervisor or is_admin %}
+                                            <button type="button" class="btn btn-sm btn-success fw-bold px-3 shadow-sm" onclick="abrirModalRecibir('{% url 'recibir_transferencia' data.id %}', 'Lote: {{ batch_id }}')"
+                                                <i class="fas fa-check-circle me-1"></i> Recibir Material
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 1. Gestión de Pedidos Realizados -->
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Supervisor</th>
+                                    <th>Destino</th>
+                                    <th>Equipos</th>
+                                    <th>Motivo</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for batch_id, data in grouped_pending.items %}
+                                <tr>
+                                    <td class="small text-muted">{{ data.date|date:"d/m/Y H:i" }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ data.supervisor.nombre }}</span></td>
+                                    <td><span class="badge bg-primary">{{ data.dest }}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="verDetalleLote('{{ batch_id }}')">
+                                            Ver equipos
+                                        </button>
+                                    </td>
+                                    <td class="text-muted small"><em>"{{ data.reason }}"</em></td>
+                                    <td class="text-center">
+                                        {% if is_admin %}
+                                        <div class="btn-group">
+                                            <form action="{% url 'procesar_transferencia' data.id %}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de que desea aprobar esta solicitud de traslado? Esta acción procesará el despacho de los equipos y descontará el stock de las sedes de origen.');">
+                                                {% csrf_token %}
+                                                <button name="action" value="approve" class="btn btn-sm btn-success">Aprobar</button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="abrirModalRechazo('{% url 'procesar_transferencia' data.id %}', 'Lote {{ batch_id }}')">Rechazar</button>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted small">Esperando Admin</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No hay solicitudes pendientes en este momento.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Historial de Solicitudes (Respondidas) -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h6 class="fw-bold text-muted mb-3"><i class="fas fa-history me-2"></i>Historial de Solicitudes Procesadas</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle table-hover">
+                                <thead class="table-light">
+                                    <tr class="small text-uppercase">
+                                        <th>Fecha Solicitud</th>
+                                        <th>Equipos</th>
+                                        <th>Destino</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Requisición</th>
+                                        <th>Respondido por</th>
+                                        <th>Motivo/Detalle</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for batch_id, data in grouped_history.items %}
+                                    <tr>
+                                        <td class="small text-muted">{{ data.date|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-link p-0 fw-bold text-decoration-none" onclick="verDetalleLote('{{ batch_id }}')">
+                                                <i class="fas fa-eye me-1"></i> Ver detalle
+                                            </button>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border">{{ data.dest }}</span></td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if data.status == 'SENT' or data.status == 'COMPLETED' %}bg-success
+                                                {% elif data.status == 'REJECTED' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ data.items.0.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            {% if data.status == 'SENT' or data.status == 'COMPLETED' %}
+                                            <a href="{% url 'descargar_requisicion_pdf' batch_id %}" target="_blank" class="btn btn-sm btn-danger shadow-sm" title="Descargar GCL-FR-04">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                            {% else %}
+                                            <span class="text-muted small">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="small">{{ data.processed_by.nombre|default:"-" }}</td>
+                                        <td class="small text-muted"><em>"{{ data.reason|truncatechars:30 }}"</em></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="7" class="text-center py-3 text-muted">No se registran solicitudes anteriores en tu historial.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> {# Cierre de card de gestión de pedidos #}
+        </div> {# Cierre de la pestaña tab-requests #}
+
+    <!-- PESTAÑA: REPORTES ADMINISTRATIVOS -->
+    <div class="tab-pane fade" id="tab-reports" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-white-50">Total Equipos</div><div class="fs-4 fw-bold">{{ total_physical_units|default:0 }}</div></div>
+                        <i class="fas fa-boxes fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-success text-white h-100"> {# KPI: Valor Inventario #}
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-white-50">Valor Inventario</div><div class="fs-4 fw-bold">${{ total_inventory_value|floatformat:2 }}</div></div>
+                        <i class="fas fa-dollar-sign fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-warning text-dark h-100"> {# KPI: Equipos Críticos #}
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-dark-50">Equipos Críticos</div><div class="fs-4 fw-bold">{{ critical_items_count }}</div></div>
+                        <i class="fas fa-exclamation-triangle fa-2x text-dark-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-danger text-white h-100"> {# KPI: Calibración Pendiente #}
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-white-50">Calibración Pendiente</div><div class="fs-4 fw-bold">{{ calibration_alerts_count }}</div></div>
+                        <i class="fas fa-wrench fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# Alertas Adicionales #}
+        {% if consumables_critical_count > 0 or maintenance_alerts_count > 0 %}
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-dark-50">Consumibles Críticos</div><div class="fs-4 fw-bold">{{ consumables_critical_count }}</div></div>
+                        <i class="fas fa-pump-soap fa-2x text-dark-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div><div class="small text-white-50">Mantenimiento Pendiente</div><div class="fs-4 fw-bold">{{ maintenance_alerts_count }}</div></div>
+                        <i class="fas fa-tools fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Equipos con Stock Crítico</span>
+                        <a href="{% url 'exportar_inventario_excel' %}" class="btn btn-outline-danger btn-sm"><i class="fas fa-file-excel me-1"></i> Exportar</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Nombre</th>
+                                        <th>Base</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Mínimo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in critical_items_list %}
+                                    <tr>
+                                        <td><code>{{ item.sku }}</code></td>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.base.nombre }}</td>
+                                        <td class="text-center fw-bold text-danger">{{ item.current_stock }}</td>
+                                        <td class="text-center">{{ item.min_stock }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="5" class="text-center py-3 text-muted">No hay equipos con stock crítico.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-wrench me-2 text-warning"></i>Equipos con Calibración Pendiente/Próxima</span>
+                        <a href="{% url 'exportar_inventario_excel' %}" class="btn btn-outline-warning btn-sm"><i class="fas fa-file-excel me-1"></i> Exportar</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Nombre</th>
+                                        <th>Base</th>
+                                        <th class="text-center">Fecha Calib.</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in calibration_items_list %}
+                                    <tr>
+                                        <td><code>{{ item.sku }}</code></td>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.base.nombre }}</td>
+                                        <td class="text-center fw-bold {% if item.calibration_date < now.date %}text-danger{% elif item.needs_calibration %}text-warning{% endif %}">{{ item.calibration_date|date:"d/m/Y" }}</td>
+                                        <td><span class="badge bg-secondary">{{ item.status }}</span></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="5" class="text-center py-3 text-muted">No hay equipos con calibración pendiente o próxima.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-history me-2 text-info"></i>Últimos 50 Movimientos de Stock</span>
+                        <a href="{% url 'exportar_movimientos_excel' %}" class="btn btn-outline-info btn-sm"><i class="fas fa-file-excel me-1"></i> Exportar Global</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Equipo</th>
+                                        <th>SKU</th>
+                                        <th>Origen/Destino</th>
+                                        <th>Cantidad</th>
+                                        <th>Responsable</th>
+                                        <th>Motivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for m in recent_transactions %}
+                                    <tr>
+                                        <td class="small">{{ m.date|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge {% if m.movement_type == 'ENTRY' or m.movement_type == 'ADJUST_IN' %}bg-success{% elif m.movement_type == 'EXIT' or m.movement_type == 'ADJUST_OUT' %}bg-danger{% else %}bg-primary{% endif %}">
+                                                {{ m.get_movement_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ m.item.name }}</td>
+                                        <td><code>{{ m.item.sku }}</code></td>
+                                        <td class="small">
+                                            {% if m.destination_project %}
+                                                <i class="fas fa-long-arrow-alt-right text-primary"></i> {{ m.destination_project.name }}
+                                            {% elif m.origin_project %}
+                                                <i class="fas fa-long-arrow-alt-left text-success"></i> {{ m.origin_project.name }}
+                                            {% else %}-{% endif %}
+                                        </td>
+                                        <td class="fw-bold">{{ m.quantity }}</td>
+                                        <td>{{ m.responsible.nombre|default:"Sistema" }}</td>
+                                        <td class="small text-muted">{{ m.reason|default:"-" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="7" class="text-center py-3 text-muted">No hay movimientos recientes.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal para Trasladar Equipos entre Bases -->
+<div class="modal fade" id="modalTransferItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'transferir_item_inventario' %}" method="POST" onsubmit="return confirm('¿Confirmar el traslado físico de estas unidades?');">
+                {% csrf_token %}
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Trasladar Equipo entre Bases</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Equipo a mover (Origen)</label>
+                        <select name="item_id" class="form-select select2" required>
+                            {% for item in all_items_modals %}
+                                <option value="{{ item.id }}">{{ item.sku }} - {{ item.name }} (En: {{ item.base.nombre }} | Stock: {{ item.current_stock }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Base de Destino (Opcional)</label>
+                        <select name="dest_base_id" class="form-select">
+                            <option value="">Ninguna...</option>
+                            {% for b in bases %}
+                                <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Proyecto de Destino (Opcional)</label>
+                        <select name="dest_project_id" class="form-select">
+                            <option value="">Sin Proyecto...</option>
+                            {% for p in proyectos %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad a Trasladar</label>
+                        <input type="number" name="quantity" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-dark w-100">Confirmar Traslado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Retorno de Proyecto (Exclusivo) -->
+<div class="modal fade" id="modalReturnProject" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'new_record_stock_movement' %}" method="POST" onsubmit="return confirm('¿Confirma el reingreso de este equipo desde proyecto al inventario general?');">
+                {% csrf_token %}
+                <input type="hidden" name="movement_type" value="RETURN">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-undo me-2"></i>Retorno de Equipo desde Proyecto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Proyecto de Origen</label>
+                        <select name="project_id" id="return_project_id" class="form-select border-info" required onchange="filterItemsByProject(this.value)">
+                            <option value="">Seleccione proyecto...</option>
+                            {% for p in proyectos %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Equipo que Retorna</label>
+                        <select name="item_id" id="return_item_id" class="form-select select2-modal" required>
+                            <option value="">Seleccione primero un proyecto...</option>
+                            {% for item in all_items_modals %}
+                                <option value="{{ item.id }}" data-project-id="{{ item.project.id|default:'' }}">
+                                    {{ item.sku }} - {{ item.name }} (En: {{ item.base.nombre }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Solo se muestran equipos asignados al proyecto seleccionado.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Base de Destino (A donde regresa)</label>
+                        <select name="dest_base_id" class="form-select border-info" required>
+                            <option value="">Seleccione sede receptora...</option>
+                            {% for b in bases %}
+                                <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cantidad a Devolver</label>
+                        <input type="number" name="quantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Estado / Novedades de Retorno</label>
+                        <textarea name="reason" class="form-control" rows="2" placeholder="Ej: Se devuelve por fin de operación. Buen estado."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info text-white w-100 fw-bold">Registrar Reingreso al Inventario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Registrar Movimientos -->
+<div class="modal fade" id="modalRecordMovement" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'new_record_stock_movement' %}" method="POST" onsubmit="return confirm('¿Desea registrar este movimiento de stock manual?');">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Movimiento de Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Equipo</label>
+                        <select name="item_id" class="form-select select2-modal" required onchange="updateItemDetailsInMovementModal(this.value)">
+                            <option value="">Seleccione un equipo...</option>
+                            {% for item in all_items_modals %}
+                                <option value="{{ item.id }}"
+                                        data-name="{{ item.name }}"
+                                        data-base="{{ item.base.nombre }}"
+                                        data-stock="{{ item.current_stock }}">
+                                    {{ item.name }} (Actual: {{ item.current_stock }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Visor de Inventario en Tiempo Real -->
+                    <div id="selectedItemDetails" class="card bg-light mb-4 border-0 shadow-sm border-start border-4 border-success" style="display: none;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div style="flex: 1;">
+                                    <h6 class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.65rem; letter-spacing: 1px;"><i class="fas fa-eye me-1"></i> Información del Equipo</h6>
+                                    <div class="fw-bold text-dark fs-6" id="detail-name"></div>
+                                    <div class="text-muted small mt-1"><i class="fas fa-warehouse me-1"></i> Sede: <span id="detail-base"></span></div>
+                                </div>
+                                <div class="text-end ms-3">
+                                    <div class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Stock Actual</div>
+                                    <div class="fs-2 fw-bold text-success" id="detail-stock">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-bold">Proyecto Relacionado (Opcional)</label>
+                            <select name="project_id" class="form-select border-info">
+                                <option value="">Inventario General (Sede)</option>
+                                {% for p in proyectos %}
+                                    <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Indique el proyecto de destino (Salida) o de origen (Retorno).</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select name="movement_type" class="form-select" required>
+                                <option value="ENTRY">Entrada (Compra/Producción) (+)</option>
+                                <option value="EXIT">Salida (Consumo/Baja) (-)</option>
+                                <option value="RETURN">Devolución (Reingreso) (+)</option>
+                                <option value="ADJUST_IN">Ajuste Positivo (Devolución/Corrección) (+)</option>
+                                <option value="ADJUST_OUT">Ajuste Negativo (Pérdida/Deterioro) (-)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" name="quantity" class="form-control" min="1" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo</label>
+                        <textarea name="reason" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">Guardar Movimiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir Nuevo Ítem (Básico) -->
+{% if crear %}
+<div class="modal fade" id="modalAddItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'crear_item_inventario' %}" method="POST" onsubmit="return confirm('¿Desea añadir este nuevo equipo al inventario principal?');">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Añadir Nuevo Equipo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Equipo</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SKU/Código</label>
+                        <input type="text" name="sku" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Creación</label>
+                        <input type="datetime-local" name="created_at" class="form-control" value="{{ now|date:'Y-m-d\TH:i' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo de Equipo</label>
+                            <select name="equipment_type" class="form-select">
+                                <option value="ACTIVO">ACTIVO</option>
+                                <option value="ACCESORIO">ACCESORIO</option>
+                                <option value="SUMINISTRO">SUMINISTRO</option>
+                                <option value="OTROS">OTROS</option>
+                                <option value="VENDIDO">VENDIDO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Propiedad / Proveedor</label>
+                            <input list="owners_list_modal" name="owner" class="form-control" placeholder="Seleccione o escriba manual..." onfocus="this.value=''">
+                            <datalist id="owners_list_modal">
+                                <option value="Petrocentro">
+                                <option value="NL Contapa">
+                                <option value="Sepein">
+                                <option value="Tradesering">
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select name="category" class="form-select" required>
+                                <option value="">Seleccionar Categoría</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Base / Sede</label>
+                            <select name="base" class="form-select" required>
+                                <option value="">Seleccionar Base</option>
+                                {% for b in bases %}
+                                    <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stock Inicial</label>
+                            <input type="number" name="current_stock" class="form-control" value="0" min="0" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stock Mín.</label>
+                            <input type="number" name="min_stock" class="form-control" value="5" min="0" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stock Máx.</label>
+                            <input type="number" name="max_stock" class="form-control" value="100" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Unidad de Medida</label>
+                            <select name="unit_of_measure" class="form-select">
+                                <option value="UNIDAD">UNIDAD</option>
+                                <option value="GALONES">GALONES</option>
+                                <option value="BARRILES">BARRILES</option>
+                                <option value="LITROS">LITROS</option>
+                                <option value="METROS">METROS</option>
+                                <option value="PULGADAS">PULGADAS</option>
+                                <option value="PIES">PIES</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado</label>
+                            <select name="status" class="form-select">
+                                <option value="OPERATIVO">OPERATIVO</option>
+                                <option value="FUERA DE SERVICIO">FUERA DE SERVICIO</option>
+                                <option value="DADO DE BAJA">DADO DE BAJA</option>
+                                {# <option value="ALQUILADO">ALQUILADO</option> #}
+                                <option value="VENDIDO">VENDIDO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Alto (m)</label>
+                            <input type="number" name="height" class="form-control" step="0.01" value="0.00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Peso (kg)</label>
+                            <input type="number" name="weight" class="form-control" step="0.01" value="0.00">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Costo Adquisición</label>
+                            <input type="number" name="cost" class="form-control" step="0.01" value="0.00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Costo Calibración</label>
+                            <input type="number" name="calibration_cost" class="form-control" step="0.01" value="0.00">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio Unitario</label>
+                            <input type="number" name="unit_price" class="form-control" step="0.01" value="0.00" min="0" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100">Guardar Equipo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Botón Flotante del Carrito de Solicitudes (Solo Supervisores) -->
+{% if is_supervisor or is_admin %}
+<div id="cart-float-btn" class="position-fixed shadow-lg animate-pulse" style="z-index: 9999; bottom: 120px; right: 25px; display: none; cursor: grab; padding: 10px;">
+    <button class="btn btn-warning btn-lg rounded-circle p-3 position-relative border-4 border-white" data-bs-toggle="modal" data-bs-target="#modalCart">
+        <i class="fas fa-shopping-basket fa-lg"></i>
+        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white">0</span>
+    </button>
+</div>
+
+<!-- Modal del Carrito de Solicitudes -->
+<div class="modal fade" id="modalCart" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2"></i>Mi Lista de Pedidos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items-container" class="mb-4" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Items se cargan por JS -->
+                </div>
+
+                <div id="cart-form-details" style="display: none;">
+                    <hr>
+                    <h6 class="fw-bold mb-3 text-primary">Detalles del Destino</h6>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Base de Destino</label>
+                        <select id="cart-dest-base" class="form-select form-select-sm">
+                            <option value="">Seleccione base...</option>
+                            {% for b in bases %}<option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Proyecto de Destino</label>
+                        <select id="cart-dest-project" class="form-select form-select-sm">
+                            <option value="">Sin Proyecto...</option>
+                            {% for p in proyectos %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Motivo del Traslado</label>
+                        <input type="text" id="cart-reason" class="form-control form-control-sm" placeholder="Ej: Servicio Pozo X">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="vaciarCarrito()">Vaciar</button>
+                <button type="button" id="btn-submit-cart" class="btn btn-warning fw-bold px-4 shadow-sm" onclick="procesarCarrito()" disabled>Enviar Solicitudes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Recibir Transferencia -->
+<div class="modal fade" id="modalReceiveTransfer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formReceiveTransfer" method="POST" onsubmit="return confirm('¿Confirma la recepción de este material?');">
+                {% csrf_token %}
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-dolly-flatbed me-2"></i>Confirmar Recepción de Material</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="receiveTransferInfo" class="fw-bold mb-3"></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cantidad Recibida</label>
+                        <input type="number" name="received_quantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Novedades (Opcional)</label>
+                        <textarea name="incidents" class="form-control" rows="3" placeholder="Ej: Empaque dañado, faltan 2 unidades, etc."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Recepción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let requestCart = [];
+function agregarAlCarrito(id, name, base) {
+    if (requestCart.find(i => i.id === id)) { alert("Ya está en tu lista."); return; }
+    requestCart.push({ id, name, base });
+    actualizarCarritoUI();
+    document.getElementById('cart-float-btn').style.display = 'block';
+    const btn = document.querySelector('#cart-float-btn button');
+    btn.classList.add('btn-success');
+    setTimeout(() => btn.classList.remove('btn-success'), 500);
+}
+function removeFromCart(index) { requestCart.splice(index, 1); actualizarCarritoUI(); }
+function vaciarCarrito() { requestCart = []; actualizarCarritoUI(); }
+function actualizarCarritoUI() {
+    const count = document.getElementById('cart-count');
+    count.innerText = requestCart.length;
+    const container = document.getElementById('cart-items-container');
+    const formDetails = document.getElementById('cart-form-details');
+    const btnSubmit = document.getElementById('btn-submit-cart');
+    container.innerHTML = '';
+    if (requestCart.length === 0) {
+        container.innerHTML = '<div class="text-center py-4"><p class="text-muted">No has seleccionado equipos.</p></div>';
+        formDetails.style.display = 'none'; btnSubmit.disabled = true;
+        document.getElementById('cart-float-btn').style.display = 'none';
+        return;
+    }
+    formDetails.style.display = 'block'; btnSubmit.disabled = false;
+    requestCart.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="card mb-2 border-0 bg-light shadow-sm">
+                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                    <div class="ps-2 small"><div class="fw-bold text-dark text-truncate" style="max-width: 200px;">${item.name}</div><div class="text-muted" style="font-size: 0.6rem;">Fuente: ${item.base}</div></div>
+                    <div class="d-flex align-items-center"><input type="number" id="qty-${index}" value="1" min="1" class="form-control form-control-sm text-center me-2" style="width: 50px;"><button class="btn btn-sm text-danger p-0" onclick="removeFromCart(${index})"><i class="fas fa-times-circle"></i></button></div>
+                </div>
+            </div>`;
+    });
+}
+async function procesarCarrito() {
+    const destBase = document.getElementById('cart-dest-base').value;
+    const destProj = document.getElementById('cart-dest-project').value;
+    const reason = document.getElementById('cart-reason').value;
+    if (!destBase && !destProj) { alert("Seleccione destino."); return; }
+    if (!reason) { alert("Indique el motivo."); return; }
+    if (!confirm(`¿Enviar ${requestCart.length} solicitudes?`)) return;
+    const itemsToRequest = requestCart.map((it, idx) => ({ id: it.id, qty: document.getElementById(`qty-${idx}`).value }));
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('items_json', JSON.stringify(itemsToRequest));
+    formData.append('dest_base_id', destBase);
+    formData.append('dest_project_id', destProj);
+    formData.append('reason', reason);
+
+    const resp = await fetch('{% url "solicitar_transferencia" %}', { 
+        method: 'POST', 
+        body: formData,
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+    
+    alert("Tu solicitud se envió exitosamente.");
+    window.location.href = "{% url 'gestion_inventario' %}?tab=requests";
+}
+
+// --- LÓGICA DE SOLICITUD POR LOTES (MODAL SUPERVISOR) ---
+let batchRequestItems = [];
+
+function agregarItemALote() {
+    const itemSelect = document.getElementById('request_item_id');
+    const itemId = itemSelect.value;
+    if (!itemId) return;
+
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    const itemName = selectedOption.getAttribute('data-name');
+    const originName = selectedOption.getAttribute('data-origin');
+
+    // Evitar duplicados en el mismo pedido
+    if (batchRequestItems.find(it => it.id === itemId)) {
+        alert("Este equipo ya está en la lista de tu solicitud.");
+        itemSelect.value = ""; // Reset selection
+        return;
+    }
+
+    batchRequestItems.push({
+        id: itemId,
+        name: itemName,
+        origin: originName,
+        qty: 1 // Inicia automáticamente con 1
+    });
+
+    actualizarTablaBatch();
+    
+    // Resetear selección para facilitar la siguiente
+    itemSelect.value = "";
+}
+
+function updateBatchItemQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty <= 0) {
+        batchRequestItems[index].qty = 1;
+    } else {
+        batchRequestItems[index].qty = qty;
+    }
+}
+
+function actualizarTablaBatch() {
+    const body = document.getElementById('batch-items-body');
+    const counter = document.getElementById('batch-counter');
+    const submitBtn = document.getElementById('btn-submit-batch');
+    
+    body.innerHTML = '';
+    
+    if (batchRequestItems.length === 0) {
+        body.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted small">No has agregado equipos todavía.</td></tr>';
+        submitBtn.disabled = true;
+        counter.innerText = '0 ítems';
+        return;
+    }
+
+    batchRequestItems.forEach((it, index) => {
+        body.innerHTML += `
+            <tr>
+                <td class="ps-3">
+                    <div class="fw-bold">${it.name}</div>
+                    <small class="text-muted">Origen: ${it.origin}</small>
+                </td>
+                <td class="text-center">
+                    <input type="number" class="form-control form-control-sm text-center mx-auto" 
+                           style="width: 70px;" value="${it.qty}" min="1" 
+                           onchange="updateBatchItemQty(${index}, this.value)">
+                </td>
+                <td class="text-end pe-3">
+                    <button type="button" class="btn btn-sm text-danger" onclick="quitarItemDeBatch(${index})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    counter.innerText = `${batchRequestItems.length} ítems`;
+    submitBtn.disabled = false;
+}
+
+function quitarItemDeBatch(index) {
+    batchRequestItems.splice(index, 1);
+    actualizarTablaBatch();
+}
+
+async function enviarSolicitudBatch() {
+    const destBase = document.getElementById('batch_dest_base').value;
+    const destProject = document.getElementById('batch_dest_project').value;
+    const reason = document.getElementById('batch_reason').value;
+
+    if (batchRequestItems.length === 0) {
+        alert("No hay equipos en la lista de tu solicitud.");
+        return;
+    }
+    if (!destBase && !destProject) {
+        alert("Por favor, seleccione una Base o un Proyecto de destino.");
+        return;
+    }
+    if (!reason) {
+        alert("Por favor, ingrese un motivo para la solicitud.");
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de enviar esta solicitud con ${batchRequestItems.length} equipos?`)) {
+        return;
+    }
+
+    const itemsData = batchRequestItems.map(item => ({
+        id: item.id,
+        qty: item.qty
+    }));
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('items_json', JSON.stringify(itemsData));
+    formData.append('dest_base_id', destBase);
+    formData.append('dest_project_id', destProject);
+    formData.append('reason', reason);
+
+    try {
+        const response = await fetch('{% url "solicitar_transferencia" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        });
+        const data = await response.json();
+        if (data.status === 'ok' || data.status === 'success') {
+            alert("Tu solicitud se envió exitosamente.");
+            batchRequestItems = []; // Limpiar la lista
+            actualizarTablaBatch(); // Actualizar la tabla visualmente
+            const modalRequestTransferEl = document.getElementById('modalRequestTransfer');
+            const modalRequestTransfer = bootstrap.Modal.getInstance(modalRequestTransferEl);
+            if (modalRequestTransfer) modalRequestTransfer.hide(); // Cerrar el modal
+            window.location.href = "{% url 'gestion_inventario' %}?tab=requests"; // Redirigir
+        } else {
+            alert(`Error al enviar la solicitud: ${data.message}`);
+        }
+    } catch (error) {
+        console.error('Error al enviar la solicitud:', error);
+        alert("Ocurrió un error al comunicarse con el servidor.");
+    }
+}
+
+// Consolidar todos los datos agrupados para el modal de detalle de lote
+const groupedData = {
+    {% for bid, data in grouped_pending.items %}
+    "{{ bid }}": [{% for it in data.requested_items %}{ name: "{{ it.item.name|escapejs }}", qty: "{{ it.quantity }}", base: "{{ it.item.base.nombre|escapejs }}" },{% endfor %}],
+    {% endfor %}
+    {% for bid, data in grouped_history.items %}
+    "{{ bid }}": [{% for it in data.requested_items %}{ name: "{{ it.item.name|escapejs }}", qty: "{{ it.quantity }}", base: "{{ it.item.base.nombre|escapejs }}" },{% endfor %}],
+    {% endfor %}
+    {% for bid, data in grouped_incoming.items %}
+    "{{ bid }}": [{% for it in data.requested_items %}{ name: "{{ it.item.name|escapejs }}", qty: "{{ it.quantity }}", base: "{{ it.item.base.nombre|escapejs }}" },{% endfor %}],
+    {% endfor %}
+};
+
+function verDetalleLote(bid) {
+    if (!groupedData[bid]) return;
+    let html = '<ul class="list-group">';
+    groupedData[bid].forEach(it => {
+        html += `<li class="list-group-item d-flex justify-content-between"><span>${it.name} <small class="text-muted">(${it.base})</small></span> <b>${it.qty}</b></li>`;
+    });
+    html += '</ul>';
+    document.getElementById('batchDetailBody').innerHTML = html;
+    new bootstrap.Modal(document.getElementById('modalBatchDetail')).show();
+}
+
+function filterRequestItemsByBase(baseId) {
+    const itemSelect = document.getElementById('request_item_id');
+    const options = itemSelect.querySelectorAll('option');
+    let matchCount = 0;
+
+    options.forEach(opt => {
+        const itemBase = opt.getAttribute('data-base');
+        if (itemBase === "0") return; // Saltar el placeholder
+
+        if (baseId === "" || itemBase === baseId) {
+            opt.hidden = false;
+            opt.disabled = false;
+            matchCount++;
+        } else {
+            opt.hidden = true;
+            opt.disabled = true;
+        }
+    });
+
+    itemSelect.value = "";
+    if (matchCount === 0 && baseId !== "") {
+        alert("Atención: No hay equipos registrados en la sede seleccionada.");
+    }
+}
+
+function abrirNavegadorEquipos() {
+    // Abrimos el navegador sin cerrar el formulario de solicitud
+    const modalBrowse = new bootstrap.Modal(document.getElementById('modalBrowseInventory'));
+    modalBrowse.show();
+}
+
+function seleccionarEquipoDesdeNavegador(id, baseId) {
+    // 1. Sincronizar la sede de origen
+    const originSelect = document.getElementById('request_origin_base');
+    originSelect.value = baseId;
+    
+    // 2. Ejecutar el filtro para que el item sea seleccionable
+    filterRequestItemsByBase(baseId);
+    
+    // 3. Seleccionar el equipo específico
+    document.getElementById('request_item_id').value = id;
+    
+    // 4. ACCIÓN UNIFICADA: Añadir automáticamente a la tabla
+    agregarItemALote();
+
+    // 4. Cerrar solo la ventana de navegación
+    const modalBrowseEl = document.getElementById('modalBrowseInventory');
+    const modalBrowse = bootstrap.Modal.getInstance(modalBrowseEl);
+    if (modalBrowse) modalBrowse.hide();
+    
+    // 5. Garantizar que el scroll del modal principal siga funcionando
+    setTimeout(() => {
+        if (!document.body.classList.contains('modal-open')) {
+            document.body.classList.add('modal-open');
+        }
+    }, 400);
+}
+</script>
+
+<!-- Modal Navegador de Inventario (Ventana emergente secundaria) -->
+<div class="modal fade" id="modalBrowseInventory" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-search me-2"></i>Selección Directa desde Inventario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-3">Equipo / Descripción</th>
+                                <th>Sede Origen</th>
+                                <th class="text-center">Stock Disp.</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in all_items_modals %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold">{{ item.name }}</div>
+                                    <small class="text-muted">SKU: {{ item.sku }}</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ item.base.nombre }}</span></td>
+                                <td class="text-center fw-bold text-primary">{{ item.current_stock }}</td>
+                                <td class="text-end pe-3">
+                                    <button type="button" class="btn btn-sm btn-success rounded-pill px-3" 
+                                        onclick="seleccionarEquipoDesdeNavegador('{{ item.id }}', '{{ item.base.idUbicacion }}')">
+                                        <i class="fas fa-plus-circle me-1"></i> Seleccionar
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalle de Lote -->
+<div class="modal fade" id="modalBatchDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Equipos en esta Solicitud</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="batchDetailBody"></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal para Importación Masiva -->
+<div class="modal fade" id="modalImportExcel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'importar_inventario_excel' %}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('¿Está seguro de procesar la importación masiva? Esto actualizará múltiples registros en la base de datos.');">
+                {% csrf_token %}
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Carga Masiva desde Excel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">Asegúrese de que el archivo .xlsx siga el orden exacto de **23 columnas** para una importación correcta. La primera fila debe ser el encabezado:</p>
+                    <div class="alert alert-info py-2" style="font-size: 0.75rem;">
+                        <strong>Orden:</strong> 1.Tipo | 2.Fecha | 3.Categoría | 4.Descripción Artículo | 5.Espec. Técnica | 6.Marca | 7.Serial | 8.TAG | 9.UOM | 10.Largo | 11.Ancho | 12.Alto | 13.Peso | 14.Costo | 15.Stock Total | 16.Propiedad | 17.Stock | 18.Estado | 19.Observaciones | 20.Ubicación | 21.Proyecto | 22.Últ. Modif. | 23.Acciones
+                    </div>
+                    <p class="small text-muted mb-2"><strong>Tip:</strong> El sistema usará la columna 17 (Stock) para las existencias. Las columnas 22 y 23 son ignoradas automáticamente.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Seleccionar archivo Excel</label>
+                        <input type="file" name="archivo_excel" class="form-control" accept=".xlsx" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100">Procesar Importación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Solicitar Traslado (Supervisor) -->
+{% if is_supervisor %}
+<div class="modal fade" id="modalRequestTransfer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Nueva Solicitud de Traslado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 1. SELECCIÓN DE ORIGEN Y EQUIPO -->
+                <div class="p-3 bg-light rounded border border-warning shadow-sm mb-4">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-search-location me-1 text-warning"></i> 1. Selección de Equipos</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Sede de Origen (Donde está el equipo)</label>
+                        <select id="request_origin_base" class="form-select form-select-sm" onchange="filterRequestItemsByBase(this.value)">
+                            <option value="">Seleccione sede de origen...</option>
+                            {% for b in bases %}
+                                <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Equipo a solicitar (Selección automática)</label>
+                        <select id="request_item_id" class="form-select form-select-sm" onchange="agregarItemALote()">
+                            <option value="" data-base="0">Seleccione primero la sede de origen</option>
+                            {% for item in all_items_modals %}
+                                <option value="{{ item.id }}" data-base="{{ item.base.idUbicacion }}" data-name="{{ item.name }}" data-origin="{{ item.base.nombre }}" hidden disabled>
+                                    {{ item.name }} (Stock: {{ item.current_stock }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-outline-primary btn-xs w-100 py-1 fw-bold" onclick="abrirNavegadorEquipos()">
+                                <i class="fas fa-search-plus me-1"></i> BUSCAR EN EL LISTADO MAESTRO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. VISUALIZACIÓN DE EQUIPOS SELECCIONADOS -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary mb-2 d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-list-check me-1"></i> Equipos seleccionados</span>
+                        <span class="badge bg-primary rounded-pill" id="batch-counter">0 ítems</span>
+                    </h6>
+                    <div class="table-responsive border rounded bg-white shadow-inner" style="max-height: 150px; min-height: 50px;">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light sticky-top" style="font-size: 0.75rem;">
+                                <tr>
+                                    <th class="ps-3">Equipo / Origen</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end pe-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-items-body" style="font-size: 0.85rem;">
+                                <tr><td colspan="3" class="text-center py-4 text-muted small">No has agregado equipos todavía.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. DESTINO Y MOTIVO -->
+                <div class="p-3 border rounded bg-white shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-truck-loading me-1 text-danger"></i> 3. Información de Entrega</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Base de Destino (Opcional)</label>
+                            <select id="batch_dest_base" class="form-select form-select-sm">
+                                <option value="">Ninguna...</option>
+                                {% for b in bases %}
+                                    <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Proyecto de Destino (Opcional)</label>
+                            <select id="batch_dest_project" class="form-select form-select-sm">
+                                <option value="">Sin Proyecto...</option>
+                                {% for p in proyectos %}
+                                    <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <label class="form-label small fw-bold">Motivo / Servicio</label>
+                            <input type="text" id="batch_reason" class="form-control form-control-sm" placeholder="Ej: Well Testing Pozo X" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn-submit-batch" class="btn btn-success fw-bold px-4 shadow-sm" onclick="enviarSolicitudBatch()" disabled>
+                    <i class="fas fa-check-circle me-1"></i> ENVIAR SOLICITUD AL ADMINISTRADOR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalViewDetails" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles Técnicos del Equipo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <div class="row g-3">
+                    <div class="col-md-6 border-end">
+                        <p><strong>TIPO DE EQUIPO:</strong> <span id="det-type" class="fw-bold text-secondary"></span></p>
+                        <p><strong>FECHA DE CREACIÓN:</strong> <span id="det-created_at"></span></p>
+                        <p><strong>CATEGORÍA:</strong> <span id="det-category"></span></p>
+                        <p><strong>DESCRIPCIÓN DEL ARTÍCULO:</strong> <span id="det-name"></span></p>
+                        <p><strong>ESPECIFICACIÓN TÉCNICA:</strong> <br><small class="text-muted" id="det-spec"></small></p>
+                        <p><strong>MARCA:</strong> <span id="det-brand"></span></p>
+                        <p><strong>SERIAL:</strong> <span id="det-serial"></span></p>
+                        <p><strong>TAG:</strong> <span id="det-tag"></span></p>
+                        <p><strong>UNIDAD DE MEDIDA:</strong> <span id="det-uom"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>LARGO (m/ft):</strong> <span id="det-length"></span></p>
+                        <p><strong>ANCHO (m):</strong> <span id="det-width"></span></p>
+                        <p><strong>ALTO (m):</strong> <span id="det-height"></span></p>
+                        <p><strong>PESO (kg):</strong> <span id="det-weight"></span></p>
+                        <p><strong>COSTO:</strong> <span id="det-cost"></span></p>
+                        <p><strong>COSTO CALIBRACIÓN:</strong> <span id="det-calib_cost"></span></p>
+                        <p><strong>PROPIEDAD:</strong> <span id="det-owner"></span></p>
+                        <p><strong>STOCK:</strong> <span id="det-stock" class="fw-bold text-primary"></span></p>
+                        <p><strong>ESTADO:</strong> <span id="det-status"></span></p>
+                    </div>
+                    <div class="col-12 border-top pt-2">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Proyecto:</strong> <span id="det-project"></span></p>
+                                <p><strong>Orden ODS:</strong> <span id="det-ods"></span></p>
+                                <p><strong>Garantía:</strong> <span id="det-warranty"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha Calibración:</strong> <span id="det-calib_date"></span></p>
+                                <p><strong>Fecha Mantenimiento:</strong> <span id="det-maint_date"></span></p>
+                                <p><strong>Stock Alquilado:</strong> <span id="det-rented"></span></p>
+                                <p><strong>Stock Fabricando:</strong> <span id="det-manufacturing"></span></p>
+                            </div>
+                        </div>
+                        <p><strong>Descripción:</strong> <br><span class="small" id="det-desc"></span></p>
+                    </div>
+                </div>
+            </div>
+            {# Historial de Cargas Masivas (Excel) #}
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-file-upload me-2 text-success"></i> Historial de Cargas Masivas (Importaciones Excel)</span>
+                        <a href="{% url 'exportar_movimientos_excel' %}" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i> Exportar Log</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="ps-3">Fecha y Hora</th>
+                                        <th>Responsable</th>
+                                        <th>Resumen de Operación (Registros)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in import_history %}
+                                    <tr>
+                                        <td class="ps-3 small">{{ log.fecha|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                <i class="fas fa-user-shield me-1"></i> {{ log.admin_responsable.nombre }}
+                                            </span>
+                                        </td>
+                                        <td>{{ log.detalles }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="3" class="text-center py-3 text-muted">No se han registrado importaciones masivas recientemente.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {# Generador de Reportes de Movimientos (Trazabilidad) #}
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="fas fa-file-invoice me-2 text-primary"></i> Generador de Reportes de Movimientos (Trazabilidad)
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'exportar_movimientos_excel' %}" method="GET" class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Fecha Desde</label>
+                                <input type="date" name="date_from" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Fecha Hasta</label>
+                                <input type="date" name="date_to" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Responsable</label>
+                                <select name="responsible" class="form-select form-select-sm">
+                                    <option value="0">Todos</option>
+                                    {% for u in usuarios_list %}
+                                    <option value="{{ u.id }}">{{ u.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Tipo de Movimiento</label>
+                                <select name="type" class="form-select form-select-sm">
+                                    <option value="0">Todos</option>
+                                    {% for code, label in mov_types %}
+                                    <option value="{{ code }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Categoría</label>
+                                <select name="category" class="form-select form-select-sm">
+                                    <option value="0">Todas</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Tipo de Recurso</label>
+                                <select name="equipment_type" class="form-select form-select-sm">
+                                    <option value="0">Todos</option>
+                                    {% for et in equipment_types %}
+                                    <option value="{{ et }}">{{ et }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-download me-1"></i> Generar Reporte Excel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> {# Cierre de tab-reports #}
+</div> {# Cierre de inventoryTabsContent #}
+</div> {# Cierre de container-fluid #}
+
+<!-- Modal Editar Equipo (Reutiliza el diseño de crear) -->
+<div class="modal fade" id="modalEditItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="formEditItem" method="POST" onsubmit="return confirm('¿Estás seguro de realizar los cambios en este artículo? Al aceptar, la información se actualizará permanentemente en el sistema.');">
+                {% csrf_token %}
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Editar Información del Equipo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <!-- Se llenará mediante JS -->
+                    <div id="editFieldsContainer"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Proyecto -->
+<div class="modal fade" id="modalEditProject" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formEditProject" method="POST" onsubmit="return confirm('¿Estás seguro de actualizar los datos de este proyecto?');">
+                {% csrf_token %}
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Editar Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nombre del Proyecto</label>
+                        <input type="text" name="name" id="edit_project_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Descripción / Observaciones</label>
+                        <textarea name="observations" id="edit_project_observations" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Rechazar Solicitud con Motivo -->
+<div class="modal fade" id="modalRejectRequest" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formRejectRequest" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Rechazar Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="rejectRequestInfo" class="fw-bold mb-3"></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Escriba el motivo del rechazo:</label>
+                        <textarea name="rejection_reason" class="form-control" rows="4" required 
+                            placeholder="Ej: El equipo se encuentra en mantenimiento y no puede ser trasladado actualmente."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Rechazo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalle de Lote -->
+<div class="modal fade" id="modalBatchDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Equipos en esta Solicitud</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="batchDetailBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Importación Masiva -->
+<div class="modal fade" id="modalImportExcel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'importar_inventario_excel' %}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('¿Está seguro de procesar la importación masiva? Esto actualizará múltiples registros en la base de datos.');">
+                {% csrf_token %}
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Carga Masiva desde Excel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">Asegúrese de que el archivo .xlsx siga el orden exacto de **21 columnas** para una importación correcta. La primera fila debe ser el encabezado:</p>
+                    <div class="alert alert-info py-2" style="font-size: 0.75rem;">
+                        <strong>Orden:</strong>
+                        1. TIPO DE EQUIPO | 2. FECHA DE CREACIÓN | 3. CATEGORÍA | 4. DESCRIPCIÓN DEL ARTÍCULO |
+                        5. ESPECIFICACIÓN TÉCNICA | 6. MARCA | 7. SERIAL | 8. TAG | 9. UNIDAD DE MEDIDA |
+                        10. LARGO (m/ft) | 11. ANCHO (m) | 12. ALTO (m) | 13. PESO (kg) | 14. STOCK TOTAL |
+                        15. PROPIEDAD | 16. STOCK DISPONIBLE | 17. ESTADO | 18. OBSERVACIONES |
+                        19. BASE O SEDE | 20. PROYECTO | 21. FECHA DE CALIBRACIÓN / GARANTÍA
+                        <br><br>
+                    </div>
+                    <p class="small text-muted mb-2"><strong>Tip:</strong> El sistema usará la columna 16 (Stock Disponible) para alimentar las existencias actuales.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Seleccionar archivo Excel</label>
+                        <input type="file" name="archivo_excel" class="form-control" accept=".xlsx" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100">Procesar Importación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Solicitar Traslado (Supervisor) -->
+{% if is_supervisor %}
+<div class="modal fade" id="modalRequestTransfer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Nueva Solicitud de Traslado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 1. SELECCIÓN DE ORIGEN Y EQUIPO -->
+                <div class="p-3 bg-light rounded border border-warning shadow-sm mb-4">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-search-location me-1 text-warning"></i> 1. Selección de Equipos</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Sede de Origen (Donde está el equipo)</label>
+                        <select id="request_origin_base" class="form-select form-select-sm" onchange="filterRequestItemsByBase(this.value)">
+                            <option value="">Seleccione sede de origen...</option>
+                            {% for b in bases %}
+                                <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Equipo a solicitar (Origen)</label>
+                        <select id="request_item_id" class="form-select form-select-sm" onchange="agregarItemALote()">
+                            <option value="" data-base="0">Seleccione primero la sede de origen</option>
+                            {% for item in all_items_modals %}
+                                <option value="{{ item.id }}" data-base="{{ item.base.idUbicacion }}" data-name="{{ item.name }}" data-origin="{{ item.base.nombre }}" hidden disabled>
+                                    {{ item.name }} (Stock: {{ item.current_stock }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-outline-primary btn-xs w-100 py-1 fw-bold" onclick="abrirNavegadorEquipos()">
+                                <i class="fas fa-search-plus me-1"></i> BUSCAR EN EL LISTADO MAESTRO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. VISUALIZACIÓN DE EQUIPOS SELECCIONADOS -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary mb-2 d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-list-check me-1"></i> Equipos seleccionados</span>
+                        <span class="badge bg-primary rounded-pill" id="batch-counter">0 ítems</span>
+                    </h6>
+                    <div class="table-responsive border rounded bg-white shadow-inner" style="max-height: 150px; min-height: 50px;">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light sticky-top" style="font-size: 0.75rem;">
+                                <tr>
+                                    <th class="ps-3">Equipo / Origen</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end pe-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-items-body" style="font-size: 0.85rem;">
+                                <tr><td colspan="3" class="text-center py-4 text-muted small">No has agregado equipos todavía.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. DESTINO Y MOTIVO -->
+                <div class="p-3 border rounded bg-white shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-truck-loading me-1 text-danger"></i> 3. Información de Entrega</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Base de Destino (Opcional)</label>
+                            <select id="batch_dest_base" class="form-select form-select-sm">
+                                <option value="">Ninguna...</option>
+                                {% for b in bases %}
+                                    <option value="{{ b.idUbicacion }}">{{ b.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Proyecto de Destino (Opcional)</label>
+                            <select id="batch_dest_project" class="form-select form-select-sm">
+                                <option value="">Sin Proyecto...</option>
+                                {% for p in proyectos %}
+                                    <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <label class="form-label small fw-bold">Motivo / Servicio</label>
+                            <input type="text" id="batch_reason" class="form-control form-control-sm" placeholder="Ej: Servicio Well Testing Pozo X" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn-submit-batch" class="btn btn-success fw-bold px-4 shadow-sm" onclick="enviarSolicitudBatch()" disabled>
+                    <i class="fas fa-check-circle me-1"></i> ENVIAR SOLICITUD AL ADMINISTRADOR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalViewDetails" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles Técnicos del Equipo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <div class="row g-3">
+                    <div class="col-md-6 border-end">
+                        <p><strong>TIPO DE EQUIPO:</strong> <span id="det-type" class="fw-bold text-secondary"></span></p>
+                        <p><strong>FECHA DE CREACIÓN:</strong> <span id="det-created_at"></span></p>
+                        <p><strong>CATEGORÍA:</strong> <span id="det-category"></span></p>
+                        <p><strong>DESCRIPCIÓN DEL ARTÍCULO:</strong> <span id="det-name"></span></p>
+                        <p><strong>ESPECIFICACIÓN TÉCNICA:</strong> <br><small class="text-muted" id="det-spec"></small></p>
+                        <p><strong>MARCA:</strong> <span id="det-brand"></span></p>
+                        <p><strong>SERIAL:</strong> <span id="det-serial"></span></p>
+                        <p><strong>TAG:</strong> <span id="det-tag"></span></p>
+                        <p><strong>UNIDAD DE MEDIDA:</strong> <span id="det-uom"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>LARGO (m/ft):</strong> <span id="det-length"></span></p>
+                        <p><strong>ANCHO (m):</strong> <span id="det-width"></span></p>
+                        <p><strong>ALTO (m):</strong> <span id="det-height"></span></p>
+                        <p><strong>PESO (kg):</strong> <span id="det-weight"></span></p>
+                        <p><strong>COSTO:</strong> <span id="det-cost"></span></p>
+                        <p><strong>COSTO CALIBRACIÓN:</strong> <span id="det-calib_cost"></span></p>
+                        <p><strong>PROPIEDAD:</strong> <span id="det-owner"></span></p>
+                        <p><strong>STOCK:</strong> <span id="det-stock" class="fw-bold text-primary"></span></p>
+                        <p><strong>ESTADO:</strong> <span id="det-status"></span></p>
+                    </div>
+                    <div class="col-12 border-top pt-2">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Proyecto:</strong> <span id="det-project"></span></p>
+                                <p><strong>Orden ODS:</strong> <span id="det-ods"></span></p>
+                                <p><strong>Garantía:</strong> <span id="det-warranty"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha Calibración:</strong> <span id="det-calib_date"></span></p>
+                                <p><strong>Fecha Mantenimiento:</strong> <span id="det-maint_date"></span></p>
+                                <p><strong>Stock Alquilado:</strong> <span id="det-rented"></span></p>
+                                <p><strong>Stock Fabricando:</strong> <span id="det-manufacturing"></span></p>
+                            </div>
+                        </div>
+                        <p><strong>Descripción:</strong> <br><span class="small" id="det-desc"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function verDetallesEquipo(data) {
+    console.log("Función verDetallesEquipo llamada con datos:", data);
+    document.getElementById('det-type').innerText = data.type;
+    document.getElementById('det-created_at').innerText = data.created_at;
+    document.getElementById('det-category').innerText = data.category;
+    document.getElementById('det-name').innerText = data.name;
+    document.getElementById('det-spec').innerText = data.spec;
+    document.getElementById('det-brand').innerText = data.brand;
+    document.getElementById('det-serial').innerText = data.serial;
+    document.getElementById('det-tag').innerText = data.tag;
+    document.getElementById('det-uom').innerText = data.uom;
+    document.getElementById('det-length').innerText = data.length;
+    document.getElementById('det-width').innerText = data.width;
+    document.getElementById('det-height').innerText = data.height;
+    document.getElementById('det-weight').innerText = data.weight;
+    document.getElementById('det-cost').innerText = '$' + data.cost;
+    document.getElementById('det-calib_cost').innerText = '$' + data.calib_cost;
+    document.getElementById('det-owner').innerText = data.owner;
+    document.getElementById('det-stock').innerText = data.stock;
+    document.getElementById('det-status').innerText = data.status;
+    
+    document.getElementById('det-project').innerText = data.project;
+    document.getElementById('det-ods').innerText = data.ods;
+    document.getElementById('det-warranty').innerText = data.warranty;
+    document.getElementById('det-calib_date').innerText = data.calib_date;
+    document.getElementById('det-maint_date').innerText = data.maint_date;
+    document.getElementById('det-rented').innerText = data.rented;
+    document.getElementById('det-manufacturing').innerText = data.manufacturing;
+    document.getElementById('det-desc').innerText = data.desc;
+    new bootstrap.Modal(document.getElementById('modalViewDetails')).show();
+}
+
+function abrirModalEditar(data) {
+    console.log("Función abrirModalEditar llamada con datos:", data);
+    // Reiniciar modal si es necesario
+    const form = document.getElementById('formEditItem');
+    form.action = `/inventario/editar/${data.id}/`;
+    
+    const container = document.getElementById('editFieldsContainer');
+    container.innerHTML = `
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">TIPO DE EQUIPO</label>
+                <select name="equipment_type" class="form-select">
+                    <option value="ACTIVO" ${data.type == 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
+                    <option value="ACCESORIO" ${data.type == 'ACCESORIO' ? 'selected' : ''}>ACCESORIO</option>
+                    <option value="SUMINISTRO" ${data.type == 'SUMINISTRO' ? 'selected' : ''}>SUMINISTRO</option>
+                    <option value="OTROS" ${data.type == 'OTROS' ? 'selected' : ''}>OTROS</option>
+                    <option value="VENDIDO" ${data.type == 'VENDIDO' ? 'selected' : ''}>VENDIDO</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">FECHA DE CREACIÓN</label>
+                <input type="datetime-local" name="created_at" class="form-control" value="${data.created_at}">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">CATEGORÍA</label>
+                <select name="category" class="form-select">
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" ${data.category_id == '{{ cat.id }}' ? 'selected' : ''}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">DESCRIPCIÓN DEL ARTÍCULO (Nombre)</label>
+                <input type="text" name="name" class="form-control" value="${data.name}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">ESPECIFICACIÓN TÉCNICA</label>
+                <textarea name="technical_spec" class="form-control" rows="2">${data.spec}</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">MARCA</label>
+                <input type="text" name="brand" class="form-control" value="${data.brand}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">SERIAL</label>
+                <input type="text" name="serial" class="form-control" value="${data.serial}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">TAG</label>
+                <input type="text" name="tag" class="form-control" value="${data.tag}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">UNIDAD DE MEDIDA</label>
+                <select name="unit_of_measure" class="form-select">
+                    <option value="UNIDAD" ${data.uom == 'UNIDAD' ? 'selected' : ''}>UNIDAD</option>
+                    <option value="GALONES" ${data.uom == 'GALONES' ? 'selected' : ''}>GALONES</option>
+                    <option value="BARRILES" ${data.uom == 'BARRILES' ? 'selected' : ''}>BARRILES</option>
+                    <option value="LITROS" ${data.uom == 'LITROS' ? 'selected' : ''}>LITROS</option>
+                    <option value="METROS" ${data.uom == 'METROS' ? 'selected' : ''}>METROS</option>
+                    <option value="PULGADAS" ${data.uom == 'PULGADAS' ? 'selected' : ''}>PULGADAS</option>
+                    <option value="PIES" ${data.uom == 'PIES' ? 'selected' : ''}>PIES</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3"><label class="form-label fw-bold small">LARGO (m/ft)</label><input type="number" step="0.01" name="length" class="form-control" value="${data.length}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label fw-bold small">ANCHO (m)</label><input type="number" step="0.01" name="width" class="form-control" value="${data.width}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label fw-bold small">ALTO (m)</label><input type="number" step="0.01" name="height" class="form-control" value="${data.height}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label fw-bold small">PESO (kg)</label><input type="number" step="0.01" name="weight" class="form-control" value="${data.weight}"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">COSTO</label>
+                <input type="number" step="0.01" name="cost" class="form-control" value="${data.cost}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">COSTO CALIBRACIÓN</label>
+                <input type="number" step="0.01" name="calibration_cost" class="form-control" value="${data.calib_cost}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">PROPIEDAD / PROVEEDOR</label>
+                <input list="owners_list_edit" name="owner" class="form-control" value="${data.owner}" onfocus="this.value=''">
+                <datalist id="owners_list_edit">
+                    <option value="Petrocentro">
+                    <option value="NL Contapa">
+                    <option value="Sepein">
+                    <option value="Tradesering">
+                </datalist>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold text-primary">STOCK</label>
+                <input type="number" name="current_stock" class="form-control border-primary" value="${data.stock}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">ESTADO</label>
+                <select name="status" class="form-select">
+                    <option value="OPERATIVO" ${data.status == 'OPERATIVO' ? 'selected' : ''}>OPERATIVO</option>
+                    <option value="FUERA DE SERVICIO" ${data.status == 'FUERA DE SERVICIO' ? 'selected' : ''}>FUERA DE SERVICIO</option>
+                    {# <option value="ALQUILADO" ${data.status == 'ALQUILADO' ? 'selected' : ''}>ALQUILADO</option> #}
+                    <option value="DADO DE BAJA" ${data.status == 'DADO DE BAJA' ? 'selected' : ''}>DADO DE BAJA</option>
+                    <option value="VENDIDO" ${data.status == 'VENDIDO' ? 'selected' : ''}>VENDIDO</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">SKU/Código</label>
+                <input type="text" name="sku" class="form-control" value="${data.sku}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">PROYECTO</label>
+                <select name="project" class="form-select">
+                    <option value="">Sin Proyecto</option>
+                    {% for p in proyectos %}
+                        <option value="{{ p.id }}" ${data.project_id == '{{ p.id }}' ? 'selected' : ''}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">ORDEN ODS</label>
+                <input type="text" name="ods_order" class="form-control" value="${data.ods}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">GARANTÍA</label>
+                <input type="text" name="warranty" class="form-control" value="${data.warranty}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">STOCK MÍNIMO</label>
+                <input type="number" name="min_stock" class="form-control" value="${data.min_stock}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">STOCK MÁXIMO</label>
+                <input type="number" name="max_stock" class="form-control" value="${data.max_stock || 100}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Fecha Calibración</label>
+                <input type="date" name="calibration_date" class="form-control" value="${data.calib_date}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Fecha Mantenimiento</label>
+                <input type="date" name="maintenance_date" class="form-control" value="${data.maint_date}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Cant. Alquilada</label>
+                <input type="number" name="rented_quantity" class="form-control" value="${data.rented}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Cant. Fabricando</label>
+                <input type="number" name="manufacturing_quantity" class="form-control" value="${data.manufacturing}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">OBSERVACIONES / DESCRIPCIÓN</label>
+                <textarea name="description" class="form-control" rows="1">${data.desc}</textarea>
+            </div>
+        </div>
+        <!-- Campos técnicos ocultos -->
+        <input type="hidden" name="unit_price" value="${data.unit_price}">
+        <input type="hidden" name="base" value="${data.base_id}">
+    `;
+    
+    new bootstrap.Modal(document.getElementById('modalEditItem')).show();
+}
+
+// INICIO DEL CÓDIGO MOVIDO DEL PRIMER BLOQUE SCRIPT
+let transferCart = [];
+function agregarAlCarrito(id, name, base) {
+    if (requestCart.find(i => i.id === id)) { alert("Ya está en tu lista."); return; }
+    requestCart.push({ id, name, base });
+    actualizarCarritoUI();
+    document.getElementById('cart-float-btn').style.display = 'block';
+    const btn = document.querySelector('#cart-float-btn button');
+    btn.classList.add('btn-success');
+    setTimeout(() => btn.classList.remove('btn-success'), 500);
+
+function removeFromCart(index) { requestCart.splice(index, 1); actualizarCarritoUI(); }
+function vaciarCarrito() { requestCart = []; actualizarCarritoUI(); }
+function actualizarCarritoUI() {
+    const count = document.getElementById('cart-count');
+    count.innerText = requestCart.length;
+    const container = document.getElementById('cart-items-container');
+    const formDetails = document.getElementById('cart-form-details');
+    const btnSubmit = document.getElementById('btn-submit-cart');
+    container.innerHTML = '';
+    if (requestCart.length === 0) {
+        container.innerHTML = '<div class="text-center py-4"><p class="text-muted">No has seleccionado equipos.</p></div>';
+        formDetails.style.display = 'none'; btnSubmit.disabled = true;
+        document.getElementById('cart-float-btn').style.display = 'none';
+        return;
+    }
+    formDetails.style.display = 'block'; btnSubmit.disabled = false;
+    requestCart.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="card mb-2 border-0 bg-light shadow-sm">
+                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                    <div class="ps-2 small"><div class="fw-bold text-dark text-truncate" style="max-width: 200px;">${item.name}</div><div class="text-muted" style="font-size: 0.6rem;">Fuente: ${item.base}</div></div>
+                    <div class="d-flex align-items-center"><input type="number" id="qty-${index}" value="1" min="1" class="form-control form-control-sm text-center me-2" style="width: 50px;"><button class="btn btn-sm text-danger p-0" onclick="removeFromCart(${index})"><i class="fas fa-times-circle"></i></button></div>
+                </div>
+            </div>`;
+    });
+}
+async function procesarCarrito() {
+    const destBase = document.getElementById('cart-dest-base').value;
+    const destProj = document.getElementById('cart-dest-project').value;
+    const reason = document.getElementById('cart-reason').value;
+    if (!destBase && !destProj) { alert("Seleccione destino."); return; }
+    if (!reason) { alert("Indique el motivo."); return; }
+    if (!confirm(`¿Enviar ${requestCart.length} solicitudes?`)) return;
+    const itemsToRequest = requestCart.map((it, idx) => ({ id: it.id, qty: document.getElementById(`qty-${idx}`).value }));
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('items_json', JSON.stringify(itemsToRequest));
+    formData.append('dest_base_id', destBase);
+    formData.append('dest_project_id', destProj);
+    formData.append('reason', reason);
+
+    const resp = await fetch('{% url "solicitar_transferencia" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+
+    alert("Tu solicitud se envió exitosamente.");
+    window.location.href = "{% url 'gestion_inventario' %}?tab=requests";
+}
+
+// --- LÓGICA DE SOLICITUD POR LOTES (MODAL SUPERVISOR) ---
+let batchTransferItems = [];
+
+function agregarItemALote() {
+    const itemSelect = document.getElementById('request_item_id');
+    const itemId = itemSelect.value;
+    if (!itemId) return;
+
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    const itemName = selectedOption.getAttribute('data-name');
+    const originName = selectedOption.getAttribute('data-origin');
+
+    // Evitar duplicados en el mismo pedido
+    if (batchRequestItems.find(it => it.id === itemId)) {
+        alert("Este equipo ya está en la lista de tu solicitud.");
+        itemSelect.value = ""; // Reset selection
+        return;
+    }
+
+    batchRequestItems.push({
+        id: itemId,
+        name: itemName,
+        origin: originName,
+        qty: 1 // Inicia automáticamente con 1
+    });
+
+    actualizarTablaBatch();
+
+    // Resetear selección para facilitar la siguiente
+    itemSelect.value = "";
+}
+
+function updateBatchItemQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty <= 0) {
+        batchRequestItems[index].qty = 1;
+    } else {
+        batchRequestItems[index].qty = qty;
+    }
+}
+
+function actualizarTablaBatch() {
+    const body = document.getElementById('batch-items-body');
+    const counter = document.getElementById('batch-counter');
+    const submitBtn = document.getElementById('btn-submit-batch');
+
+    body.innerHTML = '';
+
+    if (batchRequestItems.length === 0) {
+        body.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted small">No has agregado equipos todavía.</td></tr>';
+        submitBtn.disabled = true;
+        counter.innerText = '0 ítems';
+        return;
+    }
+
+    batchRequestItems.forEach((it, index) => {
+        body.innerHTML += `
+            <tr>
+                <td class="ps-3">
+                    <div class="fw-bold">${it.name}</div>
+                    <small class="text-muted">Origen: ${it.origin}</small>
+                </td>
+                <td class="text-center">
+                    <input type="number" class="form-control form-control-sm text-center mx-auto"
+                           style="width: 70px;" value="${it.qty}" min="1"
+                           onchange="updateBatchItemQty(${index}, this.value)">
+                </td>
+                <td class="text-end pe-3">
+                    <button type="button" class="btn btn-sm text-danger" onclick="quitarItemDeBatch(${index})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    counter.innerText = `${batchRequestItems.length} ítems`;
+    submitBtn.disabled = false;
+}
+
+function quitarItemDeBatch(index) {
+    batchRequestItems.splice(index, 1);
+    actualizarTablaBatch();
+}
+
+async function enviarSolicitudBatch() {
+    const destBase = document.getElementById('batch_dest_base').value;
+    const destProject = document.getElementById('batch_dest_project').value;
+    const reason = document.getElementById('batch_reason').value;
+
+    if (batchRequestItems.length === 0) {
+        alert("No hay equipos en la lista de tu solicitud.");
+        return;
+    }
+    if (!destBase && !destProject) {
+        alert("Por favor, seleccione una Base o un Proyecto de destino.");
+        return;
+    }
+    if (!reason) {
+        alert("Por favor, ingrese un motivo para la solicitud.");
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de enviar esta solicitud con ${batchRequestItems.length} equipos?`)) {
+        return;
+    }
+
+    const itemsData = batchRequestItems.map(item => ({
+        id: item.id,
+        qty: item.qty
+    }));
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('items_json', JSON.stringify(itemsData));
+    formData.append('dest_base_id', destBase);
+    formData.append('dest_project_id', destProject);
+    formData.append('reason', reason);
+
+    try {
+        const response = await fetch('{% url "solicitar_transferencia" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        });
+        const data = await response.json();
+        if (data.status === 'ok' || data.status === 'success') {
+            alert("Tu solicitud se envió exitosamente.");
+            batchRequestItems = []; // Limpiar la lista
+            actualizarTablaBatch(); // Actualizar la tabla visualmente
+            const modalRequestTransferEl = document.getElementById('modalRequestTransfer');
+            const modalRequestTransfer = bootstrap.Modal.getInstance(modalRequestTransferEl);
+            if (modalRequestTransfer) modalRequestTransfer.hide(); // Cerrar el modal
+            window.location.href = "{% url 'gestion_inventario' %}?tab=requests"; // Redirigir
+        } else {
+            alert(`Error al enviar la solicitud: ${data.message}`);
+        }
+    } catch (error) {
+        console.error('Error al enviar la solicitud:', error);
+        alert("Ocurrió un error al comunicarse con el servidor.");
+    }
+}
+
+// Consolidar todos los datos agrupados para el modal de detalle de lote
+
+    // Abrimos el navegador sin cerrar el formulario de solicitud
+    const modalBrowse = new bootstrap.Modal(document.getElementById('modalBrowseInventory'));
+    modalBrowse.show();
+}
+
+function seleccionarEquipoDesdeNavegador(id, baseId) {
+    // 1. Sincronizar la sede de origen
+    const originSelect = document.getElementById('request_origin_base');
+    originSelect.value = baseId;
+
+    // 2. Ejecutar el filtro para que el item sea seleccionable
+    filterRequestItemsByBase(baseId);
+
+    // 3. Seleccionar el equipo específico
+    document.getElementById('request_item_id').value = id;
+
+    // 4. ACCIÓN UNIFICADA: Añadir automáticamente a la tabla
+    agregarItemALote();
+
+    // 4. Cerrar solo la ventana de navegación
+    const modalBrowseEl = document.getElementById('modalBrowseInventory');
+    const modalBrowse = bootstrap.Modal.getInstance(modalBrowseEl);
+    if (modalBrowse) modalBrowse.hide();
+
+    // 5. Garantizar que el scroll del modal principal siga funcionando
+    setTimeout(() => {
+        if (!document.body.classList.contains('modal-open')) {
+            document.body.classList.add('modal-open');
+        }
+    }, 400);
+}
+
+function confirmarEliminacion(id, nombre) {
+    console.log("Función confirmarEliminacion llamada para ID:", id, "Nombre:", nombre);
+    if (confirm(`¿Estás seguro de que deseas eliminar permanentemente el equipo "${nombre}"? Esta acción no se puede deshacer y quedará registrada en el historial.`)) {
+        window.location.href = `/inventario/eliminar/${id}/?tab=sede`;
+    }
+}
+
+function abrirModalEditarProyecto(id, nombre, observaciones) {
+    console.log("Función abrirModalEditarProyecto llamada para ID:", id);
+    const form = document.getElementById('formEditProject');
+    form.action = `/inventario/proyectos/editar/${id}/`;
+    document.getElementById('edit_project_name').value = nombre;
+    document.getElementById('edit_project_observations').value = observaciones;
+    new bootstrap.Modal(document.getElementById('modalEditProject')).show();
+}
+
+function abrirModalRechazo(url, info) {
+    console.log("Función abrirModalRechazo llamada para URL:", url, "Info:", info);
+    const form = document.getElementById('formRejectRequest');
+    form.action = url;
+    document.getElementById('rejectRequestInfo').innerText = `¿Estás seguro de rechazar la solicitud: ${info}?`;
+    new bootstrap.Modal(document.getElementById('modalRejectRequest')).show();
+}
+
+function abrirModalRecibir(url, info) {
+    console.log("Función abrirModalRecibir llamada para URL:", url, "Info:", info);
+    const form = document.getElementById('formReceiveTransfer');
+    form.action = url;
+    document.getElementById('receiveTransferInfo').innerText = `Confirmar recepción para: ${info}`;
+    new bootstrap.Modal(document.getElementById('modalReceiveTransfer')).show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab) {
+        const tabTrigger = document.querySelector(`#inventoryTabs button[data-bs-target="#tab-${tab}"]`);
+        if (tabTrigger) { new bootstrap.Tab(tabTrigger).show(); }
+    }
+});
+
+function filterItemsByProject(projectId) {
+    console.log("Función filterItemsByProject llamada con projectId:", projectId);
+    const itemSelect = document.getElementById('return_item_id');
+    const options = itemSelect.querySelectorAll('option');
+    
+    options.forEach(opt => {
+        if (opt.value === "") return;
+        const itemProjId = opt.getAttribute('data-project-id');
+        
+        // Si el proyecto seleccionado coincide o no hay proyecto seleccionado (limpieza)
+        const shouldShow = projectId !== "" && itemProjId === projectId;
+        opt.hidden = !shouldShow;
+        opt.disabled = !shouldShow;
+    });
+    itemSelect.value = ""; // Resetear selección al cambiar proyecto
+    if (window.jQuery && $(itemSelect).data('select2')) $(itemSelect).trigger('change');
+}
+</script>
+
+{% endblock %}

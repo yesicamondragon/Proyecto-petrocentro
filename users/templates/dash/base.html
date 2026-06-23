@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>{% block title %}{{ titulo_pagina|default:"Dashboard - Petrocentro" }}{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <style>
+        /* Forzamos estilos para asegurar consistencia total en todos los módulos */
+        body { 
+            font-family: 'Helvetica', Arial, sans-serif !important; 
+            background-color: #f8f9fc !important; 
+            overflow-x: hidden; 
+            margin: 0; 
+            padding: 0 !important; 
+            display: flex; 
+            gap: 0 !important; 
+            min-height: 100vh;
+        }
+        #layoutSidenav { display: flex; }
+        .sb-sidenav { background-color: #ffffff !important; color: #333 !important; }
+        .nav-link { color: #333 !important; padding: 1rem 1.5rem !important; font-size: 16px; font-weight: 600; transition: all 0.2s; border-bottom: 1px solid #f8f9fc; }
+        .nav-link:hover { color: #0b6838 !important; background-color: #f0f0f0 !important; }
+        .nav-link.active { color: #0b6838 !important; background-color: #e9ecef !important; border-left: 5px solid #0b6838; font-weight: 800; }
+        /* Forzamos iconos verdes en todo momento */
+        .nav-link i { margin-right: 0.75rem; width: 1.5rem; text-align: center; color: #0b6838 !important; font-size: 22px; }
+        .nav-link.active i { color: #0b6838 !important; }
+        .sb-sidenav-menu-heading { padding: 1.5rem 1.5rem 0.5rem; font-size: 20px; font-weight: 800; text-transform: none; color: #000000 !important; }
+        .navbar-brand { font-size: 1.5rem; letter-spacing: 2px; width: 280px; text-transform: uppercase; font-weight: 900 !important; color: #333 !important; }
+        main { padding-top: 20px; padding-bottom: 20px; }
+        
+        .sidebar { 
+            width: 280px; 
+            flex-shrink: 0; /* El menú mantiene su ancho fijo */
+            background-color: #ffffff; 
+            height: 100vh; 
+            overflow-y: auto; 
+            border-right: 2px solid #0b6838; 
+            position: sticky; 
+            top: 0;
+            z-index: 1000; 
+            transition: all 0.3s; 
+        }
+        
+        /* Personalización de la barra de desplazamiento para el menú */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #0b6838;
+            border-radius: 10px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #095530;
+        }
+
+        .menu-content { padding: 20px 0; }
+        .menu-items { list-style: none; padding: 0; margin: 0; }
+        .menu-title { padding: 10px 25px; font-size: 20px; font-weight: 800; color: #000; }
+        .item { display: flex; align-items: center; padding: 12px 25px; border-bottom: 1px solid #f8f9fc; transition: 0.2s; }
+        .item:hover, .item.active { background-color: #e9ecef; border-left: 5px solid #0b6838; }
+        .item a { text-decoration: none; color: #333; font-weight: 600; font-size: 16px; display: block; width: 100%; }
+        .item.active a, .item:hover a { color: #0b6838; }
+        .icons { color: #0b6838 !important; font-size: 22px; width: 30px; text-align: center; }
+        
+        #layoutSidenav_content { 
+            flex: 1; 
+            min-width: 0; /* Permite que el área de contenido se expanda al máximo */
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 0 !important; 
+            margin-left: 0 !important;
+        }
+        .navbar-custom { height: 60px; background: white; border-bottom: 1px solid #e3e6f0; display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 999; }
+        .perfil img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #0b6838; }
+        .item2 { padding: 15px 25px; list-style: none; text-align: center; }
+        .btn-logout { color: #dc3545; font-weight: 700; text-decoration: none; background: none; border: none; cursor: pointer; }
+        
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body class="sb-nav-fixed">
+    <!-- BARRA LATERAL ÚNICA -->
+    <nav class="sidebar" id="sidebar">
+        <div class="menu-content">
+            <a href="{% url 'index' %}" class="d-block text-center mb-4">
+                <img src="{% static 'images/logo.webp' %}" alt="Petrocentro" style="max-width: 80%;">
+            </a>
+            
+            <ul class="menu-items">
+                <li class="menu-title"><span>Menu</span></li>
+                <!-- 1. Inicio -->
+                <li class="item {% if request.path == '/' %}active{% endif %}">
+                    <i class="fa-solid fa-house icons"></i>
+                    <a href="/">Inicio</a>
+                </li>
+                <!-- 2. Dashboard -->
+                <li class="item {% if 'perfil_admin' in request.path or 'perfil_empleado' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie icons"></i>
+                    <a href="{% url dashboard_home %}">Dashboard</a>
+                </li>
+                {% if menu_usuarios_visible %}
+                <!-- 3. Usuarios -->
+                <li class="item {% if 'usuarios' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-users icons"></i>
+                    <a href="{% url 'usuarios' %}">Usuarios</a>
+                </li>
+                <!-- 4. Empleados -->
+                <li class="item {% if 'empleados' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-helmet-safety icons"></i>
+                    <a href="{% url 'empleados' %}">Empleados</a>
+                </li>
+                <!-- 5. Roles -->
+                <li class="item {% if 'roles' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-user-shield icons"></i>
+                    <a href="{% url 'asignar_roles' %}">Roles</a>
+                </li>
+                {% endif %}
+                <!-- 6. Inventario -->
+                {% if menu_inventario_visible %}
+                <li class="item {% if 'inventario' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-stacked icons"></i>
+                    <a href="{% url 'gestion_inventario' %}">Inventario</a>
+                </li>
+                {% endif %}
+                <!-- 7. Tareas -->
+                <li class="item {% if 'tareas' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-list-check icons"></i>
+                    <a href="{% url 'gestion_tareas' %}">Tareas</a>
+                </li>
+                <!-- 8. Gestión de Cursos Obligatorios -->
+                <li class="item {% if 'gestion_cursos' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-graduation-cap icons"></i>
+                    <a href="{% url 'gestion_cursos' %}">Gestión de Cursos</a>
+                </li>
+                <!-- 9. Publicaciones -->
+                <li class="item {% if 'crear_post' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-newspaper icons"></i>
+                    <a href="{% url 'crear_post_view' %}">Publicaciones</a>
+                </li>
+                {% if request.user.is_superuser %}
+                <!-- 10. Auditoría -->
+                <li class="item {% if 'auditoria' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-file-shield icons"></i>
+                    <a href="{% url 'panel_auditoria' %}">Auditoría</a>
+                </li>
+                <!-- 11. Reportes RRHH -->
+                <li class="item {% if 'reporte_rrhh' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line icons"></i>
+                    <a href="{% url 'reporte_rrhh' %}">Reportes RRHH</a>
+                </li>
+                {% endif %}
+
+                <!-- 12. Gestión PQRS -->
+                <li class="item {% if 'pqrs' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-headset icons"></i>
+                    <a href="{% url 'gestion_pqrs' %}">Gestión PQRS</a>
+                </li>
+                <!-- 13. Gestión Cotizaciones -->
+                <li class="item {% if 'cotizaciones' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar icons"></i>
+                    <a href="{% url 'gestion_cotizaciones' %}">Gestión Cotizaciones</a>
+                </li>
+                <!-- 14. Pág. Nosotros -->
+                <li class="item {% if 'nosotros_conf' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-images icons"></i>
+                    <a href="{% url 'nosotros_conf' %}">Pág. Nosotros</a>
+                </li>
+
+                <!-- 15. Mi Perfil -->
+                <li class="item {% if 'perfil' in request.path and 'perfil_admin' not in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-user-cog icons"></i>
+                    <a href="{% url 'perfil' %}">Mi Perfil</a>
+                </li>
+                
+                <li class="item2">
+                    <form action="{% url 'logout_view' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-logout"><i class="fa-solid fa-sign-out-alt me-1"></i> Cerrar Sesión</button>
+                    </form>
+                </li>
+
+                <li class="item2">
+                    <div class="perfil">
+                        <img src="{% if usuario_global.foto_perfil %}{{ usuario_global.foto_perfil.url }}{% else %}{% static 'images/sin_foto.webp' %}{% endif %}" alt="Avatar">
+                    </div>
+                    <div class="small mt-2 font-weight-bold">{{ usuario_global.nombre }}</div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="layoutSidenav_content">
+        <!-- NAVBAR SUPERIOR -->
+        <div class="navbar-custom shadow-sm d-flex justify-content-between align-items-center px-4">
+            <button class="btn btn-link text-success d-lg-none" id="sidebarToggle"><i class="fas fa-bars fa-lg"></i></button>
+            <div class="fw-bold text-uppercase" style="letter-spacing: 1px;">PETROCENTRO - {{ titulo_pagina|default:"Panel" }}</div>
+            <div class="text-muted small d-none d-md-block">{{ nombre_rol_global }}</div>
+        </div>
+
+        <main class="pt-4 pb-4 pe-2 ps-1">
+                {% if messages %}
+                    <div class="container-fluid ps-1 pe-2 mt-3">
+                    <div class="container-fluid">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </main>
+            
+            <footer class="py-4 bg-light mt-auto border-top">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small text-muted">
+                        <div>Copyright &copy; Petrocentro 2026</div>
+                        <div>
+                            <a href="#" class="text-decoration-none">Soporte Técnico</a>
+                            &middot;
+                            <a href="#" class="text-decoration-none">Privacidad</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', event => {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', e => {
+                    e.preventDefault();
+                    sidebar.classList.toggle('show');
+                });
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

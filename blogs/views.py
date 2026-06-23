@@ -32,6 +32,11 @@ def get_blog_context(request):
     context['categorias_listado'] = Categoria.objects.annotate(
         total_posts=Count('post', filter=Q(post__estado=True))
     ).filter(total_posts__gt=0).order_by('nombre')
+    
+    # Habilitar visibilidad de inventario en el menú del Blog para administradores
+    if request.user.is_superuser:
+        context['inventario'] = 1
+
     return context
 
 # Helper para obtener posts filtrados por nombre de categoría y visibilidad, y preparar el contexto

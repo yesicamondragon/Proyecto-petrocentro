@@ -2586,6 +2586,8 @@ svg{
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
+    grid-column: 1 / -1;
 }
 
 .grid-innovacion {
@@ -2906,6 +2908,8 @@ svg{
     color: #161C2D;
     margin-bottom: 15px;
     text-transform: uppercase;
+    text-align: center;
+    grid-column: 1 / -1;
 }
 
 .subtitulo-casos {
@@ -2916,6 +2920,10 @@ svg{
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    margin: 0 auto 50px auto !important;
+    text-align: center !important;
+    display: block;
+    width: 100%;
 }
 
 .grid-casos {
@@ -3036,6 +3044,8 @@ svg{
     color: #161C2D;
     margin-bottom: 15px;
     text-transform: uppercase;
+    text-align: center;
+    grid-column: 1 / -1;
 }
 
 .subtitulo-normativas {
@@ -3118,7 +3128,11 @@ svg{
     font-size: 36px;
     color: #161C2D;
     margin-bottom: 15px;
+    margin: 0 auto 15px auto !important;
     text-transform: uppercase;
+    text-align: center !important;
+    display: block;
+    width: 100%;
 }
 
 .subtitulo-infografias {
@@ -3619,6 +3633,8 @@ svg{
     color: #161C2D;
     margin-bottom: 15px;
     text-transform: uppercase;
+    text-align: center; /* Asegura el centrado del texto */
+    grid-column: 1 / -1; /* Hace que el título ocupe todas las columnas del grid */
 }
 
 .subtitulo-beneficios {

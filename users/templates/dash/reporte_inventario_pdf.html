@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; font-size: 10pt; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .title { font-size: 16pt; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .total-row { background-color: #e9ecef; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: right; font-size: 8pt; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">{{ titulo }}</div>
+        <div>Petrocentro S.A.S - Control de Activos</div>
+        <div>Generado por: {{ usuario.nombre }} el {{ fecha|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <h3>Resumen por Categoría</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Categoría</th>
+                <th style="text-align: center;">Tipos de Equipo</th>
+                <th style="text-align: center;">Unidades Totales</th>
+                <th style="text-align: right;">Valorización</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td>{{ cat.name }}</td>
+                <td style="text-align: center;">{{ cat.total_tipos }}</td>
+                <td style="text-align: center;">{{ cat.total_unidades|default:0 }}</td>
+                <td style="text-align: right;">$ {{ cat.valor_total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3">VALOR TOTAL INVENTARIO (EMPRESA)</td>
+                <td style="text-align: right;">$ {{ total_global|floatformat:2 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div style="margin-top: 30px;">
+        <p><strong>Nota:</strong> Este reporte refleja el stock consolidado de todas las sedes operativas de Petrocentro S.A.S a la fecha de generación.</p>
+    </div>
+
+    <div class="footer">
+        Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+</body>
+</html>

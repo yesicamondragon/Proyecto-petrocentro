@@ -196,29 +196,21 @@
 
         <script>
             // DESBLOQUEO DE INTERFAZ: Ocultar pantalla de carga de forma robusta
-            (function(){
-                // Evitar múltiples ejecuciones y ruidos en consola
-                let __loaderHidden = false;
-                function forzarOcultarCargador() {
-                    if (__loaderHidden) return;
-                    const overlay = document.getElementById('loadingOverlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                        __loaderHidden = true;
-                        console.debug("Cargador ocultado por seguridad en base_blog.html.");
-                        // Eliminar listeners una vez ocultado para no repetir mensajes
-                        window.removeEventListener('load', forzarOcultarCargador);
-                        document.removeEventListener('DOMContentLoaded', forzarOcultarCargador);
-                    } else {
-                        // Silenciar el error si el overlay no forma parte de esta plantilla
-                        console.debug("Nota: 'loadingOverlay' no existe en esta página — nada que ocultar.");
-                    }
+            function forzarOcultarCargador() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    console.log("Cargador ocultado por seguridad en base_blog.html.");
+                    console.trace("Pila de llamadas al ocultar cargador desde base_blog.html"); // Para depuración
+                } else {
+                    // Esto es un error si el overlay debería estar presente pero no se encuentra
+                    console.error("Error: El elemento 'loadingOverlay' no se encontró en el DOM para ocultar.");
                 }
-
-                window.addEventListener('load', forzarOcultarCargador);
-                document.addEventListener('DOMContentLoaded', forzarOcultarCargador);
-                setTimeout(forzarOcultarCargador, 3000); // Si a los 3 seg sigue ahí, lo quitamos sí o sí.
-            })();
+            }
+            
+            window.addEventListener('load', forzarOcultarCargador);
+            document.addEventListener('DOMContentLoaded', forzarOcultarCargador);
+            setTimeout(forzarOcultarCargador, 3000); // Si a los 3 seg sigue ahí, lo quitamos sí o sí.
 
             // Lógica de carga de noticias RSS
             document.addEventListener("DOMContentLoaded", function() { // DOMContentLoaded para asegurar que el contenedor exista
@@ -235,49 +227,11 @@
                 const feedURL = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=es-419&gl=CO&ceid=CO:es-419`;
                 const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedURL);
 
-                // Intentar AllOrigins (leer RSS crudo) primero — evita límites y problemas de CORS de servicios intermedios
-                const timeoutFetch = (resource, options = {}) => {
-                    const { timeout = 8000 } = options;
-                    const controller = new AbortController();
-                    const id = setTimeout(() => controller.abort(), timeout);
-                    return fetch(resource, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
-                };
-
-                const parseRssXml = text => {
-                    const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, 'application/xml');
-                    const items = Array.from(xml.querySelectorAll('item')).map(item => ({
-                        title: item.querySelector('title') ? item.querySelector('title').textContent : '',
-                        link: item.querySelector('link') ? item.querySelector('link').textContent : '',
-                        pubDate: item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '',
-                        description: item.querySelector('description') ? item.querySelector('description').textContent : ''
-                    }));
-                    return { status: 'ok', items };
-                };
-
-                const fetchAllOrigins = () => timeoutFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(feedURL), { timeout: 8000 })
-                    .then(r => {
-                        if (!r.ok) throw new Error('AllOrigins falló con status ' + r.status);
-                        return r.text();
-                    })
-                    .then(text => parseRssXml(text));
-
-                const fetchRss2Json = () => timeoutFetch(apiUrl, { timeout: 8000 })
-                    .then(r => {
-                        if (!r.ok) throw new Error('rss2json falló con status ' + r.status);
-                        return r.json();
-                    })
-                    .then(json => json);
-
-                // Intentar AllOrigins primero, si falla intentar rss2json, si ambos fallan mostrar mensaje amigable
-                fetchAllOrigins()
-                    .catch(errAll => {
-                        console.warn('AllOrigins falló:', errAll.message, '— intentando rss2json');
-                        return fetchRss2Json();
-                    })
-                    .then(data => {
+                fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
                     const container = document.getElementById('news-container');
-                    if (data && data.status === 'ok' && data.items && data.items.length > 0) {
+                    if(data.status === 'ok' && data.items.length > 0){
                         container.innerHTML = '';
                         data.items.slice(0, 9).forEach((item, index) => {
                             const date = new Date(item.pubDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -309,8 +263,7 @@
                                 const tag = industrialTags.find(t => title.toLowerCase().includes(t)) || industrialTags[index % industrialTags.length];
                                 // Generar una semilla aleatoria para que cambie en cada recarga
                                 const randomSeed = Math.floor(Math.random() * 1000000) + index;
-                                // Usar Unsplash Source como fallback más estable para consultas por tag
-                                imageUrl = `https://source.unsplash.com/800x500/?${encodeURIComponent(tag)}`;
+                                imageUrl = `https://loremflickr.com/800/500/${tag}?lock=${randomSeed}`;
                             }
 
                             const mediaTag = `<img src="${imageUrl}" loading="lazy">`;
@@ -496,62 +449,56 @@
         
         <script>
             // Manejo robusto del formulario de suscripción
-            const subscribeFormElement = document.getElementById('subscribeForm');
-            if (subscribeFormElement) {
-                subscribeFormElement.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const form = this;
-                    const formData = new FormData(form);
-                    const messageBox = document.getElementById('messageBox');
-                    if (messageBox) messageBox.style.display = 'none'; // Ocultar mensaje previo
-                    
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(async response => {
-                        let data;
-                        try {
-                            data = await response.json();
-                        } catch (e) {
-                            // Si no es JSON, probablemente sea un error 500 en HTML
-                            throw new Error('El servidor encontró un error técnico. Intente más tarde.');
-                        }
+            document.getElementById('subscribeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const formData = new FormData(form);
+                const messageBox = document.getElementById('messageBox');
+                
+                messageBox.style.display = 'none'; // Ocultar mensaje previo
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(async response => {
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        // Si no es JSON, probablemente sea un error 500 en HTML
+                        throw new Error('El servidor encontró un error técnico. Intente más tarde.');
+                    }
 
-                        if (!response.ok) {
-                            throw new Error(data.message || `Error del servidor (${response.status})`);
-                        }
-                        return data;
-                    })
-                    .then(data => {
-                        if (messageBox) {
-                            messageBox.style.display = 'block';
-                            messageBox.innerText = data.message || 'Proceso finalizado.';
-                            let alertClass = 'info';
-                            if (data.status === 'success') alertClass = 'success';
-                            else if (data.status === 'error') alertClass = 'error';
-                            messageBox.className = 'message ' + alertClass;
-                        }
-                        if(data.status === 'success') form.reset();
+                    if (!response.ok) {
+                        throw new Error(data.message || `Error del servidor (${response.status})`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    messageBox.style.display = 'block';
+                    messageBox.innerText = data.message || 'Proceso finalizado.';
+                    
+                    let alertClass = 'info';
+                    if (data.status === 'success') alertClass = 'success';
+                    else if (data.status === 'error') alertClass = 'error';
+                    
+                    messageBox.className = 'message ' + alertClass;
+                    if(data.status === 'success') form.reset();
                 })
                 .catch(error => {
                     console.error('Subscription Error:', error);
-                    if (messageBox) {
-                        messageBox.style.display = 'block';
-                        // Evitar el mensaje "undefined" a toda costa
-                        messageBox.innerText = error.message || 'Error de conexión con el servidor.';
-                        messageBox.className = 'message error';
-                    }
+                    messageBox.style.display = 'block';
+                    // Evitar el mensaje "undefined" a toda costa
+                    messageBox.innerText = error.message || 'Error de conexión con el servidor.';
+                    messageBox.className = 'message error';
                 });
             });
-            } else {
-                console.debug('Elemento subscribeForm no encontrado — comportamiento esperado en páginas sin formulario.');
-            }
         </script>
 
-        <!-- jQuery 3.6 desde jsDelivr con SRI correcto -->
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+        <!-- jQuery 1.8+ -->
+        <script src="{% static 'plugin/components/jQuery/jquery-1.11.3.min.js'%}"></script>
         <!-- Plugin JS file WhatsApp -->
         <script src="{% static 'plugin/components/moment/moment.min.js'%}"></script>
         <script src="{% static 'plugin/components/moment/moment-timezone-with-data.min.js'%}"></script> <!-- spanish language (es) -->

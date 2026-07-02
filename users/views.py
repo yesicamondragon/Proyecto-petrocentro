@@ -37,6 +37,15 @@ from xhtml2pdf import pisa
 User = get_user_model()
 
 # --- UTILIDADES ---
+def recibir_transferencia(request, request_id):
+    transferencia = Transferencia.objects.filter(id=request_id).first()
+    if not transferencia:
+        return JsonResponse({"error": "Transferencia no encontrada"}, status=404)
+
+    transferencia.estado = "RECIBIDA"
+    transferencia.save()
+    return JsonResponse({"ok": True, "mensaje": "Transferencia recibida"})
+
 def obtener_permisos(permisos):
     crear = 0
     eliminar = 0
@@ -2814,12 +2823,6 @@ def importar_inventario_excel(request):
                 }
                 for key, value in mapping.items():
                     if key in n: return value
-
-                # Also accept exact whitelist names when the text already matches them.
-                for cat_name in WHITELIST_CATEGORIES:
-                    if cat_name.upper() == n or cat_name.upper() in n:
-                        return cat_name
-
                 return None # Permitir que quede sin categoría si no hay match claro
 
             def normalizar_sede(nombre):
@@ -2995,9 +2998,7 @@ def importar_inventario_excel(request):
             # 2. Re-mapeamos TODOS los equipos de la base de datos a las 17 oficiales
             for item in InventoryItem.objects.all():
                 nombre_correcto = normalizar_categoria(item.category.name if item.category else "")
-                if not nombre_correcto:
-                    continue
-                cat_oficial, _ = InventoryCategory.objects.get_or_create(name=nombre_correcto)
+                cat_oficial = InventoryCategory.objects.get(name=nombre_correcto)
                 if item.category_id != cat_oficial.id:
                     item.category = cat_oficial
                     item.save()

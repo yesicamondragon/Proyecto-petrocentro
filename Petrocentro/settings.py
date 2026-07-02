@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-r9%9vu)tf(0r_k
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['petrocentro.co','www.petrocentro.co', '127.0.0.1','localhost']
+ALLOWED_HOSTS = ['petrocentro.co', 'www.petrocentro.co', '72.167.141.51', '127.0.0.1', 'localhost']
 
 
 # Application definition

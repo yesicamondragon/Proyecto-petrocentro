@@ -1,7 +1,9 @@
-document.getElementById('subscribeForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var email = document.getElementById('emailInput').value;
-  var messageBox = document.getElementById('messageBox');
+var __subscribeFormEl = document.getElementById('subscribeForm');
+if (__subscribeFormEl) {
+    __subscribeFormEl.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = document.getElementById('emailInput') ? document.getElementById('emailInput').value : '';
+        var messageBox = document.getElementById('messageBox');
   
   // Crear un objeto con los datos del formulario
   var formData = new FormData();
@@ -17,23 +19,30 @@ document.getElementById('subscribeForm').addEventListener('submit', function(e) 
   })
   .then(response => response.json())
   .then(data => {
-      if (data.success) {
-          messageBox.textContent = '¡Te has suscrito correctamente!';
-          messageBox.className = 'message success';
-          document.getElementById('emailInput').value = '';
-      } else {
-          messageBox.textContent = 'Error: ' + data.error;
-          messageBox.className = 'message error';
+      if (messageBox) {
+          if (data.success) {
+              messageBox.textContent = '¡Te has suscrito correctamente!';
+              messageBox.className = 'message success';
+              if (document.getElementById('emailInput')) document.getElementById('emailInput').value = '';
+          } else {
+              messageBox.textContent = 'Error: ' + data.error;
+              messageBox.className = 'message error';
+          }
+          messageBox.style.display = 'block';
       }
-      messageBox.style.display = 'block';
   })
   .catch(error => {
       console.error('Error:', error);
-      messageBox.textContent = 'Ocurrió un error al procesar tu solicitud.';
-      messageBox.className = 'message error';
-      messageBox.style.display = 'block';
+            if (messageBox) {
+                messageBox.textContent = 'Ocurrió un error al procesar tu solicitud.';
+                messageBox.className = 'message error';
+                messageBox.style.display = 'block';
+            }
   });
 });
+} else {
+    console.debug('subscribeForm no presente — suscribeForm.js no ha añadido listeners.');
+}
 
 // Función para obtener el token CSRF de las cookies
 function getCookie(name) {

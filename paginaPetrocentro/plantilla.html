@@ -291,19 +291,26 @@
     </div>
     
     <!-- Scripts -->
+    <!-- jQuery 3.6 desde CDN (reemplaza el archivo corrupto local) -->
+    <!-- jQuery 3.6 desde jsDelivr (CDN confiable con SRI correcto) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+    
+    <!-- Vanilla JS Scripts -->
     <script src="{% static 'js/script.js'%}"></script>
-    <!--Script de whatsapp-->
-
-    <!-- jQuery 1.8+ -->
-    <script src="{% static 'plugin/components/jQuery/jquery-1.11.3.min.js'%}"></script>
+    <script src="{% static 'js/suscribeNoticias.js' %}"></script>
+    
     <!-- Plugin JS file WhatsApp -->
     <script src="{% static 'plugin/components/moment/moment.min.js'%}"></script>
-    <script src="{% static 'plugin/components/moment/moment-timezone-with-data.min.js'%}"></script> <!-- spanish language (es) -->
+    <script src="{% static 'plugin/components/moment/moment-timezone-with-data.min.js'%}"></script>
     <script src="{% static 'plugin/whatsapp-chat-support.js'%}"></script>
+    
+    <!-- Initialize WhatsApp Chat -->
     <script>
-      $('#button-w').whatsappChatSupport({
-          defaultMsg : '',
-      });
+      if (typeof jQuery !== 'undefined' && jQuery('#button-w').length) {
+        jQuery('#button-w').whatsappChatSupport({
+            defaultMsg : '',
+        });
+      }
     </script>
     {% block script %}{% endblock  %}
     <script src="{% static 'js/suscribeForm.js' %}"></script>
@@ -541,9 +548,18 @@
             box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'flex' : 'none';
         }
 
-        // Conexión WebSocket
+        // Conexión WebSocket con Backoff Exponencial
         let chatSocket = null;
         let messageQueue = [];
+        let reconnectAttempt = 0;
+        let maxReconnectDelay = 30000; // 30 segundos máximo
+        let baseDelay = 3000; // 3 segundos base
+
+        function getReconnectDelay() {
+            // Backoff exponencial: 3s, 6s, 12s, 24s, 30s (máx)
+            const delay = Math.min(baseDelay * Math.pow(2, reconnectAttempt), maxReconnectDelay);
+            return delay;
+        }
 
         function connectChat() {
             // Evitar múltiples conexiones
@@ -582,7 +598,8 @@
             };
 
             chatSocket.onopen = function(e) {
-                console.log("Chat conectado correctamente");
+                console.log("✅ Chat conectado correctamente");
+                reconnectAttempt = 0; // Resetear contador al conectar exitosamente
                 const statusElem = document.getElementById('chatStatus');
                 statusElem.textContent = "En línea";
                 statusElem.className = "badge bg-success";
@@ -593,13 +610,23 @@
                 }
             };
 
-            chatSocket.onclose = function(e) {
-                console.error('Chat socket cerrado. Reintentando en 3s...');
+            chatSocket.onerror = function(error) {
+                console.warn('⚠️ Error WebSocket:', error);
                 const statusElem = document.getElementById('chatStatus');
-                statusElem.textContent = "Desconectado";
-                statusElem.className = "badge bg-danger";
+                statusElem.innerHTML = "Error de conexión";
+                statusElem.className = "badge bg-warning";
+            };
+
+            chatSocket.onclose = function(e) {
+                reconnectAttempt++;
+                const delay = getReconnectDelay();
+                const statusElem = document.getElementById('chatStatus');
+                statusElem.textContent = "Reconectando...";
+                statusElem.className = "badge bg-secondary";
+                
+                console.log(`⏳ WebSocket cerrado. Reintentando en ${(delay/1000).toFixed(1)}s (intento ${reconnectAttempt})`);
                 chatSocket = null;
-                setTimeout(connectChat, 3000);
+                setTimeout(connectChat, delay);
             };
         }
         

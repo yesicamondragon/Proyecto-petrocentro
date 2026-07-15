@@ -88,5 +88,6 @@ urlpatterns = [
         path('inventario/recibir/<int:request_id>/', views.recibir_transferencia, name='recibir_transferencia'),
         path('inventario/requisicion/pdf/<str:batch_id>/', views.descargar_requisicion_pdf, name='descargar_requisicion_pdf'),
         path('inventario/reset-total/', views.reiniciar_inventario_data, name='reiniciar_inventario_data'),
+path('inventario/vaciar-tabla/', views.vaciar_tabla_inventario, name='vaciar_tabla_inventario'),
 
     ]

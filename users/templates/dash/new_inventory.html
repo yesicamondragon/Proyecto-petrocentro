@@ -63,13 +63,21 @@
                 {% endif %}
             </button>
         </li>
-        {% if is_admin %}
+     {% if is_supervisor or is_admin %}
         <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="reports-tab" data-bs-toggle="pill" data-bs-target="#tab-reports" type="button" role="tab"><i class="fas fa-file-alt me-2"></i>Reportes Admin</button></li>
         {% endif %}
         {% if is_admin %}
         <li class="nav-item ms-auto" role="presentation">
             <a href="{% url 'reiniciar_inventario_data' %}" class="btn btn-outline-danger btn-sm fw-bold border-2" onclick="return confirm('¡ADVERTENCIA CRÍTICA!\n\nEsto eliminará permanentemente todos los equipos (692+), transacciones e historial para empezar de cero.\n\n¿Desea continuar?');"><i class="fas fa-trash-alt me-1"></i>VACIAR INVENTARIO</a>
         </li>
+       <li class="nav-item ms-auto" role="presentation">
+    <a href="{% url 'vaciar_tabla_inventario' %}" 
+       class="btn btn-warning btn-sm fw-bold border-2" 
+       onclick="return confirm('Esto vaciará únicamente la tabla de Inventario General.\n\nLos historiales de Movimientos de Stock, Solicitudes y Reportes Admin NO se borrarán.\n\n¿Desea continuar?');">
+       <i class="fas fa-trash-alt me-1"></i>VACIAR TABLA
+    </a>
+</li>
+
         {% endif %}
     </ul>
 
@@ -1144,7 +1152,7 @@
                                     </td>
                                     <td class="text-muted small"><em>"{{ data.reason }}"</em></td>
                                     <td class="text-center">
-                                        {% if is_admin %}
+                                        {% if is_supervisor or is_admin %}
                                         <div class="btn-group">
                                             <form action="{% url 'procesar_transferencia' data.id %}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de que desea aprobar esta solicitud de traslado? Esta acción procesará el despacho de los equipos y descontará el stock de las sedes de origen.');">
                                                 {% csrf_token %}
@@ -2651,8 +2659,10 @@ function seleccionarEquipoDesdeNavegador(id, baseId) {
     </div>
 </div>
 
-<!-- Modal para Solicitar Traslado (Supervisor) -->
-{% if is_supervisor %}
+
+<!-- Modal para Solicitar Traslado (Supervisor y Admin) -->
+{% if is_supervisor or is_admin %}
+
 <div class="modal fade" id="modalRequestTransfer" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

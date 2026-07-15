@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render, redirect # Keep this import
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, JsonResponse
@@ -4030,3 +4032,9 @@ def recibir_transferencia(request, request_id):
             messages.error(request, f"Error al registrar recepción: {e}")
 
     return redirect(f"{reverse('gestion_inventario')}?tab=requests")
+
+@require_POST
+def vaciar_tabla_inventario(request):
+    # ⚠️ Usa el modelo correcto: en tu código el inventario está basado en InventoryItem
+    InventoryItem.objects.all().delete()
+    return JsonResponse({"status": "ok"})

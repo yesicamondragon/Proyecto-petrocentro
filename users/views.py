@@ -32,6 +32,11 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.db import transaction
 from xhtml2pdf import pisa
+from django.templatetags.static import static
+from django.contrib.staticfiles import finders
+import base64
+import mimetypes
+import os
 
 # Get Django's User model
 User = get_user_model()
@@ -75,8 +80,10 @@ def obtener_contexto_usuario(request):
 
     if not usuario_profile:
         return {
-            'usuario': None, 'empleado': None, 'permisos': {}, 
-            'nombre_rol': "Invitado", 'usuarios': 0, 'inventario': 0
+            'usuario': None, 'empleado': None, 'permisos': {},
+            'nombre_rol': "Invitado", 'usuarios': 0, 'inventario': 0,
+            'crear': 0, 'consultar': 0, 'editar': 0, 'eliminar': 0,
+            'is_supervisor': False, 'is_admin': False,
         }
 
     empleado_profile = None
@@ -93,14 +100,19 @@ def obtener_contexto_usuario(request):
                 nombre_rol = empleado_profile.id_rol.nombre.strip().upper() # Normalizado
                 permisos_qs = Rol_permiso.objects.filter(rol=empleado_profile.id_rol)
                 permisos = obtener_permisos(permisos_qs)
+                if nombre_rol == "ADMINISTRADOR":
+                    permisos = {
+                        'crear': 1, 'consultar': 1, 'editar': 1,
+                        'eliminar': 1, 'usuarios': 1, 'inventario': 1
+                    }
             else:
                 nombre_rol = "Empleado (Sin Rol)"
         except Empleado.DoesNotExist:
             pass
             
     # Normalización de banderas de visibilidad (Sincronizado con context_processors.py)
-    is_admin = nombre_rol == "ADMINISTRADOR" or user.is_superuser
-    is_supervisor = nombre_rol == "SUPERVISOR" or user.is_superuser
+    is_admin = nombre_rol.startswith("ADMINISTRADOR") or user.is_superuser
+    is_supervisor = nombre_rol.startswith("SUPERVISOR") or user.is_superuser
     has_profile = empleado_profile is not None
 
     if is_admin:
@@ -2259,28 +2271,31 @@ def gestion_inventario(request):
     items_for_summary = InventoryItem.objects.filter(base__nombre__in=VALID_BASES).select_related('category', 'base')
     summary_map = {}
     for it in items_for_summary:
-        key = it.description or it.name
-        if key not in summary_map:
-            summary_map[key] = {
-                'description': key,
+        item_key = it.sku if it.sku else (it.description or it.name)
+        if item_key not in summary_map:
+            summary_map[item_key] = {
+                'sku': it.sku or item_key,
+                'equipment_name': it.name,
+                'description': it.description or it.name,
                 'category__name': it.category.name if it.category else "Sin Categoría",
                 'total_empresa': 0,
-                'stock_chichimene': 0, 'id_chichimene': None,
-                'stock_mocoa': 0, 'id_mocoa': None,
-                'stock_sibate': 0, 'id_sibate': None,
+                'stock_chichimene': 0, 'base_chichimene_id': None,
+                'stock_mocoa': 0, 'base_mocoa_id': None,
+                'stock_sibate': 0, 'base_sibate_id': None,
+                'search_key': it.sku or it.tag or it.description or it.name,
             }
         
-        summary_map[key]['total_empresa'] += it.current_stock
+        summary_map[item_key]['total_empresa'] += it.current_stock
         b_norm = it.base.nombre.upper() if it.base else ""
         if "CHICHIMENE" in b_norm:
-            summary_map[key]['stock_chichimene'] += it.current_stock
-            if it.current_stock > 0 and not summary_map[key]['id_chichimene']: summary_map[key]['id_chichimene'] = it.id
+            summary_map[item_key]['stock_chichimene'] += it.current_stock
+            if it.current_stock > 0 and not summary_map[item_key]['base_chichimene_id']: summary_map[item_key]['base_chichimene_id'] = it.base.idUbicacion if it.base else None
         elif "MOCOA" in b_norm:
-            summary_map[key]['stock_mocoa'] += it.current_stock
-            if it.current_stock > 0 and not summary_map[key]['id_mocoa']: summary_map[key]['id_mocoa'] = it.id
+            summary_map[item_key]['stock_mocoa'] += it.current_stock
+            if it.current_stock > 0 and not summary_map[item_key]['base_mocoa_id']: summary_map[item_key]['base_mocoa_id'] = it.base.idUbicacion if it.base else None
         elif "SIBATE" in b_norm or "SIBATÉ" in b_norm:
-            summary_map[key]['stock_sibate'] += it.current_stock
-            if it.current_stock > 0 and not summary_map[key]['id_sibate']: summary_map[key]['id_sibate'] = it.id
+            summary_map[item_key]['stock_sibate'] += it.current_stock
+            if it.current_stock > 0 and not summary_map[item_key]['base_sibate_id']: summary_map[item_key]['base_sibate_id'] = it.base.idUbicacion if it.base else None
     
     global_stock_summary = sorted(summary_map.values(), key=lambda x: x['description'])
 
@@ -2410,7 +2425,11 @@ def gestion_inventario(request):
         total_val=Sum(F('current_stock') * F('unit_price')),
         total_stock=Sum('current_stock'),
         available=Sum(Case(When(status='OPERATIVO', then=F('current_stock')), default=0, output_field=IntegerField())),
-        in_project=Sum(Case(When(status='EN PROYECTO', then=F('current_stock')), default=0, output_field=IntegerField())),
+        in_project=Sum(Case(
+            When(Q(status='EN PROYECTO') | Q(project__isnull=False), then=F('current_stock')),
+            default=0,
+            output_field=IntegerField()
+        )),
         in_maint=Sum(Case(When(status='FUERA DE SERVICIO', then=F('current_stock')), default=0, output_field=IntegerField())),
         critical=Count(Case(When(current_stock__lte=F('min_stock'), then=1))),
         consumables_crit=Count(Case(When(equipment_type='SUMINISTRO', current_stock__lte=F('min_stock'), then=1)))
@@ -2532,15 +2551,14 @@ def gestion_inventario(request):
 
 @login_required
 def exportar_inventario_excel(request):
-    """Genera un reporte Excel del inventario actual valorizado para revisión administrativa."""
+    """Exporta la tabla del inventario visible a un archivo Excel con las columnas del listado."""
     ctx = obtener_contexto_usuario(request)
     if not request.user.is_superuser and not ctx['consultar']:
         messages.error(request, "No tienes permisos para exportar reportes.")
         return redirect('gestion_inventario')
 
-    items = InventoryItem.objects.select_related('category', 'base', 'supplier').all().order_by('category__name', 'name')
+    items = InventoryItem.objects.select_related('category', 'base', 'project', 'supplier').all().order_by('category__name', 'name')
 
-    # APLICAR FILTROS (Paridad total con la vista de gestión para exportaciones precisas)
     search_query = request.GET.get('search')
     category_filter = request.GET.get('category')
     project_filter = request.GET.get('project')
@@ -2548,6 +2566,9 @@ def exportar_inventario_excel(request):
     critical_filter = request.GET.get('critical')
     supplier_filter = request.GET.get('supplier')
     status_filter = request.GET.get('status')
+    date_from_str = request.GET.get('date_from')
+    date_to_str = request.GET.get('date_to')
+    owner_filter = request.GET.get('owner')
 
     if search_query:
         items = items.filter(
@@ -2555,7 +2576,8 @@ def exportar_inventario_excel(request):
             Q(sku__icontains=search_query) |
             Q(serial__icontains=search_query) |
             Q(tag__icontains=search_query) |
-            Q(category__name__icontains=search_query)
+            Q(category__name__icontains=search_query) |
+            Q(technical_spec__icontains=search_query)
         )
     if category_filter and category_filter != '0':
         items = items.filter(category__id=category_filter)
@@ -2569,45 +2591,93 @@ def exportar_inventario_excel(request):
         items = items.filter(supplier_id=supplier_filter)
     if status_filter:
         items = items.filter(status=status_filter)
+    if owner_filter:
+        items = items.filter(Q(owner__icontains=owner_filter) | Q(supplier__nombre__icontains=owner_filter))
+    if date_from_str:
+        try:
+            items = items.filter(created_at__date__gte=datetime.strptime(date_from_str, '%Y-%m-%d').date())
+        except ValueError:
+            pass
+    if date_to_str:
+        try:
+            items = items.filter(created_at__date__lte=datetime.strptime(date_to_str, '%Y-%m-%d').date())
+        except ValueError:
+            pass
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Inventario Valorizado"
+    ws.title = "Inventario"
 
     headers = [
-        'SKU', 'Nombre', 'Categoría', 'Tipo', 'Marca', 'Serial', 'TAG', 
-        'Base', 'Proyecto', 'Stock Actual', 'UOM', 'Precio Unitario', 'Valor Total', 'Estado'
+        'Tipo de equipo',
+        'Fecha de creación',
+        'Categoría',
+        'Descripción del artículo',
+        'Especificación técnica',
+        'Marca',
+        'Serial',
+        'TAG',
+        'Unidad de medida',
+        'Largo',
+        'Ancho',
+        'Alto',
+        'Peso',
+        'Stock total',
+        'Proveedor / Propiedad',
+        'Stock disponible',
+        'Estado',
+        'Observaciones',
+        'Ubicación',
+        'Proyecto',
+        'Fecha de última modificación',
+        'Acciones',
     ]
     ws.append(headers)
-    
+
     for cell in ws[1]:
         cell.font = Font(bold=True)
         cell.alignment = Alignment(horizontal='center')
 
     for item in items:
         ws.append([
-            item.sku, item.name, 
-            item.category.name if item.category else 'N/A',
-            item.equipment_type, item.brand, item.serial, item.tag,
-            item.base.nombre if item.base else 'N/A',
-            item.project.name if item.project else 'N/A',
-            item.current_stock, item.unit_of_measure,
-            float(item.unit_price), float(item.current_stock * item.unit_price),
-            item.status
+            item.equipment_type or 'ACTIVO',
+            item.created_at.strftime('%d/%m/%Y %H:%M') if item.created_at else '-',
+            item.category.name if item.category else '-',
+            item.name or '-',
+            item.technical_spec or '-',
+            item.brand or '-',
+            item.serial or '-',
+            item.tag or item.sku or '-',
+            item.unit_of_measure or '-',
+            item.length or 0,
+            item.width or 0,
+            item.height or 0,
+            item.weight or 0,
+            item.current_stock,
+            item.owner or (item.supplier.nombre if item.supplier else 'Petrocentro'),
+            item.current_stock,
+            item.status or 'OPERATIVO',
+            item.description or '-',
+            item.base.nombre if item.base else '-',
+            item.project.name if item.project else '-',
+            item.last_updated.strftime('%d/%m/%Y %H:%M') if item.last_updated else '-',
+            'Editar / Eliminar',
         ])
 
-    # Ajustar ancho de columnas automáticamente
     for col in ws.columns:
         max_length = 0
         column = col[0].column_letter
         for cell in col:
             try:
-                if len(str(cell.value)) > max_length: max_length = len(str(cell.value))
-            except: pass
-        ws.column_dimensions[column].width = max_length + 2
+                if cell.value is None:
+                    continue
+                max_length = max(max_length, len(str(cell.value)))
+            except Exception:
+                pass
+        ws.column_dimensions[column].width = min(max_length + 2, 60)
 
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="reporte_inventario_valorizado_petrocentro.xlsx"'
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument/spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_petrocentro.xlsx"'
     wb.save(response)
     return response
 
@@ -2900,8 +2970,17 @@ def importar_inventario_excel(request):
                 calibration_cost_val = 0.00
 
                 # User's column 13 is "stock total", column 15 is "stock disponible"
-                # We will use "stock disponible" (index 15) for current_stock
-                stock_val = int(clean_float(row_data[15])) if row_data[15] is not None else 0
+                # Prefer the explicit "stock total" when provided (index 13).
+                try:
+                    stock_total_val = int(clean_float(row_data[13])) if row_data[13] is not None else 0
+                except Exception:
+                    stock_total_val = 0
+                # Fallback to "stock disponible" (index 15) when stock total is not present
+                try:
+                    stock_available_val = int(clean_float(row_data[15])) if row_data[15] is not None else 0
+                except Exception:
+                    stock_available_val = 0
+                stock_val = stock_total_val if stock_total_val > 0 else stock_available_val
                 
                 owner_val = clean_str(row_data[14]) # User's column 14 is "PROPIEDAD"
                 status_val = clean_str(row_data[16]) or "OPERATIVO" # User's column 16 is "ESTADO"
@@ -3194,6 +3273,87 @@ def editar_equipo_inventario(request, pk):
     return redirect(f"{reverse('gestion_inventario')}?tab=sede")
 
 @login_required
+def crear_base(request):
+    ctx = obtener_contexto_usuario(request)
+    if not (ctx.get('crear') or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para crear bases.")
+        return redirect('gestion_inventario')
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            try:
+                base = Ubicacion.objects.create(nombre=nombre)
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'success', 'message': f"Base '{nombre}' creada correctamente.", 'base_id': base.idUbicacion})
+                messages.success(request, f"Base '{nombre}' creada correctamente.")
+            except Exception as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'error', 'message': f"Error al crear la base: {e}"}, status=400)
+                messages.error(request, f"Error al crear la base: {e}")
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': "El nombre de la base no puede estar vacío."}, status=400)
+            messages.error(request, "El nombre de la base no puede estar vacío.")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
+def editar_base(request, pk):
+    ctx = obtener_contexto_usuario(request)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+    if not (ctx.get('editar') or request.user.is_superuser):
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': "No tienes permisos para editar bases."}, status=403)
+        messages.error(request, "No tienes permisos para editar bases.")
+        return redirect('gestion_inventario')
+
+    base = get_object_or_404(Ubicacion, pk=pk)
+    if request.method == 'POST':
+        try:
+            base.nombre = request.POST.get('nombre', '').strip()
+            if not base.nombre:
+                raise ValueError("El nombre de la base no puede estar vacío.")
+            base.save()
+            if is_ajax:
+                return JsonResponse({'status': 'success', 'message': f"Base '{base.nombre}' actualizada.", 'base_id': base.idUbicacion})
+            messages.success(request, f"Base '{base.nombre}' actualizada.")
+        except Exception as e:
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': f"Error al actualizar la base: {e}"}, status=400)
+            messages.error(request, f"Error al actualizar la base: {e}")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
+def eliminar_base(request, pk):
+    ctx = obtener_contexto_usuario(request)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+    if not (ctx.get('eliminar') or request.user.is_superuser):
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': "No tienes permisos para eliminar bases."}, status=403)
+        messages.error(request, "No tienes permisos para eliminar bases.")
+        return redirect('gestion_inventario')
+
+    base = get_object_or_404(Ubicacion, pk=pk)
+    nombre = base.nombre
+    try:
+        if InventoryItem.objects.filter(base_id=base.idUbicacion).exists() or Empleado.objects.filter(id_ubicacion_id=base.idUbicacion).exists():
+            raise Exception("No se puede eliminar una base con equipos o empleados asociados.")
+        base.delete()
+        if is_ajax:
+            return JsonResponse({'status': 'success', 'message': f"Base '{nombre}' eliminada.", 'base_id': pk})
+        messages.success(request, f"Base '{nombre}' eliminada.")
+    except Exception as e:
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': f"Error al eliminar la base: {e}"}, status=400)
+        messages.error(request, f"Error al eliminar la base: {e}")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
 def crear_proyecto(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -3262,6 +3422,88 @@ def eliminar_proyecto(request, pk):
         if is_ajax:
             return JsonResponse({'status': 'error', 'message': f"Error al eliminar el proyecto: {e}"}, status=400)
         messages.error(request, f"Error al eliminar el proyecto: {e}")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
+def crear_proveedor(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        nit = request.POST.get('nit')
+        contacto = request.POST.get('contacto')
+        telefono = request.POST.get('telefono')
+        email = request.POST.get('email')
+        direccion = request.POST.get('direccion')
+        if nombre and nit:
+            try:
+                prov = Proveedor.objects.create(nombre=nombre, nit=nit, contacto_nombre=contacto, telefono=telefono, email=email, direccion=direccion)
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'success', 'message': f"Proveedor '{nombre}' creado correctamente.", 'proveedor_id': prov.id})
+                messages.success(request, f"Proveedor '{nombre}' creado correctamente.")
+            except Exception as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'error', 'message': f"Error al crear el proveedor: {e}"}, status=400)
+                messages.error(request, f"Error al crear el proveedor: {e}")
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': "El nombre y NIT son obligatorios."}, status=400)
+            messages.error(request, "El nombre y NIT son obligatorios.")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
+def editar_proveedor(request, pk):
+    ctx = obtener_contexto_usuario(request)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+    if not (ctx.get('editar') or request.user.is_superuser):
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': "No tienes permisos para editar proveedores."}, status=403)
+        messages.error(request, "No tienes permisos para editar proveedores.")
+        return redirect('gestion_inventario')
+
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    if request.method == 'POST':
+        try:
+            proveedor.nombre = request.POST.get('nombre')
+            proveedor.nit = request.POST.get('nit')
+            proveedor.contacto_nombre = request.POST.get('contacto')
+            proveedor.telefono = request.POST.get('telefono')
+            proveedor.email = request.POST.get('email')
+            proveedor.direccion = request.POST.get('direccion')
+            proveedor.save()
+            if is_ajax:
+                return JsonResponse({'status': 'success', 'message': f"Proveedor '{proveedor.nombre}' actualizado.", 'proveedor_id': proveedor.id})
+            messages.success(request, f"Proveedor '{proveedor.nombre}' actualizado.")
+        except Exception as e:
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': f"Error al actualizar el proveedor: {e}"}, status=400)
+            messages.error(request, f"Error al actualizar el proveedor: {e}")
+    return redirect(f"{reverse('gestion_inventario')}?tab=crear")
+
+
+@login_required
+def eliminar_proveedor(request, pk):
+    ctx = obtener_contexto_usuario(request)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+    if not (ctx.get('eliminar') or request.user.is_superuser):
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': "No tienes permisos para eliminar proveedores."}, status=403)
+        messages.error(request, "No tienes permisos para eliminar proveedores.")
+        return redirect('gestion_inventario')
+
+    proveedor = get_object_or_404(Proveedor, pk=pk)
+    nombre = proveedor.nombre
+    try:
+        proveedor.delete()
+        if is_ajax:
+            return JsonResponse({'status': 'success', 'message': f"Proveedor '{nombre}' eliminado.", 'proveedor_id': pk})
+        messages.success(request, f"Proveedor '{nombre}' eliminado.")
+    except Exception as e:
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': f"Error al eliminar el proveedor: {e}"}, status=400)
+        messages.error(request, f"Error al eliminar el proveedor: {e}")
     return redirect(f"{reverse('gestion_inventario')}?tab=crear")
 
 @login_required
@@ -3348,8 +3590,10 @@ def new_record_stock_movement(request):
                 # Lógica de estados automática para Retornos y Salidas a Proyecto
                 if movement_type == 'EXIT' and project:
                     item.status = 'EN PROYECTO'
+                    item.project = project
                 elif movement_type == 'RETURN':
                     item.status = 'OPERATIVO' # Vuelve a estar Disponible
+                    item.project = None
                     if dest_base:
                         item.base = dest_base # Actualizar ubicación física del equipo
                 
@@ -3454,6 +3698,10 @@ def transferir_item_inventario(request):
                     }
                 )
                 item_destino.current_stock += quantity
+                if proyecto_destino:
+                    item_destino.status = 'EN PROYECTO'
+                elif not item_destino.project:
+                    item_destino.status = 'OPERATIVO'
                 item_destino.save()
 
                 # 3. Registrar transacción
@@ -3555,7 +3803,7 @@ def procesar_transferencia(request, request_id):
     else:
         requests_to_process = [base_req]
 
-    action = request.POST.get('action') 
+    action = request.POST.get('action')
     rejection_reason = request.POST.get('rejection_reason', '')
 
     if action == 'reject':
@@ -3575,9 +3823,11 @@ def procesar_transferencia(request, request_id):
                 [base_req.supervisor.correo],
                 fail_silently=True
             )
-        except: pass
+        except:
+            pass
 
-        messages.warning(request, "La solicitud ha sido rechazada.")
+        # Mostrar mensaje de éxito con check cuando el rechazo es procesado correctamente
+        messages.success(request, "✔️ Solicitud rechazada con éxito")
         return redirect(f"{reverse('gestion_inventario')}?tab=requests")
 
     if action == 'approve':
@@ -3643,9 +3893,9 @@ def procesar_transferencia(request, request_id):
                 except Exception as e_pdf:
                     raise Exception(f"Fallo en PDF/Correo: {e_pdf}")
                 
-                # 3. Mostrar mensaje de éxito con botón de descarga para el Admin
-                msg = f'¡Aprobación exitosa! El stock ha sido descontado. <a href="{url_pdf}" id="auto-download-pdf" target="_blank" class="btn btn-sm btn-danger fw-bold ms-2 shadow-sm"><i class="fas fa-file-pdf me-1"></i>DESCARGAR REQUISICIÓN GCL-FR-04</a>'
-                messages.success(request, mark_safe(msg), extra_tags='pdf-ready')
+                # 3. Mostrar mensaje de éxito simple
+                msg = '¡Aprobación exitosa! El stock ha sido descontado.'
+                messages.success(request, msg)
                     
         except Exception as e:
             if is_ajax: return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -3670,13 +3920,41 @@ def descargar_requisicion_pdf(request, batch_id):
         return HttpResponse("Documento de requisición no encontrado.", status=404)
 
     base_req = requests_qs.first()
-    
+    # Resolve logo path: prefer static file system path for xhtml2pdf (file:///) fallback to absolute URL
+    logo_rel = static('images/logo.webp')
+    logo_fs = finders.find('images/logo.webp')
+    if logo_fs:
+        logo_path = 'file:///' + logo_fs.replace('\\', '/')
+    else:
+        logo_path = request.build_absolute_uri(logo_rel)
+    # Additionally embed logo as base64 to avoid xhtml2pdf static path issues
+    logo_data = None
+    try:
+        if logo_fs and os.path.exists(logo_fs):
+            with open(logo_fs, 'rb') as f:
+                raw = f.read()
+            mime = mimetypes.guess_type(logo_fs)[0] or 'image/webp'
+            b64 = base64.b64encode(raw).decode('ascii')
+            logo_data = f'data:{mime};base64,{b64}'
+        else:
+            # try resolving via finders fallback
+            found = finders.find('images/logo.webp')
+            if found and os.path.exists(found):
+                with open(found, 'rb') as f:
+                    raw = f.read()
+                mime = mimetypes.guess_type(found)[0] or 'image/webp'
+                b64 = base64.b64encode(raw).decode('ascii')
+                logo_data = f'data:{mime};base64,{b64}'
+    except Exception:
+        logo_data = None
     context = {
         'requests': requests_qs,
         'base_req': base_req,
         'fecha_aprobacion': base_req.processed_at or timezone.now(),
         'consecutivo': base_req.batch_id[:8] if base_req.batch_id else f"REQ-{base_req.id}",
         'es_compra': True, # Por defecto Compra para equipos de inventario
+        'logo_path': logo_path,
+        'logo_data': logo_data,
     }
 
     # Renderizado del template PDF
@@ -3730,6 +4008,10 @@ def recibir_transferencia(request, request_id):
                     )
 
                     item_destino.current_stock += req.quantity
+                    if req.destination_project:
+                        item_destino.status = 'EN PROYECTO'
+                    else:
+                        item_destino.status = 'OPERATIVO'
                     item_destino.save()
 
                     req.status = 'COMPLETED'

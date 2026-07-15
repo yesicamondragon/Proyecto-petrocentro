@@ -115,3 +115,136 @@ window.onclick = function(e){
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("active-sidebar");
 }
+
+function setupPasswordHelpers() {
+  const passwordInputs = Array.from(document.querySelectorAll('input[type="password"]'));
+  passwordInputs.forEach(input => {
+    if (input.dataset.passwordToggleAttached) return;
+    const existingWrapper = input.closest('.password-input-wrapper');
+    let toggleBtn = existingWrapper ? existingWrapper.querySelector('.password-toggle') : null;
+    if (existingWrapper) {
+      input.dataset.passwordToggleAttached = '1';
+      if (toggleBtn && !toggleBtn.dataset.passwordToggleAttached) {
+        toggleBtn.dataset.passwordToggleAttached = '1';
+        toggleBtn.addEventListener('click', function(event) {
+          event.preventDefault();
+          const icon = this.querySelector('i');
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fa-solid fa-eye-slash';
+          } else {
+            input.type = 'password';
+            icon.className = 'fa-solid fa-eye';
+          }
+        });
+      }
+      return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'password-input-wrapper';
+    const parent = input.parentNode;
+    parent.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    wrapper.style.width = '100%';
+    input.style.paddingRight = '3rem';
+
+    toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'password-toggle';
+    toggleBtn.title = 'Mostrar / Ocultar contraseña';
+    toggleBtn.style.position = 'absolute';
+    toggleBtn.style.top = '50%';
+    toggleBtn.style.right = '0.75rem';
+    toggleBtn.style.transform = 'translateY(-50%)';
+    toggleBtn.style.border = 'none';
+    toggleBtn.style.background = 'transparent';
+    toggleBtn.style.padding = '0.25rem';
+    toggleBtn.style.cursor = 'pointer';
+    toggleBtn.style.zIndex = '2';
+    toggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+    wrapper.appendChild(toggleBtn);
+
+    toggleBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      const icon = this.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    });
+
+    input.dataset.passwordToggleAttached = '1';
+  });
+
+  document.querySelectorAll('form').forEach(form => {
+    const passwordFields = Array.from(form.querySelectorAll('input[type="password"]'));
+    if (passwordFields.length < 2) return;
+
+    const confirmFields = passwordFields.filter(field => /confirm|repeat|again|verif|repetir|2$|new_password2|new-password2/i.test(field.name + ' ' + field.id));
+    confirmFields.forEach(confirmInput => {
+      const possibleOriginals = passwordFields.filter(field => field !== confirmInput && !/confirm|repeat|again|verif|repetir|2$|new_password2|new-password2/i.test(field.name + ' ' + field.id));
+      const originalInput = possibleOriginals.length === 1 ? possibleOriginals[0] : passwordFields.find(field => field !== confirmInput);
+      if (!originalInput) return;
+
+      const status = document.createElement('div');
+      status.className = 'password-match-status';
+      confirmInput.parentNode.insertBefore(status, confirmInput.nextSibling);
+
+      const updateStatus = () => {
+        if (!confirmInput.value && !originalInput.value) {
+          status.textContent = '';
+          confirmInput.setCustomValidity('');
+          return;
+        }
+        if (confirmInput.value === originalInput.value) {
+          status.textContent = 'Las contraseñas coinciden.';
+          status.style.color = '#198754';
+          confirmInput.setCustomValidity('');
+        } else {
+          status.textContent = 'Las contraseñas no coinciden.';
+          status.style.color = '#dc3545';
+          confirmInput.setCustomValidity('Las contraseñas deben coincidir.');
+        }
+      };
+
+      originalInput.addEventListener('input', updateStatus);
+      confirmInput.addEventListener('input', updateStatus);
+
+      form.addEventListener('submit', event => {
+        if (originalInput.value && confirmInput.value && originalInput.value !== confirmInput.value) {
+          event.preventDefault();
+          updateStatus();
+          confirmInput.focus();
+        }
+      });
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setupPasswordHelpers();
+});
+
+document.addEventListener('click', function(event) {
+  const toggleBtn = event.target.closest('.password-toggle');
+  if (!toggleBtn) return;
+  event.preventDefault();
+  const wrapper = toggleBtn.closest('.password-input-wrapper');
+  if (!wrapper) return;
+  const input = wrapper.querySelector('input[type="password"], input[type="text"]');
+  if (!input) return;
+  const icon = toggleBtn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (icon) icon.className = 'fa-solid fa-eye-slash';
+  } else {
+    input.type = 'password';
+    if (icon) icon.className = 'fa-solid fa-eye';
+  }
+});

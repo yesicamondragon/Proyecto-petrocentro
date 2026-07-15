@@ -47,10 +47,10 @@
     <!-- Navegación por Pestañas (Tabs) -->
     <ul class="nav nav-pills mb-4" id="inventoryTabs" role="tablist">
         <li class="nav-item" role="presentation"><button class="nav-link active fw-bold" id="sede-tab" data-bs-toggle="pill" data-bs-target="#tab-sede" type="button" role="tab"><i class="fas fa-warehouse me-2"></i>Inventario General</button></li>
-        {% if crear or request.user.is_superuser %}
+        {% if crear or is_admin %}
         <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="crear-tab" data-bs-toggle="pill" data-bs-target="#tab-crear" type="button" role="tab"><i class="fas fa-plus-circle me-2"></i>Creación de Artículos</button></li>
         {% endif %}
-        {% if consultar or request.user.is_superuser %}
+        {% if consultar or is_admin %}
         <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="movimientos-tab" data-bs-toggle="pill" data-bs-target="#tab-movimientos" type="button" role="tab"><i class="fas fa-exchange-alt me-2"></i>Movimientos de Stock</button></li>
         {% endif %}
         <li class="nav-item" role="presentation">
@@ -63,10 +63,10 @@
                 {% endif %}
             </button>
         </li>
-        {% if request.user.is_superuser or nombre_rol == "ADMINISTRADOR" %}
+        {% if is_admin %}
         <li class="nav-item" role="presentation"><button class="nav-link fw-bold" id="reports-tab" data-bs-toggle="pill" data-bs-target="#tab-reports" type="button" role="tab"><i class="fas fa-file-alt me-2"></i>Reportes Admin</button></li>
         {% endif %}
-        {% if nombre_rol == "ADMINISTRADOR" or request.user.is_superuser %}
+        {% if is_admin %}
         <li class="nav-item ms-auto" role="presentation">
             <a href="{% url 'reiniciar_inventario_data' %}" class="btn btn-outline-danger btn-sm fw-bold border-2" onclick="return confirm('¡ADVERTENCIA CRÍTICA!\n\nEsto eliminará permanentemente todos los equipos (692+), transacciones e historial para empezar de cero.\n\n¿Desea continuar?');"><i class="fas fa-trash-alt me-1"></i>VACIAR INVENTARIO</a>
         </li>
@@ -130,9 +130,9 @@
                     <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i> Filtros y Gestión por Ubicación</h5>
                     <div>
                         {% if crear %}
-                        <button type="button" class="btn btn-success btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalAddItem">
-                            <i class="fas fa-plus me-1"></i> Nuevo Equipo
-                        </button>
+                        <a href="{% url 'exportar_inventario_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-sm rounded-pill px-3 me-2">
+                            <i class="fas fa-file-excel me-1"></i> Exportar tabla a Excel
+                        </a>
                         <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalImportExcel">
                             <i class="fas fa-file-excel me-1"></i> Importar Excel
                         </button>
@@ -143,14 +143,10 @@
                         </button>
                         {% endif %}
                         {% if crear or request.user.is_superuser %}
-                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalRecordMovement">
-                            <i class="fas fa-arrow-up-down me-1"></i> E/S Stock
-                        </button>
+            
                         {% endif %}
                         {% if request.user.is_superuser or nombre_rol == "ADMINISTRADOR" %}
-                        <button type="button" class="btn btn-dark btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalTransferItem">
-                            <i class="fas fa-truck-moving me-1"></i> Trasladar
-                        </button>
+                       
                         {% endif %}
                         {% if crear or request.user.is_superuser %}
                         <button type="button" class="btn btn-info btn-sm rounded-pill px-3 text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#modalReturnProject">
@@ -178,10 +174,9 @@
                             <label for="owner_filter" class="form-label small text-muted">Proveedor / Propiedad</label>
                             <input list="filter_owners_list" class="form-control form-control-sm" id="owner_filter" name="owner" value="{{ filters.owner|default:'' }}" placeholder="Seleccione o manual..." onfocus="this.value=''">
                             <datalist id="filter_owners_list">
-                                <option value="Petrocentro">
-                                <option value="NL Contapa">
-                                <option value="Sepein">
-                                <option value="Tradesering">
+                                {% for prov in proveedores %}
+                                    <option value="{{ prov.nombre }}"></option>
+                                {% endfor %}
                             </datalist>
                         </div>
                         <div class="col-md-2">
@@ -459,50 +454,6 @@
                 </div>
             </div>
 
-            <!-- 2. MÉTRICAS DASHBOARD -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-white fw-bold"><i class="fas fa-fire me-2 text-warning"></i>Más movidos (30d)</div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                {% for tm in top_moved %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center small">
-                                    {{ tm.item__name }} <span class="badge bg-primary rounded-pill">{{ tm.total_qty }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100 border-start border-success border-4 text-center py-3">
-                        <h6 class="text-muted small">Equipos Entrantes (30d)</h6>
-                        <div class="display-6 fw-bold text-success">{{ total_entries_30d }}</div>
-                        <p class="mb-0 small text-muted">Incluye entradas, retornos y ajustes positivos.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100 border-start border-danger border-4 text-center py-3">
-                        <h6 class="text-muted small">Equipos Salientes (30d)</h6>
-                        <div class="display-6 fw-bold text-danger">{{ total_exits_30d }}</div>
-                        <p class="mb-0 small text-muted">Incluye salidas, bajas y ajustes negativos.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100 border-start border-danger border-4 text-center py-3">
-                        <h6 class="text-muted small">Equipos Stock 0</h6>
-                        <div class="display-6 fw-bold text-danger">{{ faltantes_count }}</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 h-100 border-start border-primary border-4 text-center py-3">
-                        <h6 class="text-muted small">Rotación del Mes</h6>
-                        <div class="display-6 fw-bold text-primary">{{ movimientos_mes }}</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- 3. INVENTARIOS INDEPENDIENTES POR SEDE -->
             <div class="row g-3 mb-4">
                 <div class="col-12">
@@ -522,7 +473,7 @@
                                 <span class="fw-bold text-primary">{{ b_sum.total_units|default:0 }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
-                                <span class="fw-bold text-success">${{ b_sum.total_value|default:0|floatformat:2 }}</span>
+                                
                             </div>
                             <hr class="my-2 opacity-25">
                             <div class="text-center">
@@ -581,11 +532,11 @@
                                         {% for g_item in global_summary %}
                                             {% if g_item.category__name == cat.name %}
                                             <tr>
-                                                <td class="ps-4"><code>{{ g_item.sku|default:g_item.description|truncatechars:10 }}</code></td>
-                                                <td><strong>{{ g_item.description }}</strong></td>
+                                                <td class="ps-4"><code>{{ g_item.sku|default:g_item.description|truncatechars:20 }}</code></td>
+                                                <td><strong>{{ g_item.equipment_name }}</strong></td>
                                                 <td class="text-center fw-bold text-primary">{{ g_item.total_empresa }}</td>
                                                 <td class="text-center">
-                                                    <button class="btn btn-sm btn-link" onclick="document.getElementById('search').value='{{ g_item.description|escapejs }}'; document.querySelector('form').submit();">Ver ubicaciones</button>
+                                                    <button class="btn btn-sm btn-link" onclick="verUbicacion('{{ g_item.search_key|escapejs }}','{{ g_item.base_chichimene_id|default:g_item.base_mocoa_id|default:g_item.base_sibate_id|default:'' }}')">Ver ubicación</button>
                                                 </td>
                                             </tr>
                                             {% endif %}
@@ -739,10 +690,9 @@
                                 <label class="form-label fw-bold">PROPIEDAD / PROVEEDOR</label>
                                 <input list="owners_list_tab" name="owner" class="form-control" placeholder="Seleccione o escriba manual..." onfocus="this.value=''">
                                 <datalist id="owners_list_tab">
-                                    <option value="Petrocentro">
-                                    <option value="NL Contapa">
-                                    <option value="Sepein">
-                                    <option value="Tradesering">
+                                    {% for prov in proveedores %}
+                                        <option value="{{ prov.nombre }}"></option>
+                                    {% endfor %}
                                 </datalist>
                             </div>
                         </div>
@@ -879,6 +829,120 @@
                     </div>
                 </div>
             </div> {# Cierre de mt-5 pt-4 border-top #}
+            <!-- SECCIÓN: GESTIÓN DE PROVEEDORES (Debajo del Catálogo de Proyectos) -->
+            <div class="mt-4">
+                <h5 class="text-dark fw-bold mb-4"><i class="fas fa-truck me-2 text-primary"></i>Gestión de Proveedores</h5>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-primary text-white fw-bold">Nuevo Proveedor</div>
+                            <div class="card-body">
+                                <form action="{% url 'crear_proveedor' %}" method="POST" onsubmit="return confirm('¿Registrar proveedor?');">
+                                    {% csrf_token %}
+                                    <div class="mb-2">
+                                        <label class="form-label small">Nombre</label>
+                                        <input type="text" name="nombre" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">NIT / Identificación</label>
+                                        <input type="text" name="nit" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Contacto</label>
+                                        <input type="text" name="contacto" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-2 row g-2">
+                                        <div class="col-6"><input type="text" name="telefono" class="form-control form-control-sm" placeholder="Teléfono"></div>
+                                        <div class="col-6"><input type="email" name="email" class="form-control form-control-sm" placeholder="Email"></div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <input type="text" name="direccion" class="form-control form-control-sm" placeholder="Dirección">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Registrar Proveedor</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-0">
+                                <table class="table table-hover table-sm mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Proveedor</th>
+                                            <th>NIT</th>
+                                            <th>Contacto</th>
+                                            <th class="text-end pe-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for prov in proveedores %}
+                                        <tr>
+                                            <td class="ps-3 fw-bold">{{ prov.nombre }}</td>
+                                            <td>{{ prov.nit }}</td>
+                                            <td>{{ prov.contacto_nombre|default:'-' }}</td>
+                                            <td class="text-end pe-3">
+                                                <button class="btn btn-sm btn-link text-warning" onclick="abrirModalEditarProveedor('{{ prov.id }}','{{ prov.nombre|escapejs }}','{{ prov.nit|escapejs }}','{{ prov.contacto_nombre|default:''|escapejs }}','{{ prov.telefono|default:''|escapejs }}','{{ prov.email|default:''|escapejs }}','{{ prov.direccion|default:''|escapejs }}')"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-link text-danger" onclick="eliminarProveedorAjax('{{ prov.id }}', '{{ prov.nombre|escapejs }}')"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: GESTIÓN DE BASES -->
+            <div class="mt-4 pt-4 border-top">
+                <h5 class="text-dark fw-bold mb-4"><i class="fas fa-building me-2 text-primary"></i>Gestión de Bases</h5>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-primary text-white fw-bold">Nueva Base</div>
+                            <div class="card-body">
+                                <form action="{% url 'crear_base' %}" method="POST" onsubmit="return confirm('¿Registrar nueva base?');">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label small">Nombre de la base</label>
+                                        <input type="text" name="nombre" class="form-control form-control-sm" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Registrar Base</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-0">
+                                <table class="table table-hover table-sm mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Base</th>
+                                            <th class="text-end pe-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for base in bases %}
+                                        <tr>
+                                            <td class="ps-3 fw-bold">{{ base.nombre }}</td>
+                                            <td class="text-end pe-3">
+                                                <button class="btn btn-sm btn-link text-warning" onclick="abrirModalEditarBase('{{ base.idUbicacion }}', '{{ base.nombre|escapejs }}')"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-link text-danger" onclick="eliminarBaseAjax('{{ base.idUbicacion }}', '{{ base.nombre|escapejs }}')"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr><td colspan="2" class="text-center py-3 text-muted">No hay bases registradas.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div> {# Cierre de tab-crear #}
 
         <!-- PESTAÑA: MOVIMIENTOS DE STOCK (Consolidada) -->
@@ -1031,7 +1095,20 @@
                                                 <i class="fas fa-eye me-1"></i> Ver detalle
                                             </button>
                                         </td>
-                                        <td class="text-muted small"><em>"{{ data.reason }}"</em></td>
+                                        <td class="text-muted small">
+                                            <button class="btn btn-sm btn-link p-0" onclick="mostrarDetalleHist('{{ batch_id }}')" title="Ver motivo completo">👁️</button>
+                                            <div id="history_detail_{{ batch_id }}" style="display:none;">
+                                                <strong>Motivo:</strong>
+                                                <div class="small text-muted">{{ data.reason|default:'-' }}</div>
+                                                <hr/>
+                                                <strong>Ítems solicitados:</strong>
+                                                <ul class="small">
+                                                    {% for r in data.requested_items %}
+                                                        <li>{{ r.quantity }} x {{ r.item.name }} (SKU: {{ r.item.sku }}){% if r.admin_notes %} - Nota Admin: {{ r.admin_notes }}{% endif %}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             {% if is_supervisor or is_admin %}
                                             <button type="button" class="btn btn-sm btn-success fw-bold px-3 shadow-sm" onclick="abrirModalRecibir('{% url 'recibir_transferencia' data.id %}', 'Lote: {{ batch_id }}')"
@@ -1137,7 +1214,20 @@
                                             {% endif %}
                                         </td>
                                         <td class="small">{{ data.processed_by.nombre|default:"-" }}</td>
-                                        <td class="small text-muted"><em>"{{ data.reason|truncatechars:30 }}"</em></td>
+                                        <td class="small text-muted">
+                                            <button class="btn btn-sm btn-link p-0" onclick="mostrarDetalleHist('{{ batch_id }}')" title="Ver motivo completo">👁️</button>
+                                            <div id="history_detail_hist_{{ batch_id }}" style="display:none;">
+                                                <strong>Motivo:</strong>
+                                                <div class="small text-muted">{{ data.reason|default:'-' }}</div>
+                                                <hr/>
+                                                <strong>Ítems solicitados:</strong>
+                                                <ul class="small">
+                                                    {% for r in data.requested_items %}
+                                                        <li>{{ r.quantity }} x {{ r.item.name }} (SKU: {{ r.item.sku }}){% if r.admin_notes %} - Nota Admin: {{ r.admin_notes }}{% endif %}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {% empty %}
                                     <tr><td colspan="7" class="text-center py-3 text-muted">No se registran solicitudes anteriores en tu historial.</td></tr>
@@ -1572,10 +1662,9 @@
                             <label class="form-label">Propiedad / Proveedor</label>
                             <input list="owners_list_modal" name="owner" class="form-control" placeholder="Seleccione o escriba manual..." onfocus="this.value=''">
                             <datalist id="owners_list_modal">
-                                <option value="Petrocentro">
-                                <option value="NL Contapa">
-                                <option value="Sepein">
-                                <option value="Tradesering">
+                                {% for prov in proveedores %}
+                                    <option value="{{ prov.nombre }}"></option>
+                                {% endfor %}
                             </datalist>
                         </div>
                     </div>
@@ -1743,8 +1832,9 @@
                         <input type="number" name="received_quantity" class="form-control" min="1" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Novedades (Opcional)</label>
-                        <textarea name="incidents" class="form-control" rows="3" placeholder="Ej: Empaque dañado, faltan 2 unidades, etc."></textarea>
+                        <label class="form-label fw-bold"><i class="fas fa-comment-dots me-2 text-warning"></i>Descripción de Recepción <span class="text-danger">*</span></label>
+                        <textarea name="incidents" class="form-control" rows="3" placeholder="Indique el estado de la recepción. Ej: Se recibió completo ✓ | Se recibieron solo 5 de 10 equipos | Empaque dañado, equipos OK" required></textarea>
+                        <small class="text-muted d-block mt-1">Especifique si se recibió completo o si faltaron equipos</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -2100,6 +2190,57 @@ function seleccionarEquipoDesdeNavegador(id, baseId) {
         </div>
     </div>
 </div>
+
+        <!-- Modal para Mostrar Detalle de Historial (Motivo completo) -->
+        <div class="modal fade" id="modalShowHistoryDetail" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Detalle de Solicitud</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="showHistoryDetailBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Proveedor -->
+        <div class="modal fade" id="modalEditProveedor" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="formEditProveedor" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header bg-warning text-dark">
+                            <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Editar Proveedor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Nombre</label>
+                                <input type="text" name="nombre" id="edit_proveedor_nombre" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">NIT</label>
+                                <input type="text" name="nit" id="edit_proveedor_nit" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Contacto</label>
+                                <input type="text" name="contacto" id="edit_proveedor_contacto" class="form-control">
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6"><input type="text" name="telefono" id="edit_proveedor_telefono" class="form-control" placeholder="Teléfono"></div>
+                                <div class="col-6"><input type="email" name="email" id="edit_proveedor_email" class="form-control" placeholder="Email"></div>
+                            </div>
+                            <div class="mb-2"><input type="text" name="direccion" id="edit_proveedor_direccion" class="form-control" placeholder="Dirección"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 {% endif %}
 
 <!-- Modal para Importación Masiva -->
@@ -2794,10 +2935,9 @@ function abrirModalEditar(data) {
                 <label class="form-label fw-bold">PROPIEDAD / PROVEEDOR</label>
                 <input list="owners_list_edit" name="owner" class="form-control" value="${data.owner}" onfocus="this.value=''">
                 <datalist id="owners_list_edit">
-                    <option value="Petrocentro">
-                    <option value="NL Contapa">
-                    <option value="Sepein">
-                    <option value="Tradesering">
+                    {% for prov in proveedores %}
+                        <option value="{{ prov.nombre }}"></option>
+                    {% endfor %}
                 </datalist>
             </div>
             <div class="col-md-3 mb-3">
@@ -3174,6 +3314,54 @@ function filterItemsByProject(projectId) {
     });
     itemSelect.value = ""; // Resetear selección al cambiar proyecto
     if (window.jQuery && $(itemSelect).data('select2')) $(itemSelect).trigger('change');
+}
+
+function abrirModalEditarBase(id, nombre) {
+    const form = document.getElementById('formEditBase');
+    form.action = `/inventario/bases/editar/${id}/`;
+    document.getElementById('edit_base_nombre').value = nombre;
+    new bootstrap.Modal(document.getElementById('modalEditBase')).show();
+}
+
+function eliminarBaseAjax(id, nombre) {
+    if (!confirm(`¿Eliminar base "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    window.location.href = `/inventario/bases/eliminar/${id}/?tab=crear`;
+}
+
+function abrirModalEditarProveedor(id, nombre, nit, contacto, telefono, email, direccion) {
+    const form = document.getElementById('formEditProveedor');
+    form.action = `/inventario/proveedores/editar/${id}/`;
+    document.getElementById('edit_proveedor_nombre').value = nombre;
+    document.getElementById('edit_proveedor_nit').value = nit;
+    document.getElementById('edit_proveedor_contacto').value = contacto;
+    document.getElementById('edit_proveedor_telefono').value = telefono;
+    document.getElementById('edit_proveedor_email').value = email;
+    document.getElementById('edit_proveedor_direccion').value = direccion;
+    new bootstrap.Modal(document.getElementById('modalEditProveedor')).show();
+}
+
+function eliminarProveedorAjax(id, nombre) {
+    if (!confirm(`¿Eliminar proveedor "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    window.location.href = `/inventario/proveedores/eliminar/${id}/?tab=crear`;
+}
+
+function mostrarDetalleHist(batch_id) {
+    // Buscar detalle en dos posibles IDs (incoming y processed history)
+    let el = document.getElementById('history_detail_' + batch_id);
+    if (!el) el = document.getElementById('history_detail_hist_' + batch_id);
+    if (!el) return alert('Detalle no encontrado.');
+    document.getElementById('showHistoryDetailBody').innerHTML = el.innerHTML;
+    new bootstrap.Modal(document.getElementById('modalShowHistoryDetail')).show();
+}
+
+function verUbicacion(searchKey, baseId) {
+    const q = (searchKey && searchKey.trim() !== '') ? searchKey : '';
+    const baseUrl = '{% url "gestion_inventario" %}';
+    const params = new URLSearchParams();
+    if (q) params.set('search', q);
+    if (baseId) params.set('base', baseId);
+    params.set('tab', 'sede');
+    window.location.href = `${baseUrl}?${params.toString()}`;
 }
 </script>
 

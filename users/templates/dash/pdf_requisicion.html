@@ -24,7 +24,13 @@
     <table>
         <tr>
             <td rowspan="4" style="width: 20%; text-align: center; vertical-align: middle;">
-                <strong style="color: #0b6838; font-size: 14px;">PETROCENTRO</strong><br><small>S.A.S</small>
+                {% if logo_data %}
+                    <img src="{{ logo_data }}" alt="Petrocentro" style="max-width:140px; display:block; margin:0 auto 4px;">
+                {% elif logo_path %}
+                    <img src="{{ logo_path }}" alt="Petrocentro" style="max-width:140px; display:block; margin:0 auto 4px;">
+                {% endif %}
+                <div style="color: #0b6838; font-size: 12px; font-weight: 700;">PETROCENTRO</div>
+                <div style="font-size: 9px;">S.A.S</div>
             </td>
             <td rowspan="4" class="header-title" style="width: 50%;">REQUISICIÓN DE COMPRA O SERVICIO</td>
             <td class="label">Código:</td>

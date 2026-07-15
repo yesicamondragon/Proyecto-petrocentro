@@ -65,17 +65,22 @@ def menu_data(request):
             nombre_rol = empleado_profile.id_rol.nombre.strip().upper() # Normalize once
             permisos_qs = Rol_permiso.objects.filter(rol=empleado_profile.id_rol)
             permisos = obtener_permisos(permisos_qs)
+            if nombre_rol == "ADMINISTRADOR":
+                permisos = {
+                    'crear': 1, 'consultar': 1, 'editar': 1,
+                    'eliminar': 1, 'usuarios': 1, 'inventario': 1
+                }
 
         # Determinar la URL del Dashboard principal según el rol para el menú
-        if request.user.is_superuser or nombre_rol == "ADMINISTRADOR":
+        if request.user.is_superuser or nombre_rol.startswith("ADMINISTRADOR"):
             dashboard_home = 'perfil_admin'
         else:
             dashboard_home = 'perfil_empleado'
 
         # Banderas de visibilidad lógica
         # Banderas de visibilidad lógica (Cálculo robusto y unificado)
-        is_admin = (nombre_rol == "ADMINISTRADOR") or request.user.is_superuser
-        is_supervisor = (nombre_rol == "SUPERVISOR") or request.user.is_superuser
+        is_admin = nombre_rol.startswith("ADMINISTRADOR") or request.user.is_superuser
+        is_supervisor = nombre_rol.startswith("SUPERVISOR") or request.user.is_superuser
         has_profile = empleado_profile is not None
 
         return {
